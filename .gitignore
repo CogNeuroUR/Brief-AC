@@ -1,0 +1,14 @@
+# Ignore all .DS_Store
+*.DS_Store
+# Matlab variables
+*.mat
+# Ignore Matlab's autosave files
+*.asv
+
+# Old-s
+~old/
+
+# Python and Jupyter
+.ipynb_checkpoints
+__pycache__
+*.pyc
