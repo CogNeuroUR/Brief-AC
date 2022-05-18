@@ -103,13 +103,12 @@ for i = 1:atrial.startRTonPage-1
     else
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
+        
         % Draw fixation disk
-        if (i > 1) && (i < 5) % TODO : replace with "end"
+        %if (i > 1) && (i < 5) % show cross on all, but the probe screen
+        if i == 1 % cross only on first page
           drawFixDisk(windowPtr, Cfg)
         end
-        
-        
-        
 
         
         %PRESERVE BACK BUFFER IF THIS TEXTURE IS TO BE SHOWN
@@ -173,19 +172,20 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
-        % Draw probe text (only on the last page)
 
+        % Draw probe text (only on the last page)
         % TODO : drawProbeText() doesn't seem to work (at least visibly
         % there is no text visible on screen.
         % Draw probe text
-
         if (i == 5)
           [~, Probe] = decodeProbe(atrial.code, Cfg.factorialStructure, ...
                                           Cfg.factorProbeTypes, Cfg.factorProbes);
           tstring = upper(Probe);
+          
           drawProbeText(windowPtr, Cfg, convertStringsToChars(tstring));
-          %DrawFormattedText(windowPtr, convertStringsToChars(tstring), Cfg.report.x, Cfg.report.y+20, [255 255 255]);  
+          %drawProbeTextLong(windowPtr, Cfg, convertStringsToChars(tstring));
         end
+
 
         %DO NOT PUT THIS PAGE AGAIN ON THE BACKBUFFER, WE WILL WAIT IT OUT
         %USING THE TIMER NOT FLIPPING
@@ -477,6 +477,45 @@ function drawProbeText(window, Cfg, tstring)
 
   % Draw text
   DrawFormattedText(window, tstring, 'center', 'center', Cfg.report.textColor); 
+  % Flip to the screen
+  %Screen('Flip', window);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function drawProbeTextLong(window, Cfg, tstring)
+  % Draws a complex (text) probe on screen (as in Hafri et al. 2013)
+  % 
+  % Did you see
+  % "office"?
+  %
+  % [Yes]   [No]
+  
+  % Default parameters:
+  % 1) Size
+  Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
+  %Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  
+  % 2) Font
+  Screen('TextFont', window, Cfg.Messages.TextFont);
+  
+  % Get the centre coordinate of the window
+  %xCenter = Cfg.report.x;
+  %yCenter = Cfg.report.y;
+  [xCenter, yCenter] = RectCenter(Cfg.Screen.rect);
+
+  % Set up alpha-blending for smooth (anti-aliased) lines (seems necessary!)
+  Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+
+  % Draw question's prefix
+  question = 'Did you see';
+  DrawFormattedText(window, question, 'center', yCenter-100, Cfg.report.textColor);
+  % Draw suffix
+  suffix = ['"' tstring '"?'];
+  DrawFormattedText(window, suffix, 'center', 'center', Cfg.report.textColor);
+
+  % Draw response keys
+  DrawFormattedText(window, 'Yes', round(Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.report.textColor);
+  DrawFormattedText(window, 'No', round(2*Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.report.textColor);
   % Flip to the screen
   %Screen('Flip', window);
 end

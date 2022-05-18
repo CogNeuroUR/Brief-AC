@@ -139,7 +139,7 @@ TRD = addEndTrial(TRD, info.endTrial);
 
 %% Add onset jitter
 jitt_shortest = 0.5; % in seconds
-jitt_longest = 3; % in seconds
+jitt_longest = 2; % in seconds
 type = 'geometric';
 step = 0.5; % in seconds
 TRD = addBlankJitter(TRD, type, jitt_shortest, jitt_longest, step);
