@@ -46,17 +46,25 @@ Cfg.endTrialCode = 1002;
 Cfg.prepTrialCode = 1003;
 
 Cfg.pauseTrialCode = 1001;
-Cfg.pauseDurationMax = 10; % IN SECONDS!
+Cfg.pauseDurationMax = 30; % IN SECONDS!
 
 %==========================================================================
 % REPORT SCREEN PARAMETERS
 %==========================================================================
-Cfg.report.message = 'Type your description:';
-Cfg.report.textColor = [175 175 175]; % light gray [255 255 255];
-Cfg.report.bgColor = [0 0 0]; % black
-Cfg.report.useKbCheck=0;
-Cfg.report.maxNumChar=52; % ~2 x albhabet
-Cfg.report.vLineSpacing = 2;
+params_exp = split(expName, '_');
+keyYes = params_exp(end);
+disp(keyYes);
+if ~ismember(keyYes, {'left', 'right'})
+  error('Given key name (last element in "expName") is neither "left" or "right"!')
+end
+
+%Cfg.probe.message = 'Type your description:';
+Cfg.probe.textColor = [175 175 175]; % light gray [255 255 255];
+Cfg.probe.bgColor = [0 0 0]; % black
+Cfg.probe.useKbCheck=0;
+Cfg.probe.maxNumChar=52; % ~2 x albhabet
+Cfg.probe.vLineSpacing = 2;
+Cfg.probe.keyYes = keyYes;
 % NOTE: rest of parameters are defined after "switch Cfg.environment"
 %==========================================================================
 
@@ -115,8 +123,8 @@ end
 [xCenter, yCenter] = RectCenter(Cfg.Screen.rect);
 widthRect = RectWidth(Cfg.Screen.rect);
 heightRect = RectHeight(Cfg.Screen.rect);
-Cfg.report.x = widthRect/3.5;
-Cfg.report.y = heightRect/3.5;
+Cfg.probe.x = widthRect/3.5;
+Cfg.probe.y = heightRect/3.5;
 %==========================================================================
 % OTHER APPEARANCE PARAMETERS
 %==========================================================================
@@ -126,6 +134,7 @@ Cfg.Messages.SizeTxtMid = round(45 * Hratio2fhd); % 50 for full screen (FHD)
 Cfg.Messages.TextFont = 'Verdana';
 
 %==========================================================================
+
 %ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB%02d_%02d_%s.trd', subjectID, runNum, expName), sprintf('SUB%02d_%02d_%s', subjectID, runNum, expName), Cfg)
 ExpInfo = ASF(Cfg.stimDefName, sprintf('%s.trd', expName), sprintf('result_%s', expName), Cfg)
     

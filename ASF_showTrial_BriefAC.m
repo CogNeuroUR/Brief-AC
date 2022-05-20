@@ -209,7 +209,32 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         pageDuration_in_sec =...
             atrial.pageDuration(i)*Cfg.Screen.monitorFlipInterval;
          
+
+        % Start screen
+        if atrial.code == Cfg.startTrialCode
+          fprintf('\tSTART SCREEN\n');
+          WaitToStartScreen(windowPtr, Cfg, round(pageDuration_in_sec));
+        end
+
+        % Preparation trial
+        if atrial.code == Cfg.prepTrialCode
+          fprintf('\tPREP SCREEN\n');
+          PreparationScreen(windowPtr, Cfg, round(pageDuration_in_sec));
+        end 
+
+        % Pause screen
+        if atrial.code == Cfg.pauseTrialCode
+          PauseScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
+          WaitSecs(1); % wait 1s to give time to participant
+        end
         
+        % End screen
+        if atrial.code == Cfg.endTrialCode
+          EndScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
+        end
+
+        
+
         [x, y, buttons, t0, t1] =...
             ASF_waitForResponse(Cfg, pageDuration_in_sec - toleranceSec);
         
@@ -232,29 +257,7 @@ for i = atrial.startRTonPage:atrial.endRTonPage
           %COMPUTE RESPONSE TIME
           this_response.RT = (t1 - StartRTMeasurement)*1000; 
         end
-      
-        % Start screen
-        if atrial.code == Cfg.startTrialCode
-          fprintf('\tSTART SCREEN\n');
-          WaitToStartScreen(windowPtr, Cfg, round(pageDuration_in_sec));
-        end
-        
-        % Preparation trial
-        if atrial.code == Cfg.prepTrialCode
-          fprintf('\tPREP SCREEN\n');
-          PreparationScreen(windowPtr, Cfg, round(pageDuration_in_sec));
-        end 
-
-        % Pause screen
-        if atrial.code == Cfg.pauseTrialCode
-          PauseScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
-        end
-        
-        % End screen
-        if atrial.code == Cfg.endTrialCode
-          EndScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
-        end
-        
+            
 
 %         if any(buttons)
 %             % ShowCursor
@@ -473,14 +476,14 @@ function drawProbeText(window, Cfg, tstring)
   Screen('TextFont', window, Cfg.Messages.TextFont);
   
   % Get the centre coordinate of the window
-  %xCenter = Cfg.report.x;
-  %yCenter = Cfg.report.y;
+  %xCenter = Cfg.probe.x;
+  %yCenter = Cfg.probe.y;
 
   % Set up alpha-blending for smooth (anti-aliased) lines (seems necessary!)
   Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 
   % Draw text
-  DrawFormattedText(window, tstring, 'center', 'center', Cfg.report.textColor); 
+  DrawFormattedText(window, tstring, 'center', 'center', Cfg.probe.textColor); 
   % Flip to the screen
   %Screen('Flip', window);
 end
@@ -503,8 +506,8 @@ function drawProbeTextLong(window, Cfg, tstring)
   Screen('TextFont', window, Cfg.Messages.TextFont);
   
   % Get the centre coordinate of the window
-  %xCenter = Cfg.report.x;
-  %yCenter = Cfg.report.y;
+  %xCenter = Cfg.probe.x;
+  %yCenter = Cfg.probe.y;
   [xCenter, yCenter] = RectCenter(Cfg.Screen.rect);
 
   % Set up alpha-blending for smooth (anti-aliased) lines (seems necessary!)
@@ -512,14 +515,14 @@ function drawProbeTextLong(window, Cfg, tstring)
 
   % Draw question's prefix
   question = 'Did you see';
-  DrawFormattedText(window, question, 'center', yCenter-100, Cfg.report.textColor);
+  DrawFormattedText(window, question, 'center', yCenter-100, Cfg.probe.textColor);
   % Draw suffix
   suffix = ['"' tstring '"?'];
-  DrawFormattedText(window, suffix, 'center', 'center', Cfg.report.textColor);
+  DrawFormattedText(window, suffix, 'center', 'center', Cfg.probe.textColor);
 
   % Draw response keys
-  DrawFormattedText(window, 'Yes', round(Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.report.textColor);
-  DrawFormattedText(window, 'No', round(2*Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.report.textColor);
+  DrawFormattedText(window, 'Yes', round(Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.probe.textColor);
+  DrawFormattedText(window, 'No', round(2*Cfg.Screen.rect(3)/3), round(2*Cfg.Screen.rect(4)/3), Cfg.probe.textColor);
   % Flip to the screen
   %Screen('Flip', window);
 end
@@ -561,18 +564,56 @@ function PauseScreen(window, Cfg, tmax)
   [xCenter, yCenter] = RectCenter(Cfg.Screen.rect);
 
   % Draw text in the middle of the screen in Courier in white
-  Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
   Screen('TextFont', window, Cfg.Messages.TextFont);
-  DrawFormattedText(window, 'Time for a short break!', 'center', 'center', [255 255 255]);
 
-  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
-  DrawFormattedText(window, 'When ready, press "Space".', 'center',...
-      screenYpixels * 0.75, [128 128 128]);
+  % Suppress echo to the command line for keypresses
+  ListenChar(2);
 
-  % Flip to the screen
-  Screen('Flip', window);
+  spaceKey = KbName('space'); 
+  pressed = false; 
 
-  waitForSpacekey(tmax)
+  RestrictKeysForKbCheck([spaceKey]);
+
+  % Countdown : Wait tmax
+  tStart = GetSecs;
+  t_left = tmax;
+  %wait = true;
+  while true
+    % Countdown
+    if t_left > 0
+      Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
+      DrawFormattedText(window, 'Time for a short break!', 'center', 'center', [255 255 255]);
+      tstring = sprintf('Time left : %d seconds.', t_left);
+      Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+      DrawFormattedText(window, tstring, 'center', screenYpixels * 0.75, [128 128 128]);
+      DrawFormattedText(window, 'When ready, press and hold "Space bar" .', 'center',...
+                        screenYpixels * 0.85, [128 128 128]);
+      
+      % Flip to the screen
+      Screen('Flip', window);
+    
+      % decrement
+      t_left = t_left - 1;
+      WaitSecs(1);
+    end
+    
+    % Check if any unrestricted key (spaceKey here) was pressed
+    WaitSecs(0.1);
+    [keyIsDown, keyTime, keyCode] = KbCheck;
+    
+    % Break if no key was pressed until "the end of time"
+    if(keyIsDown), break; end
+         
+    % Break if no key was pressed until "the end of time"
+    if (GetSecs - tStart) > tmax, break; end
+
+  end
+
+  % reset the keyboard input checking for all keys
+  %RestrictKeysForKbCheck; % calling it like that prevents further input check
+  RestrictKeysForKbCheck([]);
+  % re-enable echo to the command line for key presses (Ctrl+C if not)
+  ListenChar(1)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -632,8 +673,14 @@ function WaitToStartScreen(window, Cfg, tmax)
   Screen('TextFont', window, Cfg.Messages.TextFont);
   DrawFormattedText(window, 'Welcome!', 'center', round(heightRect/3), [255 255 255]);
   
-  DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]);
-  DrawFormattedText(window, 'NO : Right Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+  if ismember(Cfg.probe.keyYes, {'left'})
+    DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]);
+    DrawFormattedText(window, 'NO : Right Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+  else
+    fprintf('YES key : right');
+    DrawFormattedText(window, 'YES : Right Arrow', 'center', screenYpixels * 0.5, [255 255 255]);
+    DrawFormattedText(window, 'NO : Left Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+  end
 
   DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
                     screenYpixels * 0.80, [128 128 128]);
@@ -673,6 +720,33 @@ function PreparationScreen(window, Cfg, tmax)
     % Break if no key was pressed until "the end of time"
     if (GetSecs - tStart) > tmax, wait=false; break; end
   end
+end
+
+function pressed = checkForSpaceKey()
+  % Suppress echo to the command line for keypresses
+  ListenChar(2);
+  
+  spaceKey = KbName('space'); 
+  pressed = false; 
+
+  RestrictKeysForKbCheck([spaceKey]);
+
+  tStart = GetSecs;
+  while ~pressed
+    WaitSecs(0.1);
+    
+    % Check if any unrestricted key (spaceKey here) was pressed
+    [keyIsDown, keyTime, keyCode] = KbCheck;
+    
+    % Break if key was pressed
+    if(keyIsDown), pressed=true; break; end
+  end
+
+  % reset the keyboard input checking for all keys
+  %RestrictKeysForKbCheck; % calling it like that prevents further input check
+  RestrictKeysForKbCheck([]);
+  % re-enable echo to the command line for key presses (Ctrl+C if not)
+  ListenChar(1)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
