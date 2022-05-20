@@ -13,6 +13,7 @@ KbName('UnifyKeyNames')
 Cfg = [];
 Cfg.environment = 'OV_DELL';
 Cfg.userSuppliedTrialFunction = @ASF_showTrial_BriefAC;
+Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 
 %==========================================================================
 % FACTORIAL DESIGN
@@ -33,15 +34,16 @@ Cfg.factorialStructure = [length(Cfg.factorProbeTypes) length(Cfg.factorProbes) 
 %==========================================================================
 Cfg.diskColor = [64 64 64]; % dim gray [105 105 105]; % light gray  [0 0 0]; % black
 Cfg.crossColor = [255 255 255]; % white
-Cfg.fixCrossDimPix = 28*.75; % size of the cross arms
-Cfg.fixLineWidthPix = 7.37; % width of cross arms (>7.37 crashes on Ubuntu)
-Cfg.fixDiskRadius = 33*.75; % radius of disk
+Cfg.fixCrossDimPix = 28*.5; %28*.75; % size of the cross arms
+Cfg.fixLineWidthPix = 4; %7.37; % width of cross arms (>7.37 crashes on Ubuntu)
+Cfg.fixDiskRadius =33*.5;  %33*.75; % radius of disk
 
 %==========================================================================
 % Special Trials' codes
 %==========================================================================
 Cfg.startTrialCode = 1000;
 Cfg.endTrialCode = 1002;
+Cfg.prepTrialCode = 1003;
 
 Cfg.pauseTrialCode = 1001;
 Cfg.pauseDurationMax = 10; % IN SECONDS!
@@ -72,36 +74,19 @@ switch Cfg.environment
     Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
-  case 'OV_TP_LNX'
-    % Tested on Ubuntu 20.04
-    Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
-    Cfg.responseDevice = 'KEYBOARD';
-    Cfg.enabledKeys = [114, 115, 66]; % LEFT & RIGHT ARROW
-    %{
-    Cfg.enabledKeys = [KbName('LeftArrow'),...
-                       KbName('RightArrow'),...
-                       KbName('space')]; % LEFT & RIGHT ARROWS + SPACE
-    %}
-    Cfg.useTrialOnsetTimes = 0;
-    %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
-    %Cfg.Screen.rect = [1, 1, 640, 400]; % part
-    %Cfg.Screen.rect = [1, 1, 1280, 800]; % part
-    Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
-    Cfg.stimDefName = 'stimdef.std';
-    Cfg.Fixation = [];
-    Cfg.Fixation.fixType = 1;
-
-  case 'OV_TP_LNX_2'
+  
+  case 'OV_TP'
     % Tested on Ubuntu 20.04
     Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
     Cfg.responseDevice = 'KEYBOARD';
     Cfg.enabledKeys = [KbName('LeftArrow'), KbName('RightArrow'),...
                        KbName('Return'), KbName('Space')];
     Cfg.useTrialOnsetTimes = 0;
-    %Cfg.Screen.rect = [1, 5, 1000, 5 + 600];
-    %Cfg.Screen.rect = [1, 5, 600, 5 + 400];
-    %Cfg.Screen.rect = [1, 400, 1280, 400 + 800]; % part
-    Cfg.Screen.rect = [0, 0, 2560, 1440]; % full screen
+    %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
+    %Cfg.Screen.rect = [1, 1, 640, 400]; % part
+    %Cfg.Screen.rect = [1, 1, 1280, 800]; % part
+    Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
+    %Cfg.Screen.rect = [0, 0, 2560, 1440]; % second screen
     Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
@@ -110,12 +95,9 @@ switch Cfg.environment
     % Tested on Ubuntu 20.04
     Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
     Cfg.responseDevice = 'KEYBOARD';
+    Cfg.enabledKeys = [KbName('LeftArrow'), KbName('RightArrow'),...
+                       KbName('Return'), KbName('Space')];
     Cfg.enabledKeys = [114, 115, 66]; % LEFT & RIGHT ARROW
-    %{
-    Cfg.enabledKeys = [KbName('LeftArrow'),...
-                       KbName('RightArrow'),...
-                       KbName('space')]; % LEFT & RIGHT ARROWS + SPACE
-    %}
     Cfg.useTrialOnsetTimes = 0;
     %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
     %Cfg.Screen.rect = [1, 1, 640, 400]; % part
