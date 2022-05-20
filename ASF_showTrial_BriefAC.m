@@ -209,55 +209,59 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         pageDuration_in_sec =...
             atrial.pageDuration(i)*Cfg.Screen.monitorFlipInterval;
          
+        %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        % Special trials
+        if atrial.code > 999
+          % Start screen
+          if atrial.code == Cfg.startTrialCode
+            fprintf('\tSTART SCREEN\n');
+            WaitToStartScreen(windowPtr, Cfg, round(pageDuration_in_sec));
+          end
+  
+          % Preparation trial
+          if atrial.code == Cfg.prepTrialCode
+            fprintf('\tPREP SCREEN\n');
+            PreparationScreen(windowPtr, Cfg, round(pageDuration_in_sec));
+          end 
+  
+          % Pause screen
+          if atrial.code == Cfg.pauseTrialCode
+            PauseScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
+            WaitSecs(1); % wait 1s to give time to participant
+          end
+          
+          % End screen
+          if atrial.code == Cfg.endTrialCode
+            EndScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
+          end
+        %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        % Start screen
-        if atrial.code == Cfg.startTrialCode
-          fprintf('\tSTART SCREEN\n');
-          WaitToStartScreen(windowPtr, Cfg, round(pageDuration_in_sec));
-        end
-
-        % Preparation trial
-        if atrial.code == Cfg.prepTrialCode
-          fprintf('\tPREP SCREEN\n');
-          PreparationScreen(windowPtr, Cfg, round(pageDuration_in_sec));
-        end 
-
-        % Pause screen
-        if atrial.code == Cfg.pauseTrialCode
-          PauseScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
-          WaitSecs(1); % wait 1s to give time to participant
-        end
-        
-        % End screen
-        if atrial.code == Cfg.endTrialCode
-          EndScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
-        end
-
-        
-
-        [x, y, buttons, t0, t1] =...
+        else % normal trials (code : 0-999)
+          [x, y, buttons, t0, t1] =...
             ASF_waitForResponse(Cfg, pageDuration_in_sec - toleranceSec);
         
-        if any(buttons)
-          % ShowCursor
-          responseGiven = 1;
-          %A BUTTON HAS BEEN PRESSED BEFORE TIMEOUT
-          if Cfg.responseTerminatesTrial
-            %ANY CODE THAT YOU FEEL APPROPRIATE FOR SIGNALING THAT
-            %PARTICIPANT HAS PRESSED A BUTTON BEFORE THE TRIAL ENDED
-            %Snd('Play','Quack')
-          else
-            %WAIT OUT THE REMAINDER OF THE STIMULUS DURATION WITH 
-            %MARGIN OF toleranceSec
-            wakeupTime = WaitSecs('UntilTime',...
-                StimulusOnsetTime + pageDuration_in_sec - toleranceSec);
+          if any(buttons)
+            % ShowCursor
+            responseGiven = 1;
+            %A BUTTON HAS BEEN PRESSED BEFORE TIMEOUT
+            if Cfg.responseTerminatesTrial
+              %ANY CODE THAT YOU FEEL APPROPRIATE FOR SIGNALING THAT
+              %PARTICIPANT HAS PRESSED A BUTTON BEFORE THE TRIAL ENDED
+              %Snd('Play','Quack')
+            else
+              %WAIT OUT THE REMAINDER OF THE STIMULUS DURATION WITH 
+              %MARGIN OF toleranceSec
+              wakeupTime = WaitSecs('UntilTime',...
+                  StimulusOnsetTime + pageDuration_in_sec - toleranceSec);
+            end
+            %FIND WHICH BUTTON IT WAS
+            this_response.key = find(buttons);
+            %COMPUTE RESPONSE TIME
+            this_response.RT = (t1 - StartRTMeasurement)*1000; 
           end
-          %FIND WHICH BUTTON IT WAS
-          this_response.key = find(buttons);
-          %COMPUTE RESPONSE TIME
-          this_response.RT = (t1 - StartRTMeasurement)*1000; 
+
         end
-            
+        
 
 %         if any(buttons)
 %             % ShowCursor
@@ -582,12 +586,19 @@ function PauseScreen(window, Cfg, tmax)
     % Countdown
     if t_left > 0
       Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
-      DrawFormattedText(window, 'Time for a short break!', 'center', 'center', [255 255 255]);
-      tstring = sprintf('Time left : %d seconds.', t_left);
+      %DrawFormattedText(window, 'Time for a short break!', 'center',
+      %'center', [255 255 255]); % EN
+      DrawFormattedText(window, 'Zeit für eine kurze Pause!', 'center', 'center', [255 255 255]); % DE
+      
+      %tstring = sprintf('Time left : %d seconds.', t_left); % EN
+      tstring = sprintf('Verbleibende Zeit : %d Sekunden.', t_left); % DE
       Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
       DrawFormattedText(window, tstring, 'center', screenYpixels * 0.75, [128 128 128]);
-      DrawFormattedText(window, 'When ready, press and hold "Space bar" .', 'center',...
-                        screenYpixels * 0.85, [128 128 128]);
+      
+      %DrawFormattedText(window, 'When ready, press and hold "Space bar" .', 'center',...
+      %                  screenYpixels * 0.85, [128 128 128]); % EN
+      DrawFormattedText(window, 'Wenn Sie bereit sind, halten Sie die "Leertaste" gedrückt.', 'center',...
+                        screenYpixels * 0.85, [128 128 128]); % DE
       
       % Flip to the screen
       Screen('Flip', window);
@@ -636,15 +647,20 @@ function EndScreen(window, Cfg, tmax)
   % Draw text in the middle of the screen in Courier in white
   Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
   Screen('TextFont', window, Cfg.Messages.TextFont);
-  text_ = sprintf('Experiment has ended!\n');
+  text_ = sprintf('Experiment has ended!\n'); % EN
+  text_ = sprintf('Das Experiment ist beendet!\n'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
-  text_ = sprintf('\n\nThanks for your participation!');
+  %text_ = sprintf('\n\nThanks for your participation!'); % EN
+  text_ = sprintf('\n\nVielen Dank für Ihre Teilnahme!'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
   
   Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
-  DrawFormattedText(window, 'The window will automatically close in 5 seconds.', 'center',...
-      screenYpixels * 0.75, [128 128 128]);
-    
+  %DrawFormattedText(window, 'The window will automatically close in 5 seconds.', 'center',...
+  %    screenYpixels * 0.75, [128 128 128]); % EN
+  DrawFormattedText(window, 'Das Fenster wird nach 5 Sekunden automatisch geschlossen.', 'center',...
+      screenYpixels * 0.75, [128 128 128]); % DE
+  
+
   % Flip to the screen
   Screen('Flip', window);
   
@@ -671,18 +687,26 @@ function WaitToStartScreen(window, Cfg, tmax)
   % Draw text in the middle of the screen in Courier in white
   Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
   Screen('TextFont', window, Cfg.Messages.TextFont);
-  DrawFormattedText(window, 'Welcome!', 'center', round(heightRect/3), [255 255 255]);
+  %DrawFormattedText(window, 'Welcome!', 'center', round(heightRect/3),
+  %[255 255 255]); % EN
+  DrawFormattedText(window, 'Willkommen!', 'center', round(heightRect/3), [255 255 255]); % DE
   
   if ismember(Cfg.probe.keyYes, {'left'})
-    DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]);
-    DrawFormattedText(window, 'NO : Right Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+    % EN
+    %DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]); 
+    %DrawFormattedText(window, 'NO : Right Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+    DrawFormattedText(window, 'JA : "Linker Pfeil"', 'center', screenYpixels * 0.5, [255 255 255]);
+    % DE
+    DrawFormattedText(window, 'NEIN : "Rechter Pfeil"', 'center', screenYpixels * 0.6, [255 255 255]);
   else
-    fprintf('YES key : right');
-    DrawFormattedText(window, 'YES : Right Arrow', 'center', screenYpixels * 0.5, [255 255 255]);
-    DrawFormattedText(window, 'NO : Left Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
+    % DE
+    DrawFormattedText(window, 'JA : Rechter Pfeil', 'center', screenYpixels * 0.5, [255 255 255]);
+    DrawFormattedText(window, 'NEIN : Linker Pfeil', 'center', screenYpixels * 0.6, [255 255 255]);
   end
 
-  DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
+  %DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
+  %                  screenYpixels * 0.80, [128 128 128]);
+  DrawFormattedText(window, 'Um das Experiment zu starten, drücken Sie die "Lehrtaste"!', 'center',...
                     screenYpixels * 0.80, [128 128 128]);
   
   % Flip to the screen
@@ -708,7 +732,8 @@ function PreparationScreen(window, Cfg, tmax)
   while true
     % Countdown
     if t_left > 0
-      tstring = sprintf('First trial will automatically start in %d seconds.', t_left);
+      %tstring = sprintf('First trial will automatically start in %d seconds.', t_left);
+      tstring = sprintf('Erstes Trial wird automatisch in %d Sekunden starten.', t_left);
       DrawFormattedText(window, tstring, 'center', 'center', [128 128 128]);
       % Flip to the screen
       Screen('Flip', window);
