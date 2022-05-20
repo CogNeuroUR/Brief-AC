@@ -79,11 +79,12 @@ fclose(fid);
 % TIMING & HARDWARE RELATED
 %--------------------------------------------------------------------------
 info.screenFrameRate = 60;
-info.emptyDuration = 24; %400ms
-info.fixDuration = 24; % 400ms
-info.maskDuration = 15; % 240 ms
-info.probeDuration = 150; % 2500ms
-%info.blankDuration = 60; % 1000ms
+% pages
+info.fixDuration = 30; % 500ms : page 1
+info.emptyDuration = 12; %200ms : page 2
+info.maskDuration = 15; % 240 ms : page 4
+info.probeDuration = 150; % 2500ms : page 4
+% pauses
 info.pauseIntervalSecs = 300; % IN SECONDS!
 info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
 
