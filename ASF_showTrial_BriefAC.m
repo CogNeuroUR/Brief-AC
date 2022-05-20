@@ -105,8 +105,7 @@ for i = 1:atrial.startRTonPage-1
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
         % Draw fixation disk
-        %if (i > 1) && (i < 5) % show cross on all, but the probe screen
-        if i == 1 % cross only on first page
+        if i == 2 % cross only on second page
           drawFixDisk(windowPtr, Cfg)
         end
 
@@ -128,8 +127,6 @@ for i = 1:atrial.startRTonPage-1
         %LOG WHEN THIS PAGE APPEARED
         timing(i, 1:6) = [atrial.pageDuration(i), VBLTimestamp,...
             StimulusOnsetTime FlipTimestamp Missed Beampos];
-       
-          
           
         %WAIT OUT STIMULUS DURATION IN FRAMES. WE USE PAGE FLIPPING RATHER 
         %THAN A TIMER WHENEVER POSSIBLE BECAUSE GRAPHICS BOARDS PROVIDE 
@@ -238,9 +235,16 @@ for i = atrial.startRTonPage:atrial.endRTonPage
       
         % Start screen
         if atrial.code == Cfg.startTrialCode
-          WaitToStartScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
+          fprintf('\tSTART SCREEN\n');
+          WaitToStartScreen(windowPtr, Cfg, round(pageDuration_in_sec));
         end
-          
+        
+        % Preparation trial
+        if atrial.code == Cfg.prepTrialCode
+          fprintf('\tPREP SCREEN\n');
+          PreparationScreen(windowPtr, Cfg, round(pageDuration_in_sec));
+        end 
+
         % Pause screen
         if atrial.code == Cfg.pauseTrialCode
           PauseScreen(windowPtr, Cfg, Cfg.pauseDurationMax);
@@ -447,7 +451,7 @@ function drawFixDisk(window, Cfg)
   Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 
   % Draw disk
-  Screen('gluDisk', window, Cfg.diskColor, xCenter, yCenter, Cfg.fixDiskRadius);
+  %Screen('gluDisk', window, Cfg.diskColor, xCenter, yCenter, Cfg.fixDiskRadius);
 
   % Draw the fixation cross in white, set it to the center of our screen and
   % set good quality antialiasing
@@ -462,15 +466,15 @@ function drawProbeText(window, Cfg, tstring)
   
   % Default parameters:
   % 1) Size
-  Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
-  %Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  %Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
+  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
   
   % 2) Font
   Screen('TextFont', window, Cfg.Messages.TextFont);
   
   % Get the centre coordinate of the window
-  xCenter = Cfg.report.x;
-  yCenter = Cfg.report.y;
+  %xCenter = Cfg.report.x;
+  %yCenter = Cfg.report.y;
 
   % Set up alpha-blending for smooth (anti-aliased) lines (seems necessary!)
   Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
@@ -492,8 +496,8 @@ function drawProbeTextLong(window, Cfg, tstring)
   
   % Default parameters:
   % 1) Size
-  Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
-  %Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  %Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
+  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
   
   % 2) Font
   Screen('TextFont', window, Cfg.Messages.TextFont);
@@ -633,8 +637,6 @@ function WaitToStartScreen(window, Cfg, tmax)
 
   DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
                     screenYpixels * 0.80, [128 128 128]);
-  %DrawFormattedText(window, sprintf('(will automatically start in %d seconds)', tmax), 'center',...
-  %                  screenYpixels * 0.78, [128 128 128]);
   
   % Flip to the screen
   Screen('Flip', window);
@@ -642,6 +644,36 @@ function WaitToStartScreen(window, Cfg, tmax)
   waitForSpacekey(tmax)
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function PreparationScreen(window, Cfg, tmax)
+  % Shows a preparation screen with a countdown and waits for the time to exceed tmax.
+  
+  % Set the blend funciton for the screen
+  Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
+  % Draw text in the middle of the screen in Courier in white
+  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  Screen('TextFont', window, Cfg.Messages.TextFont);
+
+  % Wait tmax
+  tStart = GetSecs;
+  t_left = tmax;
+  wait = true;
+  while true
+    % Countdown
+    if t_left > 0
+      tstring = sprintf('First trial will automatically start in %d seconds.', t_left);
+      DrawFormattedText(window, tstring, 'center', 'center', [128 128 128]);
+      % Flip to the screen
+      Screen('Flip', window);
+      
+      % decrement
+      t_left = t_left - 1;
+      WaitSecs(1);
+    end
+    % Break if no key was pressed until "the end of time"
+    if (GetSecs - tStart) > tmax, wait=false; break; end
+  end
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function waitForSpacekey(tmax)
@@ -650,7 +682,7 @@ function waitForSpacekey(tmax)
   % Suppress echo to the command line for keypresses
   ListenChar(2);
   
-  spaceKey = KbName('space');
+  spaceKey = KbName('space'); 
   pressed = false; 
 
   RestrictKeysForKbCheck([spaceKey]);
