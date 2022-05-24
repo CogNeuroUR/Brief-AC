@@ -2,6 +2,7 @@ function runFastAC(subjectID, runNum, expName)
 %example call:
 %runFastAC(1, 1, 'FastAC')
 
+%clear all;
 addpath(genpath('/usr/share/psychtoolbox-3/'))
 addpath(genpath('/home/ov/asf/code'));
 
@@ -11,7 +12,7 @@ addpath(genpath('/home/ov/asf/code'));
 KbName('UnifyKeyNames')
 
 Cfg = [];
-Cfg.environment = 'OV_DELL';
+Cfg.environment = 'BEHAV_LAB';
 Cfg.userSuppliedTrialFunction = @ASF_showTrial_BriefAC;
 Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 
@@ -22,10 +23,14 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 % ActionLevels = ["cutting", "grating", "whisking";...
 %                 "hole-punching", "stamping", "stapling";...
 %                 "hammering", "painting", "sawing"];
-ContextLevels = ["k√ºche", "b√ºro", "werkstatt"];
-ActionLevels = ["schneiden", "reiben", "r√ºhren";...
-                "lochen", "stempeln", "heften";...
-                "h√§mmern", "streichen", "s√§gen"];
+ContextLevels = ["K‹CHE", "B‹RO", "WERKSTATT"];
+ActionLevels = ["SCHNEIDEN", "REIBEN", "VERR‹HREN";...
+                "LOCHEN", "STEMPELN", "HEFTEN";...
+                "HƒMMERN", "STREICHEN", "SƒGEN"];
+% ContextLevels = ["KUECHE", "BUERO", "WERKSTATT"];
+% ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRUEHREN";...
+%                 "LOCHEN", "STEMPELN", "HEFTEN";...
+%                 "HAEMMERN", "STREICHEN", "SAEGEN"];
 ProbeLevels = [ContextLevels; ActionLevels];
 
 Cfg.DurationLevels = [2:1:6 8];
@@ -74,6 +79,8 @@ Cfg.probe.keyYes = keyYes;
 
 switch Cfg.environment
   case 'BEHAV_LAB'
+    Screen('Preference','TextEncodingLocale', '.1252')
+    %Screen('Preference','TextEncodingLocale', 'English_United Kingdom.1252');
     Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
     Cfg.responseDevice = 'KEYBOARD';
     Cfg.enabledKeys = [KbName('LeftArrow'),...
