@@ -28,7 +28,7 @@ Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
 % Colors
 Cfg.report.textColor = [175 175 175]; % light gray
 
-tstring = 'Kitchen';
+tstring = 'KÜCHE, BÜRO UND WERKSTATT : VERRÜHRQQ EN, STEMPELN UND HÄMMERN';
 
 %==========================================================================
 % Rest of REPORT SCREEN PARAMETERS
@@ -44,7 +44,7 @@ Cfg.report.y= heightRect/3.5;
 Hratio2fhd = (Cfg.Screen.rect(4) - Cfg.Screen.rect(2)) / 1080;
 Cfg.Messages.SizeTxtBig = round(60 * Hratio2fhd); % 70 for full screen (FHD)
 Cfg.Messages.SizeTxtMid = round(45 * Hratio2fhd); % 50 for full screen (FHD)
-Cfg.Messages.TextFont = 'Verdana';
+Cfg.Messages.TextFont = 'Arial';
 
 %==========================================================================
 drawProbeText(window, Cfg, tstring)
@@ -59,7 +59,7 @@ KbStrokeWait;
 sca;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Disk text
+%% Draw text function
 function drawProbeText(window, Cfg, tstring)
   % Draws a (text) probe on screen
   

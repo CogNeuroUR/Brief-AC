@@ -1,4 +1,4 @@
-function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
+function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD, subjectID)
   % FILLS A TEMPLATE 'TrialDefinitions' STRUCT WITH NECESSARY ENTRIES,
   % GIVES A STRUCTURE TO THE TRIALS.
   % 
@@ -25,18 +25,40 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
   clear TRD;
   clear info;
 
-  % Get template TRD with a given number of blocks
+  %% TEMPORARY Variable defintion
+%   nBlocks = 5;
+%   lBlock = 144;
+%   RespKeys = [0,1];
+%   writeTRD = 0;
+
+  %% 0) Asign response key mapping
+  % Destination OS
+  dstOS = "Windows"; %Windows"; % OR "Linux"
+  % get OS-specific YES/NO key assignment and "getCorrectResponseKey" function
+  [keyYes, keyNo, getCorrectResponseKey] = assignRespKeysOS(dstOS, RespKeys);
+
+
+  %% 1) Get template TRD with a given number of blocks
   [TRD, info] = makeTRDTemplate(nBlocks);
   % These contain minimal info about the stimuli (targets & masks).
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 1) Shuffle all trials together (blockwise)
+  %% 2) Shuffle all trials together (blockwise)
   TRD = shuffleBlockWise(TRD, lBlock, 'all');
+  % TODO : when shuffling all, prevent three consecutive trials with same
+  % action
+
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 2) Assign "probeType" (blockwise)
+  %% 3) Assign "probeType" & "Probe" (blockwise, congruency-wise and probeType-wise)
   %   1/2 trials per block : "context" AND 1/2 : "action" 
+  % RULES (COMPLEMENTARY)
+  % WITHIN CONGRUENCY & PROBE TYPE - YES vs NO trials (1:1)
+
   % iterate back over blocks
+  ctxt_idxs = 1:info.nContextLevels;
+  actn_idxs = 1:info.nActionLevels; % WITHIN CONTEXT
+
   for iBlock=nBlocks:-1:1
     % find indices of trials within this block
     indices = (iBlock-1)*lBlock + 1 : (iBlock)*lBlock;
@@ -44,124 +66,208 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
     
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % place here the assignment (for) loop and used 'Block' in place of 'TRD'
+
+    % Collect congruent & incongruent trials
+    trialsCongruent = [];
+    trialsIncongruent = [];
     nTrials = length(Block);
     for iTrial = 1:nTrials
-      if iTrial > nTrials/2
-        Block(iTrial).probeType = 'context';
+      if isequal(Block(iTrial).congruency, "congruent")
+        trialsCongruent = [trialsCongruent, iTrial];
       else
-        Block(iTrial).probeType = 'action';
+        trialsIncongruent = [trialsIncongruent, iTrial];
       end
     end
+    subBlockCongruent = Block(trialsCongruent);
+    subBlockIncongruent = Block(trialsIncongruent);
+
+    % Asign probeType for CONGRUENT sub-blocks
+    nTrials = length(subBlockCongruent);
+    for iTrial = 1:nTrials
+      if iTrial > nTrials/2
+        subBlockCongruent(iTrial).probeType = 'context';
+      else
+        subBlockCongruent(iTrial).probeType = 'action';
+      end
+    end
+
+    % Asign probeType for INCONGRUENT sub-blocks
+    nTrials = length(subBlockIncongruent);
+    for iTrial = 1:nTrials
+      if iTrial > nTrials/2
+        subBlockIncongruent(iTrial).probeType = 'context';
+      else
+        subBlockIncongruent(iTrial).probeType = 'action';
+      end
+    end
+
+
+    % Asign Probe ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    % Sample with replacement 1/2 trials per subBlock and make them
+    % "YES"-trials and the remaining - "NO"-trials
+    % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    % Shuffle indices of trials in congruent and incongruent sub-blocks
+    idxCongruent = randperm(length(subBlockCongruent));
+    idxIncongruent = randperm(length(subBlockIncongruent));
+    
+    % Asign half of them to YES and half to NO for each sub-block
+    idxCongruentYes = idxCongruent(1:length(idxCongruent)/2);
+    idxCongruentNo = idxCongruent(length(idxCongruent)/2+1:end);
+    idxIncongruentYes = idxIncongruent(1:length(idxIncongruent)/2);
+    idxIncongruentNo = idxIncongruent(length(idxIncongruent)/2+1:end);
+
+    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    % Asign Probe for CONGRUENT YES-trials
+    for idx = 1:length(idxCongruentYes)
+      iTrial = idxCongruentYes(idx);
+      subBlockCongruent(iTrial).Response = "yes";
+      subBlockCongruent(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
+      % assign specific context or action probe
+      if isequal(subBlockCongruent(iTrial).probeType, 'context')
+        subBlockCongruent(iTrial).Probe = subBlockCongruent(iTrial).context;
+      else % presumably "action"
+        subBlockCongruent(iTrial).Probe = subBlockCongruent(iTrial).action;
+      end
+    end
+
+    % Asign Probe for INCONGRUENT YES-trials
+    for idx = 1:length(idxIncongruentYes)
+      iTrial = idxIncongruentYes(idx);
+      subBlockIncongruent(iTrial).Response = "yes";
+      subBlockIncongruent(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
+      % assign specific context or action probe
+      if isequal(subBlockIncongruent(iTrial).probeType, 'context')
+        subBlockIncongruent(iTrial).Probe = subBlockIncongruent(iTrial).context;
+      else % presumably "action"
+        subBlockIncongruent(iTrial).Probe = subBlockIncongruent(iTrial).action;
+      end
+    end
+
+
+    % Asign Probe for CONGRUENT NO-trials
+    for idx = 1:length(idxCongruentNo)
+      iTrial = idxCongruentNo(idx);
+      subBlockCongruent(iTrial).Response = "no";
+      subBlockCongruent(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
+      % Context probes
+      if isequal(subBlockCongruent(iTrial).probeType, 'context')
+        % get subset of contexts different than the current one
+        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockCongruent(iTrial).context_idx);
+        
+        % asign random context from the subset
+        subBlockCongruent(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
+      
+      % Action probes (within context)
+      elseif isequal(subBlockCongruent(iTrial).probeType, 'action')
+        % get subset of actions from the same source context different than
+        % current action
+        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockCongruent(iTrial).action_idx);
+
+        % assign specific action probe from the subset
+        subBlockCongruent(iTrial).Probe = info.ActionLevels(subBlockCongruent(iTrial).context_idx,...
+                                                            datasample(inc_actn_idxs, 1));
+      end
+    end
+
+
+    % Asign Probe for INCONGRUENT NO-trials
+    for idx = 1:length(idxIncongruentNo)
+      iTrial = idxIncongruentNo(idx);
+      subBlockIncongruent(iTrial).Response = "no";
+      subBlockIncongruent(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
+      % Context probes
+      if isequal(subBlockIncongruent(iTrial).probeType, 'context')
+        % get subset of contexts different than the current one
+        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockIncongruent(iTrial).context_idx);
+        
+        % assign random context probe from the subset
+        subBlockIncongruent(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
+
+      % Action probes (within context)
+      elseif isequal(subBlockIncongruent(iTrial).probeType, 'action')
+        % get subset of actions from the same source context different than
+        % current action
+        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockIncongruent(iTrial).action_idx);
+
+        % assign random action probe from the subset
+        subBlockIncongruent(iTrial).Probe = info.ActionLevels(subBlockIncongruent(iTrial).sourceContext_idx,...
+                                                              datasample(inc_actn_idxs, 1));
+      end
+    end
+
+
+    % Asign the updated sub-blocks
+    Block(trialsCongruent) = subBlockCongruent;
+    Block(trialsIncongruent) = subBlockIncongruent;
+
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % In the end assign the updated block
     TRD(indices) = Block;
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 3) Shuffle rows of "probeType" : "context" or "action" (blockwise)
-  TRD = shuffleBlockWise(TRD, lBlock, 'probeType');
+  %% 4) Shuffle all rows again (blockwise)
+  TRD = shuffleBlockWise(TRD, lBlock, 'all');
+  % TODO : when shuffling all, prevent three consecutive trials with same
+  % probe
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 4) Assign (specific) "Probe" and correct responses : (blockwise)
-  % For example, "kitchen" (context), "stapling" (action), etc.
-
-  % Sweep through trials and assign probes in cycle based on ProbeType
-  % "context" : "kitchen" -> "office" -> "workshop" -> "kitchen" -> ...
-  % "action" : "cutting" -> "grating" -> "whisking" -> "hole-punching" -> ...
-  
-  % switch internal naming scheme from the operating system specific scheme
-  KbName('UnifyKeyNames');
-  % Assign keyboard keys
-  if RespKeys(1)
-    keyYes = 'LeftArrow';
-    keyNo = 'RightArrow';
-  else
-    keyNo = 'LeftArrow';
-    keyYes = 'RightArrow';
-  end
-
+  %% 5) Assign "target Duration" (blockwise, congruency-wise and probeType-wise)
   % iterate back over blocks
   for iBlock=nBlocks:-1:1
     % find indices of trials within this block
     indices = (iBlock-1)*lBlock + 1 : (iBlock)*lBlock;
     Block = TRD(indices);
+
+    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    % place here the assignment (for) loop and used 'Block' in place of 'TRD'
+    
+    % 1) iterate over Congruency
+    for iCongruency=1:info.nCongruencyLevels
+      % 2) iterate over probeType
+      for iProbeType=1:info.nProbeTypeLevels
+        % collect subset of trials based on congruency and probeType
+        trialsSet = [];
+        nTrials = length(Block);
+        for iTrial = 1:nTrials
+          if isequal(Block(iTrial).congruency, info.CongruencyLevels(iCongruency))
+            if isequal(Block(iTrial).probeType, info.ProbeTypeLevels(iProbeType))
+              trialsSet = [trialsSet, iTrial];
+            end
+          end
+        end
+       
+        % iterate over the subset of selected trials
+        count = 1;
+        for idx = 1:length(trialsSet)
+          iTrial = trialsSet(idx);
+          % reset counter if over nr. duration levels
+          if count > length(info.DurationLevels); count = 1; end
+          % 3) assign duration & increment duration idx
+          Block(iTrial).picDuration = info.DurationLevels(count);
+          Block(iTrial).durations(3) = info.DurationLevels(count);
+          count = count + 1;
+        end
+
+        % stick/append the blocks back together
+        % DON'T THINK IT'S NECESSARY ANYMORE
+      end % probeType
+
+    end % Congruency
     
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % place here the assignment (for) loop and used 'Block' in place of 'TRD'
-    count_ctx = 1;
-    count_act = [1, 1, 1];
-    for iTrial = 1:length(Block)
-      % Context probes
-      if isequal(Block(iTrial).probeType, 'context')
-        % assign specific context probe
-        if count_ctx > length(info.ContextLevels); count_ctx = 1; end
-        Block(iTrial).Probe = info.ContextLevels(count_ctx);
-        % assign correct response
-        Block(iTrial).correctResponse = getCorrectResponse(Block(iTrial).Probe,...
-                                                           Block(iTrial).context,...
-                                                           keyYes, keyNo);
-        % increment
-        count_ctx = count_ctx + 1;
-      % Action probes (within context)
-      elseif isequal(Block(iTrial).probeType, 'action')
-        % assign specific action probe
-        % Increment action cycle (within context)
-        if count_act(Block(iTrial).context_idx) > 3
-          count_act(Block(iTrial).context_idx) = 1;
-        end
-        % assign specific action probe
-        Block(iTrial).Probe = info.ActionLevels(Block(iTrial).context_idx,...
-                                                count_act(Block(iTrial).context_idx));
-        % assign correct response
-        Block(iTrial).correctResponse = getCorrectResponse(Block(iTrial).Probe,...
-                                                           Block(iTrial).action,...
-                                                           keyYes, keyNo);
-        % increment
-        count_act(Block(iTrial).context_idx) = count_act(Block(iTrial).context_idx) + 1;
-      end
-    end
-    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % In the end assign the updated block
     TRD(indices) = Block;
   end
 
+
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 5) Shuffle all trials together (blockwise)
+  %% 6) Shuffle all trials together (blockwise)
   TRD = shuffleBlockWise(TRD, lBlock, 'all');
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 6) Assign "target Duration" (blockwise)
-  % iterate back over blocks
-  for iBlock=nBlocks:-1:1
-    % find indices of trials within this block
-    indices = (iBlock-1)*lBlock + 1 : (iBlock)*lBlock;
-    Block = TRD(indices);
-
-    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % place here the assignment (for) loop and used 'Block' in place of 'TRD'
-    count = 1;
-    for iTrial = 1:length(Block)
-        % assign specific context probe
-        if count > length(info.DurationLevels); count = 1; end
-        Block(iTrial).picDuration = info.DurationLevels(count);
-        Block(iTrial).durations(3) = info.DurationLevels(count);
-        count = count + 1;
-    end
-    %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % In the end assign the updated block
-    TRD(indices) = Block;
-  end
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 7) Shuffle rows of "durations" (blockwise)
-  TRD = shuffleBlockWise(TRD, lBlock, 'durations');
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 8) Shuffle all trials together (blockwise)
-  TRD = shuffleBlockWise(TRD, lBlock, 'all');
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 9) Add (random) jitter to fixation (for a 60Hz screen)
+  %% 7) Add (random) jitter to fixation (for a 60Hz screen)
   jitt_shortest = 18; % in frames
   jitt_longest = 36; % in in frames
   step = 2; % in frames
@@ -170,28 +276,43 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
   pageNumber = 2; % page 2 : fixation cross
 
   TRD = addBlankJitter(TRD, type, jitt_shortest, jitt_longest, step, pageNumber);
-
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 10) Create ASF codes based on factors (ProbeType, Probe, Duration)
+  %% 8) Create ASF codes based on factors (Congruency, ProbeType, Duration)
   for iTrial = 1:length(TRD)
+    if TRD(iTrial).probeType == 0
+      disp(TRD(iTrial));
+
+    else
     % Create factors
+    iCongruency = find(info.CongruencyLevels == TRD(iTrial).congruency);
     iProbeType = find(info.ProbeTypeLevels == TRD(iTrial).probeType);
-    iProbe = find(info.ProbeLevels == TRD(iTrial).Probe);
     iDuration = find(info.DurationLevels == TRD(iTrial).picDuration);
+    
     % Encode factors
-    code = ASF_encode([iProbeType-1 iProbe-1 iDuration-1], info.factorialStructure);
+    % TYPE 1: with Probe
+    iProbe = find(info.ProbeLevels == TRD(iTrial).Probe);
+    code = ASF_encode([iCongruency-1 iProbeType-1 iProbe-1 iDuration-1], info.factorialStructure);
+    % TYPE 2: without Probe
+    %code = ASF_encode([iCongruency-1 iProbeType-1 iDuration-1], info.factorialStructure);
+    
     %fprintf('Code : %d, ProbeType : %d, Probe : %d, Duration : %d\n', code, iProbeType, iProbe, iDuration);
     % Assign
     TRD(iTrial).code = code;
+    end
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 11) Check codes
-  codeSanityCheck(TRD, info.factorialStructure,...
+  %% 9) Check codes
+%   codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
+%                   info.ProbeTypeLevels, info.DurationLevels)
+  codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
                   info.ProbeTypeLevels, info.ProbeLevels, info.DurationLevels)
 
+  %% 10) Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
+  TRD = shuffleConditionalBlockWise(TRD, lBlock);
+
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 12) Add special trials : start, preparation, pauses and end trials.
+  %% 11) Add special trials : start, preparation, pauses and end trials.
   % Add Pause trials
   interval = 72; % 144 trials : 8.7min
   info.pauseTrial = TRD(1);
@@ -239,9 +360,13 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
   TRD = addEndTrial(TRD, info.endTrial);
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % 13) Write TrialDefinitions to trd-file.
+  %% 12) Write TrialDefinitions to trd-file.
   if writeTRD
-    fname = sprintf('filled.trd');
+    if RespKeys(1)
+      fname = sprintf('SUB-%02d_left.trd', subjectID);
+    else
+      fname = sprintf('SUB-%02d_right.trd', subjectID);
+    end
     writeTrialDefinitions(TRD, info.factorialStructure, fname)
   end
 
@@ -250,12 +375,18 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD)
   % Compute duration
   durations = [TRD(:).durations];
   duration_frames = sum(durations);
+  t_trial_estimate = 2.32; % in seconds (based on one pilot)
   duration_min = duration_frames / 3600; % in minutes (60fps * 60s)
   fprintf('\nN_trials : %d; Total MAX duration : %4.2fmin.\n', length(TRD), duration_min);
+  fprintf('Estimated duration: %dmin (%ds per trial)',...
+          length(TRD)*t_trial_estimate/60, t_trial_estimate);
 
-end % function
+end % fillTRD function
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Utility functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% ------------------------------------------------------------------------
 function TrialDefinitions = addBlankJitter(TrialDefinitions, type, lowest, highest, step, pageNumber)
   % Jitters the blank page duration in between two stimuli presentations,
@@ -301,19 +432,63 @@ function TrialDefinitions = addBlankJitter(TrialDefinitions, type, lowest, highe
           mean(l_jitters)/60, min(l_jitters)/60, max(l_jitters)/60);
 end
 
+
 %% ------------------------------------------------------------------------
-function key = getCorrectResponse(probe, truth, keyYes, keyNo)
+function [keyYes, keyNo, getCorrectResponseKey] = assignRespKeysOS(dstOS, RespKeys)
+  % LINUX : switch internal naming scheme from the operating system specific scheme
+  % WINDOWS : asign manually
+  if isequal(dstOS, "Linux")
+    KbName('UnifyKeyNames');
+    getCorrectResponseKey = @(correctResponse, keyYes, keyNo) getCorrectResponseKeyLinux(correctResponse, keyYes, keyNo);
+
+    % Assign keyboard keys
+    if RespKeys(1)
+      keyYes = 'LeftArrow';
+      keyNo = 'RightArrow';
+    else
+      keyNo = 'LeftArrow';
+      keyYes = 'RightArrow';
+    end
+  elseif isequal(dstOS, "Windows")
+    getCorrectResponseKey = @(correctResponse, keyYes, keyNo) getCorrectResponseKeyWin(correctResponse, keyYes, keyNo);
+    if RespKeys(1)
+      keyYes = 37;  % 'LeftArrow'
+      keyNo = 39;   %'RightArrow'
+    else
+      keyNo = 37;   % 'LeftArrow'
+      keyYes = 39;   %'RightArrow'
+    end
+  else
+    error('Given destination OS is not in the list ("Linux", "Windows")');
+  end
+end
+
+
+%% ------------------------------------------------------------------------
+function key = getCorrectResponseKeyLinux(correctResponse, keyYes, keyNo)
   % Returns the correctResponse key, based on probe and true value.
-  if isequal(probe, truth)
+  if isequal(correctResponse, "yes")
     key = KbName(keyYes);
   else
     key = KbName(keyNo);
   end
 end
 
+%% ------------------------------------------------------------------------
+function key = getCorrectResponseKeyWin(correctResponse, keyYes, keyNo)
+  % Returns the correctResponse key, based on probe and true value.
+  if isequal(correctResponse, "yes")
+    key = keyYes;
+  else
+    key = keyNo;
+  end
+end
+
+
 %--------------------------------------------------------------------------
 % Code sanity check function
-function codeSanityCheck(TRD, factorialStructure, ProbeTypeLevels, ProbeLevels, DurationLevels)
+%function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLevels, DurationLevels)
+function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLevels, ProbeLevels, DurationLevels)
   % Checks equality between assigned trial codes and conditions show
   % by (ASF_)decoding the code, given the factorial structure.
   % Custom to "BriefAC" behavioral experiment (ActionsInContext).
@@ -326,18 +501,23 @@ function codeSanityCheck(TRD, factorialStructure, ProbeTypeLevels, ProbeLevels, 
   for iTrial = 1:length(TRD)
     % Decode factors from code
     factors = ASF_decode(TRD(iTrial).code,factorialStructure);
-    t = factors(1);   % probe type
-    p = factors(2);   % probe
-    d = factors(3);   % duration
+    c = factors(1);   % congruency
+    t = factors(2);   % probe type
+    p = factors(3);   % probe
+    d = factors(4);   % duration
     
+    % Check Congruency : from code vs from TRD
+    if ~isequal(CongruencyLevels(c+1), TRD(iTrial).congruency)
+      fprintf('Congruency code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
+        CongruencyLevels(c+1), TRD(iTrial).congruency)
     % Check ProbeType : from code vs from TRD
-    if ~isequal(ProbeTypeLevels(t+1), TRD(iTrial).probeType)
+    elseif ~isequal(ProbeTypeLevels(t+1), TRD(iTrial).probeType)
       fprintf('ProbeType code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
         ProbeTypeLevels(t+1), TRD(iTrial).probeType)
     % Check Probe : from code vs from TRD
-    elseif ~isequal(ProbeLevels(p+1), TRD(iTrial).Probe)
-      fprintf('Probe code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
-        ProbeLevels(p+1), TRD(iTrial).Probe)
+     elseif ~isequal(ProbeLevels(p+1), TRD(iTrial).Probe)
+       fprintf('Probe code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
+         ProbeLevels(p+1), TRD(iTrial).Probe)
     % Check Duration : from code vs from TRD
     elseif ~isequal(DurationLevels(d+1), TRD(iTrial).picDuration)
       fprintf('Duration code is wrong! From code: \"%d\" vs from TRD: \"%d\"\n',...

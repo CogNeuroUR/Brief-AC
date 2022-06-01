@@ -176,7 +176,7 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         % Draw probe text
         if (i == 5)
           [~, Probe] = decodeProbe(atrial.code, Cfg.factorialStructure, ...
-                                          Cfg.factorProbeTypes, Cfg.factorProbes);
+                                   Cfg.factorProbeTypes, Cfg.factorProbes);
           tstring = upper(Probe);
           
           drawProbeText(windowPtr, Cfg, convertStringsToChars(tstring));
@@ -402,9 +402,10 @@ function [probeType, Probe] = decodeProbe(trialCode, factorialStructure, ...
   
   % Decode factors from code
   factors = ASF_decode(trialCode,factorialStructure);
-  t = factors(1);   % probe type
-  p = factors(2);   % probe
-  %d = factors(3);   % duration
+  c = factors(1);   % congruency
+  t = factors(2);   % probe type
+  p = factors(3);   % probe
+  d = factors(4);   % duration
   
   probeType = ProbeTypeLevels(t+1);
   Probe = ProbeLevels(p+1);
@@ -588,7 +589,7 @@ function PauseScreen(window, Cfg, tmax)
       Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
       %DrawFormattedText(window, 'Time for a short break!', 'center',
       %'center', [255 255 255]); % EN
-      DrawFormattedText(window, 'Zeit fÃ¼r eine kurze Pause!', 'center', 'center', [255 255 255]); % DE
+      DrawFormattedText(window, 'Zeit für eine kurze Pause!', 'center', 'center', [255 255 255]); % DE
       
       %tstring = sprintf('Time left : %d seconds.', t_left); % EN
       tstring = sprintf('Verbleibende Zeit : %d Sekunden.', t_left); % DE
@@ -597,7 +598,7 @@ function PauseScreen(window, Cfg, tmax)
       
       %DrawFormattedText(window, 'When ready, press and hold "Space bar" .', 'center',...
       %                  screenYpixels * 0.85, [128 128 128]); % EN
-      DrawFormattedText(window, 'Wenn Sie bereit sind, halten Sie die "Leertaste" gedrÃ¼ckt.', 'center',...
+      DrawFormattedText(window, 'Wenn Sie bereit sind, halten Sie die "Leertaste" gedrückt.', 'center',...
                         screenYpixels * 0.85, [128 128 128]); % DE
       
       % Flip to the screen
@@ -651,7 +652,7 @@ function EndScreen(window, Cfg, tmax)
   text_ = sprintf('Das Experiment ist beendet!\n'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
   %text_ = sprintf('\n\nThanks for your participation!'); % EN
-  text_ = sprintf('\n\nVielen Dank fÃ¼r Ihre Teilnahme!'); % DE
+  text_ = sprintf('\n\nVielen Dank für Ihre Teilnahme!'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
   
   Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
@@ -706,7 +707,7 @@ function WaitToStartScreen(window, Cfg, tmax)
 
   %DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
   %                  screenYpixels * 0.80, [128 128 128]);
-  DrawFormattedText(window, 'Um das Experiment zu starten, drÃ¼cken Sie die "Lehrtaste"!', 'center',...
+  DrawFormattedText(window, 'Um das Experiment zu starten, drücken Sie die "Lehrtaste"!', 'center',...
                     screenYpixels * 0.80, [128 128 128]);
   
   % Flip to the screen

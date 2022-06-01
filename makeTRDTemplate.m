@@ -17,6 +17,9 @@ addpath(genpath('/home/ov/asf/code'));
 %--------------------------------------------------------------------------
 % DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
+info.CongruencyLevels = ["congruent", "incongruent"];
+info.nCongruencyLevels = length(info.CongruencyLevels);
+
 info.ContextLevels = ["kitchen", "office", "workshop"];
 info.nContextLevels = length(info.ContextLevels);
 
@@ -47,7 +50,8 @@ info.DurationLevels = [2:1:6 8]; % nr x 16.6ms
 info.nDurationLevels = length(info.DurationLevels);
 
 % FACTORIAL STRUCTURE : IVs (probeTypes, Probes, Durations)
-info.factorialStructure = [info.nProbeTypeLevels, info.nProbeLevels, info.nDurationLevels];
+info.factorialStructure = [info.nCongruencyLevels, info.nProbeTypeLevels, info.nProbeLevels, info.nDurationLevels];
+%info.factorialStructure = [info.nCongruencyLevels, info.nProbeTypeLevels, info.nDurationLevels];
 
 %HOW MANY TRIALS PER DESIGN CELL DO YOU WANT TO RUN?
 %IF YOU ARE INTERESTED IN RT ONLY, >25 IS RECOMMENDED PER PARTICIPANT
@@ -76,6 +80,10 @@ end
 fclose(fid);
 
 %--------------------------------------------------------------------------
+% Sample 
+%--------------------------------------------------------------------------
+
+%--------------------------------------------------------------------------
 % TIMING & HARDWARE RELATED
 %--------------------------------------------------------------------------
 info.screenFrameRate = 60;
@@ -96,153 +104,214 @@ info.startRTonPage = 5;
 info.endRTonPage = 5;
 
 %--------------------------------------------------------------------------
-TrialDefinitions = makeTrialDefinitions(info);
+TrialDefinitions = makeOneBlockTRD(info);
 
 %--------------------------------------------------------------------------
+TrialDefinitions = repmat(TrialDefinitions, 1, nBlocks);
+
+%--------------------------------------------------------------------------
+
 expName = 'briefAC';
 trdName = sprintf('template_%dx%d_%s.trd', nBlocks, length(TrialDefinitions), expName);
-%writeTrialDefinitions(TrialDefinitions, info, trdName)
+%writeTrialDefinitions(TrialDefinitions, info, trdName) 
+
 
 %--------------------------------------------------------------------------
 %% makeTRD Function
 %--------------------------------------------------------------------------
-function TrialDefinitions = makeTrialDefinitions(info)
+function TrialDefinitions = makeOneBlockTRD(info)
 
   clear TrialDefinitions;
-  
+  ctxt_idxs = 1:info.nContextLevels;
+
   trialCounter = 0;
-  for iBlock = 1:nBlocks
+    for iCongruency = 1:info.nCongruencyLevels
+      for iContext = 1:info.nContextLevels
+        for iContextExemplar = 1:info.nContextExemplarLevels
+          for iAction = 1:info.nActionLevels
+            for iView = 1:info.nViewLevels
+              for iActor = 1:info.nActorLevels
+                %ENCODING OF FACTOR LEVELS (FACTOR LEVELS MUST START AT 0)
+                %TODO: correct trial codes
+                %ThisTrial.code = ASF_encode([iProbeType-1 iDuration-1], info.factorialStructure);
+                
+                % Placeholder entries
+                ThisTrial.code = 0;
+                ThisTrial.tOnset = 0;
+                ThisTrial.probeType = 0;
+                ThisTrial.Probe = 0;
+                ThisTrial.Response = 0;
+                
+                %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                %WHICH PICTURES WILL BE SHOWN IN THIS TRIAL? 
+                
+                ThisTrial.congruency = info.CongruencyLevels(iCongruency);
+                
+                % CONGRUENT TRIALS
+                if isequal(info.CongruencyLevels(iCongruency), "congruent")
+                  % Save "context" for further assignment of probes AND
+                  % "correctResponses
+                  ThisTrial.context = info.ContextLevels(iContext);
+                  ThisTrial.context_idx = iContext;
+                  ThisTrial.action = info.ActionLevels(iContext, iAction);
+                  fname_target = strjoin([prefix,...
+                        sprintf("target_%s-%s_%s_%s_%s_%s.%s",...
+                                info.ContextLevels(iContext),...
+                                info.ContextExemplarLevels(iContextExemplar), ...
+                                info.ContextLevels(iContext),...
+                                info.ActionLevels(iContext, iAction),...
+                                info.ViewLevels(iView), ...
+                                info.ActorLevels(iActor),...
+                                picFormat)], '');
+    
+                  %disp(fname_target);
+                  fname_mask = strjoin([prefix,...
+                                        sprintf("mask_%s-%s_%s_%s_%s_%s.%s",...
+                                        info.ContextLevels(iContext),...
+                                        info.ContextExemplarLevels(iContextExemplar), ...
+                                        info.ContextLevels(iContext),...
+                                        info.ActionLevels(iContext, iAction),...
+                                        info.ViewLevels(iView), ...
+                                        info.ActorLevels(iActor),...
+                                        picFormat)], '');
+                  % Save "context" for further assignment of probes AND
+                  % "correctResponses
+                  ThisTrial.context = info.ContextLevels(iContext);
+                  ThisTrial.sourceContext_idx = iContext;
+                  ThisTrial.context_idx = iContext;
+                  ThisTrial.action = info.ActionLevels(iContext, iAction);
+                  ThisTrial.action_idx = iAction;
+                
+                % INCONGRUENT TRIALS
+                else
+                  % get subset of incongruent contexts
+                  inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= iContext);
+    
+                  % choose random incongruent context
+                  iContextInc = datasample(inc_ctxt_idxs, 1);
+        
+                  % choose random context exemplar
+                  iContextExemplarInc = randi(info.nContextExemplarLevels);
+    
+                  % build file name
+                  fname_target = strjoin([prefix,...
+                                          sprintf("target_%s-%s_%s_%s_%s_%s.%s",...
+                                                  info.ContextLevels(iContextInc),...
+                                                  info.ContextExemplarLevels(iContextExemplarInc), ...
+                                                  info.ContextLevels(iContext),...
+                                                  info.ActionLevels(iContext, iAction),...
+                                                  info.ViewLevels(iView), ...
+                                                  info.ActorLevels(iActor),...
+                                                  picFormat)], '');
+
+                  fname_mask = strjoin([prefix,...
+                                        sprintf("mask_%s-%s_%s_%s_%s_%s.%s",...
+                                        info.ContextLevels(iContextInc),...
+                                        info.ContextExemplarLevels(iContextExemplarInc), ...
+                                        info.ContextLevels(iContext),...
+                                        info.ActionLevels(iContext, iAction),...
+                                        info.ViewLevels(iView), ...
+                                        info.ActorLevels(iActor),...
+                                        picFormat)], '');
+
+                  % Save "context" for further assignment of probes AND
+                  % "correctResponses
+                  ThisTrial.context = info.ContextLevels(iContextInc);
+                  ThisTrial.sourceContext_idx = iContext;
+                  ThisTrial.context_idx = iContextInc;
+                  ThisTrial.action = info.ActionLevels(iContext, iAction);
+                  ThisTrial.action_idx = iAction;
+
+                  %disp(fname_target);
+                end
+                
+       
+                ThisTrial.targetPicture = find(std_files==fname_target);
+                ThisTrial.maskPicture = find(std_files==fname_mask);
+                  
+                if isempty(ThisTrial.targetPicture)
+                  disp(fname_target);
+                end
+    
+    
+                %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    
+                %THE STRUCTURE IS ALWAYS THE SAME
+                ThisTrial.pictures = [...
+                  info.fixationPicture,...
+                  info.emptyPicture,...
+                  ThisTrial.targetPicture,...
+                  ThisTrial.maskPicture,...
+                  info.emptyPicture];
+    
+                %FOR HOW LONG WILL EACH PICTURE BE PRESENTED?
+                ThisTrial.picDuration = 8; %info.DurationLevels(iDuration);
+                
+                ThisTrial.durations = [...
+                  info.fixDuration,...
+                  info.emptyDuration,...
+                  ThisTrial.picDuration,...
+                  info.maskDuration,...
+                  info.probeDuration];
+    
+                %WE START MEASURING THE RT AS SOON AS THE PICTURE IS PRESENTED,
+                %i.e. PAGE 2
+                ThisTrial.startRTonPage = info.startRTonPage;
+                ThisTrial.endRTonPage = info.endRTonPage;
+                
+                % correctResponse placeholder
+                ThisTrial.correctResponse = 0;
+    
+                %NOW WE STORE THIS TRIAL DEFIBITION IN AN ARRAY OF TRIAL
+                %DEFINITIONS
+                trialCounter = trialCounter + 1;
+                TrialDefinitions(trialCounter) = ThisTrial;
+              end % Actor
+            end % View
+          end % Action
+        end % ContextExemplar
+      end % Context
+    end % Congruency
+
+
+%--------------------------------------------------------------------------
+%% Sample incongruent pictures
+%--------------------------------------------------------------------------
+  function std_incg_files = sampleIncongruentPictures(info, picFormat)
+    % Creates a random "std" list of incongruent pictures
+    std_incg_files = [];
+    ctxt_idxs = 1:info.nContextLevels;
     for iContext = 1:info.nContextLevels
       for iContextExemplar = 1:info.nContextExemplarLevels
         for iAction = 1:info.nActionLevels
           for iView = 1:info.nViewLevels
             for iActor = 1:info.nActorLevels
-              %ENCODING OF FACTOR LEVELS (FACTOR LEVELS MUST START AT 0)
-              %TODO: correct trial codes
-              %ThisTrial.code = ASF_encode([iProbeType-1 iDuration-1], info.factorialStructure);
-              ThisTrial.code = 0;
-  
-              ThisTrial.tOnset = 0;
-  
-              ThisTrial.probeType = 0;
-              ThisTrial.Probe = 0;
-  
-              % Save "context" for further assignment of probes AND
-              % "correctResponses
-              ThisTrial.context = info.ContextLevels(iContext);
-              ThisTrial.context_idx = iContext;
-              ThisTrial.action = info.ActionLevels(iContext, iAction);
-  
-              %<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-              %WHICH PICTURES WILL BE SHOWN IN THIS TRIAL? 
-  
+              % get subset of incongruent contexts
+              inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= iContext);
+
+              % choose random incongruent context
+              iContextInc = datasample(inc_ctxt_idxs, 1);
+    
+              % choose random context exemplar
+              iContextExemplarInc = randi(info.nContextExemplarLevels);
+
+              % build file name
               fname_target = strjoin([prefix,...
                                       sprintf("target_%s-%s_%s_%s_%s.%s",...
-                                              info.ContextLevels(iContext),...
-                                              info.ContextExemplarLevels(iContextExemplar), ...
+                                              info.ContextLevels(iContextInc),...
+                                              info.ContextExemplarLevels(iContextExemplarInc), ...
                                               info.ActionLevels(iContext, iAction),...
                                               info.ViewLevels(iView), ...
                                               info.ActorLevels(iActor),...
                                               picFormat)], '');
-  
-              %disp(fname_target);
-              fname_mask = strjoin([prefix,...
-                                    sprintf("mask_%s-%s_%s_%s_%s.%s",...
-                                    info.ContextLevels(iContext),...
-                                    info.ContextExemplarLevels(iContextExemplar), ...
-                                    info.ActionLevels(iContext, iAction),...
-                                    info.ViewLevels(iView), ...
-                                    info.ActorLevels(iActor),...
-                                    picFormat)], '');
-              %ThisTrial.targetPicture = info.catPictures(iAction + (iContext-1)*3);
-              %ThisTrial.maskPicture = info.maskPictures(iAction + (iContext-1)*3);           
-              ThisTrial.targetPicture = find(std_files==fname_target);
-              ThisTrial.maskPicture = find(std_files==fname_mask);
-              
-              if isempty(ThisTrial.targetPicture)
-                disp(fname_target);
-              end
-  
-  
-              %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  
-              %THE STRUCTURE IS ALWAYS THE SAME
-              ThisTrial.pictures = [...
-                info.fixationPicture,...
-                info.emptyPicture,...
-                ThisTrial.targetPicture,...
-                ThisTrial.maskPicture,...
-                info.emptyPicture];
-  
-              %FOR HOW LONG WILL EACH PICTURE BE PRESENTED?
-              ThisTrial.picDuration = 8; %info.DurationLevels(iDuration);
-              
-              ThisTrial.durations = [...
-                info.fixDuration,...
-                info.emptyDuration,...
-                ThisTrial.picDuration,...
-                info.maskDuration,...
-                info.probeDuration];
-  
-              %WE START MEASURING THE RT AS SOON AS THE PICTURE IS PRESENTED,
-              %i.e. PAGE 2
-              ThisTrial.startRTonPage = info.startRTonPage;
-              ThisTrial.endRTonPage = info.endRTonPage;
-              
-              % correctResponse placeholder
-              ThisTrial.correctResponse = 0;
-  
-              %NOW WE STORE THIS TRIAL DEFIBITION IN AN ARRAY OF TRIAL
-              %DEFINITIONS
-              trialCounter = trialCounter + 1;
-              TrialDefinitions(trialCounter) = ThisTrial;
-            end % Actor
-          end % View
-        end % Action
-      end % ContextExemplar
-    end % Context
-  end % Block
+              std_incg_files = [std_incg_files; fname_target];
+    
+            end % iActor
+          end % iView
+        end % iAction
+      end % iContextExemplar
+    end % iContext
+  end % sampleIncongruentPictures
 
-%--------------------------------------------------------------------------
-%% Write function
-%--------------------------------------------------------------------------
-
-function writeTrialDefinitions(TrialDefinitions, info, fileName)
-  if isempty(fileName)
-      fid = 1;
-  else
-      %THIS OPENS A TEXT FILE FOR WRITING
-      fid = fopen(fileName, 'w');
-      fprintf(1, 'Creating file %s ...', fileName);
-  end
-
-  %WRITE DESIGN INFO
-  fprintf(fid, '%4d', info.factorialStructure );
-  
-  
-  nTrials = length(TrialDefinitions);
-  for iTrial = 1:nTrials
-      nPages = length(TrialDefinitions(iTrial).pictures);
-      
-      %STORE TRIALDEFINITION IN FILE
-      fprintf(fid, '\n'); %New line for new trial
-      fprintf(fid, '%4d', TrialDefinitions(iTrial).code);
-      fprintf(fid, '\t%4d', TrialDefinitions(iTrial).tOnset);
-      for iPage = 1:nPages
-          %TWO ENTRIES PER PAGE: 1) Picture, 2) Duration
-          fprintf(fid, '\t%4d %4d', TrialDefinitions(iTrial).pictures(iPage), TrialDefinitions(iTrial).durations(iPage));
-      end
-      fprintf(fid, '\t%4d', TrialDefinitions(iTrial).startRTonPage);
-      fprintf(fid, '\t%4d', TrialDefinitions(iTrial).endRTonPage);
-      fprintf(fid, '\t%4d', TrialDefinitions(iTrial).correctResponse);
-  end
-  if fid > 1
-      fclose(fid);
-  end
-
-  fprintf(1, '\nDONE\n'); %JUST FOR THE COMMAND WINDOW
-end
-
-
-end % makeTrialDefinitions
+end % makeOneBlockTRD
 end % makeTRDTemplate

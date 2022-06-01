@@ -1,4 +1,4 @@
-function runFastAC(subjectID, runNum, expName)
+function runBriefAC(subjectID, expName)
 %example call:
 %runFastAC(1, 1, 'FastAC')
 
@@ -12,13 +12,14 @@ addpath(genpath('/home/ov/asf/code'));
 KbName('UnifyKeyNames')
 
 Cfg = [];
-Cfg.environment = 'BEHAV_LAB';
+Cfg.environment = 'OV_DELL';
 Cfg.userSuppliedTrialFunction = @ASF_showTrial_BriefAC;
 Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 
 %==========================================================================
 % FACTORIAL DESIGN
 %==========================================================================
+CongruencyLevles = ["congruent", "incongruent"];
 % ContextLevels = ["kitchen", "office", "workshop"];
 % ActionLevels = ["cutting", "grating", "whisking";...
 %                 "hole-punching", "stamping", "stapling";...
@@ -36,7 +37,7 @@ ProbeLevels = [ContextLevels; ActionLevels];
 Cfg.DurationLevels = [2:1:6 8];
 Cfg.factorProbeTypes = ["context", "action"]';
 Cfg.factorProbes = reshape(ProbeLevels, 1, []);
-Cfg.factorialStructure = [length(Cfg.factorProbeTypes) length(Cfg.factorProbes) length(Cfg.DurationLevels)];
+Cfg.factorialStructure = [length(CongruencyLevles), length(Cfg.factorProbeTypes) length(Cfg.factorProbes) length(Cfg.DurationLevels)];
 
 %==========================================================================
 % FIXATION CROSS PARAMETERS
@@ -146,6 +147,5 @@ Cfg.Messages.TextFont = 'Verdana';
 
 %==========================================================================
 
-%ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB%02d_%02d_%s.trd', subjectID, runNum, expName), sprintf('SUB%02d_%02d_%s', subjectID, runNum, expName), Cfg)
-ExpInfo = ASF(Cfg.stimDefName, sprintf('%s.trd', expName), sprintf('result_%s', expName), Cfg)
+ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB-%02d_%s.trd', subjectID, expName), sprintf('SUB-%02d_%s', subjectID, expName), Cfg)
     

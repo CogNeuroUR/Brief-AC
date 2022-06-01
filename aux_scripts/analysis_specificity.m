@@ -1,5 +1,6 @@
 %% Load data
-load('../SUB02_01_forme.mat');
+fname = 'result_TEST_1_1_right.mat';
+load(['results' filesep fname]);
 
 %% Extract page numbers for probe types
 stimNames = ExpInfo.stimNames;

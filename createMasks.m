@@ -22,7 +22,7 @@ function [out] = rearrangeTiles(in)
 
 [nRows, nCols, nDim] = size(in);
 out = in; %make copy of original
-tileSize = 20;%10;
+tileSize = 16;%10;
 
 %disp(class(nRows));
 %disp(class(nCols));
