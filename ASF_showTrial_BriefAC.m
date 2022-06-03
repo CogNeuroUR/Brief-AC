@@ -610,7 +610,7 @@ function PauseScreen(window, Cfg, tmax)
     end
     
     % Check if any unrestricted key (spaceKey here) was pressed
-    WaitSecs(0.1);
+    WaitSecs(0.01); % this time shortens the percieved "tmax"
     [keyIsDown, keyTime, keyCode] = KbCheck;
     
     % Break if no key was pressed until "the end of time"

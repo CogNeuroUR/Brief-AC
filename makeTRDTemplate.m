@@ -51,6 +51,7 @@ info.nDurationLevels = length(info.DurationLevels);
 
 % FACTORIAL STRUCTURE : IVs (probeTypes, Probes, Durations)
 info.factorialStructure = [info.nCongruencyLevels, info.nProbeTypeLevels, info.nProbeLevels, info.nDurationLevels];
+info.factorialStructureSimplified = [info.nCongruencyLevels, info.nProbeTypeLevels, info.nDurationLevels];
 %info.factorialStructure = [info.nCongruencyLevels, info.nProbeTypeLevels, info.nDurationLevels];
 
 %HOW MANY TRIALS PER DESIGN CELL DO YOU WANT TO RUN?

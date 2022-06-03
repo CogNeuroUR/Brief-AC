@@ -1,4 +1,4 @@
-function runBriefAC(subjectID, expName)
+function ExpInfo = runBriefAC(subjectID, expName)
 %example call:
 %runFastAC(1, 1, 'FastAC')
 
@@ -12,7 +12,7 @@ addpath(genpath('/home/ov/asf/code'));
 KbName('UnifyKeyNames')
 
 Cfg = [];
-Cfg.environment = 'OV_DELL';
+Cfg.environment = 'BEHAV_LAB';
 Cfg.userSuppliedTrialFunction = @ASF_showTrial_BriefAC;
 Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 

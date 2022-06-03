@@ -1,4 +1,4 @@
-function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD, subjectID)
+function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   % FILLS A TEMPLATE 'TrialDefinitions' STRUCT WITH NECESSARY ENTRIES,
   % GIVES A STRUCTURE TO THE TRIALS.
   % 
@@ -291,9 +291,9 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD, subjectID)
     % Encode factors
     % TYPE 1: with Probe
     iProbe = find(info.ProbeLevels == TRD(iTrial).Probe);
-    code = ASF_encode([iCongruency-1 iProbeType-1 iProbe-1 iDuration-1], info.factorialStructure);
+    %code = ASF_encode([iCongruency-1 iProbeType-1 iProbe-1 iDuration-1], info.factorialStructure);
     % TYPE 2: without Probe
-    %code = ASF_encode([iCongruency-1 iProbeType-1 iDuration-1], info.factorialStructure);
+    code = ASF_encode([iCongruency-1 iProbeType-1 iDuration-1], info.factorialStructureSimplified);
     
     %fprintf('Code : %d, ProbeType : %d, Probe : %d, Duration : %d\n', code, iProbeType, iProbe, iDuration);
     % Assign
@@ -303,13 +303,33 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD, subjectID)
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% 9) Check codes
-%   codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
-%                   info.ProbeTypeLevels, info.DurationLevels)
-  codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
-                  info.ProbeTypeLevels, info.ProbeLevels, info.DurationLevels)
+  codeSanityCheck(TRD, info.factorialStructureSimplified,...
+                  info.CongruencyLevels, info.ProbeTypeLevels, info.ProbeLevels, info.DurationLevels);
+  %codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
+  %                info.ProbeTypeLevels, info.ProbeLevels, info.DurationLevels)
 
   %% 10) Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
   TRD = shuffleConditionalBlockWise(TRD, lBlock);
+
+  %% 10.2) Recode with the full factorial strucure
+  for iTrial = 1:length(TRD)
+    if TRD(iTrial).probeType == 0
+      disp(TRD(iTrial));
+
+    else
+    % Create factors
+    iCongruency = find(info.CongruencyLevels == TRD(iTrial).congruency);
+    iProbeType = find(info.ProbeTypeLevels == TRD(iTrial).probeType);
+    iDuration = find(info.DurationLevels == TRD(iTrial).picDuration);
+    
+    % Encode factors
+    % TYPE 1: with Probe
+    iProbe = find(info.ProbeLevels == TRD(iTrial).Probe);
+    code = ASF_encode([iCongruency-1 iProbeType-1 iProbe-1 iDuration-1], info.factorialStructure);
+    
+    TRD(iTrial).code = code;
+    end
+  end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% 11) Add special trials : start, preparation, pauses and end trials.
@@ -378,7 +398,7 @@ function TRD = fillTRD(nBlocks, lBlock, RespKeys, writeTRD, subjectID)
   t_trial_estimate = 2.32; % in seconds (based on one pilot)
   duration_min = duration_frames / 3600; % in minutes (60fps * 60s)
   fprintf('\nN_trials : %d; Total MAX duration : %4.2fmin.\n', length(TRD), duration_min);
-  fprintf('Estimated duration: %dmin (%ds per trial)',...
+  fprintf('Estimated duration: %4.2fmin (%4.2fs per trial)',...
           length(TRD)*t_trial_estimate/60, t_trial_estimate);
 
 end % fillTRD function
@@ -495,6 +515,7 @@ function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLev
   % OV 11.05.22
   %
   % NOTE: To be run before writing trials to a ".trd" file!
+  
 
   % Sweep through the trials and extract codes
   fprintf('\nChecking trial codes ...\n');
@@ -503,9 +524,17 @@ function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLev
     factors = ASF_decode(TRD(iTrial).code,factorialStructure);
     c = factors(1);   % congruency
     t = factors(2);   % probe type
-    p = factors(3);   % probe
-    d = factors(4);   % duration
-    
+    d = factors(3);   % duration
+
+    if length(factors) == 4
+      p = factors(3);   % probe
+      d = factors(4);   % duration
+      % Check Probe : from code vs from TRD
+      if ~isequal(ProbeLevels(p+1), TRD(iTrial).Probe)
+       fprintf('Probe code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
+         ProbeLevels(p+1), TRD(iTrial).Probe)
+      end
+    end
     % Check Congruency : from code vs from TRD
     if ~isequal(CongruencyLevels(c+1), TRD(iTrial).congruency)
       fprintf('Congruency code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
@@ -514,10 +543,6 @@ function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLev
     elseif ~isequal(ProbeTypeLevels(t+1), TRD(iTrial).probeType)
       fprintf('ProbeType code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
         ProbeTypeLevels(t+1), TRD(iTrial).probeType)
-    % Check Probe : from code vs from TRD
-     elseif ~isequal(ProbeLevels(p+1), TRD(iTrial).Probe)
-       fprintf('Probe code is wrong! From code: \"%s\" vs from TRD: \"%s\"\n',...
-         ProbeLevels(p+1), TRD(iTrial).Probe)
     % Check Duration : from code vs from TRD
     elseif ~isequal(DurationLevels(d+1), TRD(iTrial).picDuration)
       fprintf('Duration code is wrong! From code: \"%d\" vs from TRD: \"%d\"\n',...
