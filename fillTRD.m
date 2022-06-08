@@ -552,8 +552,40 @@ function codeSanityCheck(TRD, factorialStructure, CongruencyLevels, ProbeTypeLev
   fprintf('Code check finished.\n')
 end
 
+
 %--------------------------------------------------------------------------
 function TrialDefinitionsNew = addPauseTrials(TrialDefinitions, pauseTrial, interval)
+  % Adds pause trials after each "interval" of trials.   
+  %------------------------
+  % Iterate over trials to find trial indexes for pauses
+  nTrials = length(TrialDefinitions);
+  
+  % Sweep through trials and find positions to place pauses
+  pause_idxs = [];
+  for iTrial = nTrials:-1:2
+    %TrialDefinitionsNew(iTrial) = TrialDefinitions(iTrial);
+    
+    if mod(iTrial, interval) == 0
+      pause_idxs(end+1) = iTrial + 1;
+    end
+  end
+
+  %------------------------
+  % Place pause trials
+  TrialDefinitionsNew = TrialDefinitions;
+  for iTrial = nTrials:-1:2
+    if mod(iTrial, interval) == 0
+    % Add pauseTrial in between pre- & post-idx segments of TRD
+    TrialDefinitionsNew = [TrialDefinitionsNew(1:iTrial), ...
+                           pauseTrial,...
+                           TrialDefinitionsNew(iTrial+1:end)];
+    end
+  end    
+  
+end
+
+%--------------------------------------------------------------------------
+function TrialDefinitionsNew = addPauseTrials_old(TrialDefinitions, pauseTrial, interval)
   % Adds pause trials after each "interval" of trials.   
   %------------------------
   % Iterate over trials to find trial indexes for pauses
@@ -604,7 +636,7 @@ function TrialDefinitionsNew = addBlankTrial(TrialDefinitions, blankTrial, idx_p
   TrialDefinitionsNew = TrialDefinitions;
   TrialDefinitionsNew = [TrialDefinitionsNew(1:idx_position-1),...
                          blankTrial,...
-                         TrialDefinitionsNew(idx_position+1:end)];
+                         TrialDefinitionsNew(idx_position:end)];
 
 end
 

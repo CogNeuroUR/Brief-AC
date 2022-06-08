@@ -2,6 +2,8 @@
 *.DS_Store
 # Matlab variables
 *.mat
+!Brief-AC/results/SUB-01_pilot-2_right.mat
+
 # Ignore Matlab's autosave files
 *.asv
 
@@ -12,3 +14,4 @@
 .ipynb_checkpoints
 __pycache__
 *.pyc
+

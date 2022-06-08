@@ -178,8 +178,8 @@ title('RT for Action and Context Probes [CONGRUNET]');
 legend('Actions','Context')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
-xlim([1.5 8.5]*factor) 
-
+xlim([1.5 8.5]*factor)
+print('-dpng','-r300','plots/rt_congruent')
 % plotshaded(x,[yAct+stdAct; [yAct-stdAct]],'r');
 % plotshaded(x,yAct,'r');
 
@@ -208,7 +208,64 @@ title('RT for Action and Context Probes [INCONGRUENT]');
 legend('Actions','Context')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
-xlim([1.5 8.5]*factor) 
+xlim([1.5 8.5]*factor)
+print('-dpng','-r300','plots/rt_incongruent')
+
+%% Plot ACTIONS : congruent vs incongruent
+% Plot RT's as a function of presentation time
+screen_freq = (1/60);
+factor = screen_freq*1000;
+x = [statsContextCongruent{:, 1}]*factor; % in ms
+
+% Collect mean RT's for action and context probes
+yAct = [statsActionCongruent{:, 2}];
+yCon = [statsActionIncongruent{:, 2}];
+% Collect RT's standard deviation for action and context probes
+stdAct = [statsActionCongruent{:, 3}];
+stdCon = [statsActionIncongruent{:, 3}];
+
+e1 = errorbar(x,yAct,stdAct);
+hold on
+e2 = errorbar(x,yCon,stdCon);
+
+e1.Marker = "x";
+e2.Marker = "o";
+
+title('RTs for Actions');
+legend('Congruent','Incongruent')
+xlabel('Presentation time [ms]')
+ylabel('RT [ms]')
+xlim([1.5 8.5]*factor)
+print('-dpng','-r300','plots/rt_actions')
+
+%% Plot CONTEXT : congruent vs incongruent
+% Plot RT's as a function of presentation time
+screen_freq = (1/60);
+factor = screen_freq*1000;
+x = [statsContextCongruent{:, 1}]*factor; % in ms
+
+% Collect mean RT's for action and context probes
+yAct = [statsContextCongruent{:, 2}];
+yCon = [statsContextIncongruent{:, 2}];
+% Collect RT's standard deviation for action and context probes
+stdAct = [statsActionCongruent{:, 3}];
+stdCon = [statsContextIncongruent{:, 3}];
+
+e1 = errorbar(x,yAct,stdAct);
+hold on
+e2 = errorbar(x,yCon,stdCon);
+
+e1.Marker = "x";
+e2.Marker = "o";
+
+title('RTs for Contexts');
+legend('Congruent','Incongruent')
+xlabel('Presentation time [ms]')
+ylabel('RT [ms]')
+xlim([1.5 8.5]*factor)
+print('-dpng','-r300','plots/rt_contexts')
+
+
 
 %% ########################################################################
 % Investigate Sensitivity index (d')
@@ -241,6 +298,7 @@ legend('Action','Context')
 title('Sensitivity index (S1) [CONGRUENT]');
 xlabel('Presentation time [ms]')
 ylabel('d''')
+print('-dpng','-r300','plots/dprime_congruent')
 
 %% [INCONGRUENT] Plot d-prime
 assert(height(t_statsActionIncongruent) == height(t_statsContextIncongruent));
@@ -255,6 +313,38 @@ legend('Action','Context')
 title('Sensitivity index (S1) [INCONGRUENT]');
 xlabel('Presentation time [ms]')
 ylabel('d''')
+print('-dpng','-r300','plots/dprime_incongruent')
+
+%% Plot d-prime : ACTIONS
+assert(height(t_statsActionIncongruent) == height(t_statsActionCongruent));
+x = [t_statsActionIncongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsActionCongruent{:, 'd-prime'}, t_statsActionIncongruent{:, 'd-prime'}]);
+
+xticks([t_statsActionCongruent{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsActionCongruent{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsActionCongruent{:, 'd-prime'}) + 1])
+
+legend('Congruent','Incongruent')
+title('Sensitivity index (S1) : ACTIONS');
+xlabel('Presentation time [ms]')
+ylabel('d''')
+print('-dpng','-r300','plots/dprime_actions')
+
+%% Plot d-prime : ACTIONS
+assert(height(t_statsContextCongruent) == height(t_statsContextIncongruent));
+x = [t_statsContextCongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsContextCongruent{:, 'd-prime'}, t_statsContextIncongruent{:, 'd-prime'}]);
+
+xticks([t_statsContextCongruent{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsContextCongruent{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsContextCongruent{:, 'd-prime'}) + 1])
+
+legend('Congruent','Incongruent')
+title('Sensitivity index (S1) : CONTEXT');
+xlabel('Presentation time [ms]')
+ylabel('d''')
+print('-dpng','-r300','plots/dprime_context')
+
 
 
 %% ------------------------------------------------------------------------
