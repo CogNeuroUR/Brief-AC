@@ -13,6 +13,7 @@ sName = ['stimdef.std'];
 fid = fopen(sName,'w');
 for i = 1: nStim
     [pathstr, thisName, ext] = fileparts(fNameList(i).name);
-    fprintf(fid, './%s/%s.png\n', stim_folder, thisName);
+    %fprintf(fid, './%s/%s.png\n', stim_folder, thisName); % for Linux/macOS
+    fprintf(fid, '.\\%s\\%s.png\n', stim_folder, thisName);  % for Windows
 end
 fclose(fid);

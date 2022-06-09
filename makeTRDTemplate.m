@@ -66,7 +66,7 @@ info.factorialStructureSimplified = [info.nCongruencyLevels, info.nProbeTypeLeve
 %--------------------------------------------------------------------------
 info.emptyPicture = 1;
 info.fixationPicture = 1;
-prefix = ['./stimuli' filesep];
+prefix = ['.' filesep 'stimuli' filesep];
 picFormat = 'png';
 
 % Read std-file
