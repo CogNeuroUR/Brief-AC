@@ -1,12 +1,9 @@
 %% Load data
-%fname = 'SUB-01_pilot-2_right.mat';
-fname = 'result_TEST_1_1_demo_right.mat'
+fname = 'SUB-01_pilot-2_right.mat';
 load(['results' filesep fname]);
 
-% key_yes = 39;
-% key_no = 37;
-key_yes = 115;
-key_no = 114;
+key_yes = 39;
+key_no = 37;
 
 %%
 addpath(genpath('/home/ov/asf/code'));
@@ -256,7 +253,7 @@ print('-dpng','-r300','plots/rt_actions')
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [vstatsContextCongruent{:, 1}]*factor; % in ms
+x = [statsContextCongruent{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
 yAct = [RTstatsContextCongruent{:, 2}];
@@ -510,39 +507,4 @@ function [congruency, probeType, Probe] = decodeProbe(code, factorialStructure,.
     congruency = CongruencyLevels(c+1);
     probeType = ProbeTypeLevels(t+1);
     Probe = ProbeLevels(p+1);
-end
-
-%% ------------------------------------------------------------------------
-function varargout = plotshaded(x,y,fstr)
-  % x: x coordinates
-  % y: either just one y vector, or 2xN or 3xN matrix of y-data
-  % fstr: format ('r' or 'b--' etc)
-  %
-  % example
-  % x=[-10:.1:10];plotshaded(x,[sin(x.*1.1)+1;sin(x*.9)-1],'r');
-  % SOURCE: http://jvoigts.scripts.mit.edu/blog/nice-shaded-plots/
-   
-  if size(y,1)>size(y,2)
-      y=y';
-  end
-   
-  if size(y,1)==1 % just plot one line
-      plot(x,y,fstr);
-  end
-   
-  if size(y,1)==2 %plot shaded area
-      px=[x,fliplr(x)]; % make closed patch
-      py=[y(1,:), fliplr(y(2,:))];
-      patch(px,py,1,'FaceColor',fstr,'EdgeColor','none');
-  end
-   
-  if size(y,1)==3 % also draw mean
-      px=[x,fliplr(x)];
-      py=[y(1,:), fliplr(y(3,:))];
-      patch(px,py,1,'FaceColor',fstr,'EdgeColor','none');
-      plot(x,y(2,:),fstr);
-  end
-   
-  alpha(.2); % make patch transparent
-  hold on
 end
