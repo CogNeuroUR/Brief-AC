@@ -1,9 +1,12 @@
 %% Load data
-fname = 'SUB-01_pilot-2_right.mat';
+%fname = 'SUB-01_pilot-2_right.mat';
+fname = 'result_TEST_1_1_demo_right.mat'
 load(['results' filesep fname]);
 
-key_yes = 39;
-key_no = 37;
+% key_yes = 39;
+% key_no = 37;
+key_yes = 115;
+key_no = 114;
 
 %%
 addpath(genpath('/home/ov/asf/code'));
@@ -85,6 +88,7 @@ for i=1:length(ExpInfo.TrialInfo)
                                                info.CongruencyLevels,...
                                                info.ProbeTypeLevels, info.ProbeLevels);
 
+  % congruent
   if isequal(congruency, 'congruent')
     % check if from action probes
     if isequal(probeType, "action")
@@ -92,7 +96,8 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
-                       ExpInfo.TrialInfo(i).Response.RT};    
+                       ExpInfo.TrialInfo(i).Response.RT,...
+                       congruency, probeType, Probe};    
     
     % check if from context probes 
     elseif isequal(probeType, "context")
@@ -100,8 +105,11 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
-                        ExpInfo.TrialInfo(i).Response.RT};
-    end  
+                        ExpInfo.TrialInfo(i).Response.RT,...
+                       congruency, probeType, Probe};
+    end
+
+  % incongruent
   else
     % check if from action probes
     if isequal(probeType, "action")
@@ -109,7 +117,8 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
-                       ExpInfo.TrialInfo(i).Response.RT};    
+                       ExpInfo.TrialInfo(i).Response.RT,...
+                       congruency, probeType, Probe};    
     
     % check if from context probes 
     elseif isequal(probeType, "context")
@@ -117,7 +126,8 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
-                        ExpInfo.TrialInfo(i).Response.RT};
+                        ExpInfo.TrialInfo(i).Response.RT,...
+                       congruency, probeType, Probe};
     end  
   end
 
@@ -125,47 +135,51 @@ for i=1:length(ExpInfo.TrialInfo)
 end
 
 %% Remove trials with empty cells (no response given)
-[rows, cols] = find(cellfun(@isempty,trials_action_congruent));
-trials_action_congruent(unique(rows),:)=[];
-[rows, cols] = find(cellfun(@isempty,trials_context_congruent));
-trials_context_congruent(unique(rows),:)=[];
-[rows, cols] = find(cellfun(@isempty,trials_action_incongruent));
-trials_action_incongruent(unique(rows),:)=[];
-[rows, cols] = find(cellfun(@isempty,trials_context_incongruent));
-trials_context_incongruent(unique(rows),:)=[];
+% TODO: better perform nanmean() & nanstd, s.t. the misses are not ignored,
+% but considered for the accuracy.
+% TODO : print how many NaNs were found (and for what condition)
+% [rows, cols] = find(cellfun(@isempty,trials_action_congruent));
+% trials_action_congruent(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_context_congruent));
+% trials_context_congruent(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_action_incongruent));
+% trials_action_incongruent(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_context_incongruent));
+% trials_context_incongruent(unique(rows),:)=[];
 
 %% Convert cells to tables
+varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruency', 'ProbeType', 'Probe'};
 t_trialsActionCongruent = cell2table(trials_action_congruent,...
-                            'VariableNames',{'PresTime' 'ResKey' 'TrueKey' 'RT'});
+                            'VariableNames', varnames);
 t_trialsContextCongruent = cell2table(trials_context_congruent,...
-                            'VariableNames',{'PresTime' 'ResKey' 'TrueKey' 'RT'});
+                            'VariableNames', varnames);
 t_trialsActionIncongruent = cell2table(trials_action_incongruent,...
-                            'VariableNames',{'PresTime' 'ResKey' 'TrueKey' 'RT'});
+                            'VariableNames', varnames);
 t_trialsContextIncongruent = cell2table(trials_context_incongruent,...
-                            'VariableNames',{'PresTime' 'ResKey' 'TrueKey' 'RT'});
+                            'VariableNames', varnames);
 
 %% ########################################################################
 % Investigate RT
 %%#########################################################################
 
 %% Extract RT = f(presentation time) by probe type
-statsActionCongruent = getRTstats(t_trialsActionCongruent);
-statsContextCongruent = getRTstats(t_trialsContextCongruent);
-statsActionIncongruent = getRTstats(t_trialsActionIncongruent);
-statsContextIncongruent = getRTstats(t_trialsContextIncongruent);
+RTstatsActionCongruent = getRTstats(t_trialsActionCongruent);
+RTstatsContextCongruent = getRTstats(t_trialsContextCongruent);
+RTstatsActionIncongruent = getRTstats(t_trialsActionIncongruent);
+RTstatsContextIncongruent = getRTstats(t_trialsContextIncongruent);
 
 %% Plot [CONGRUENT]
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [statsContextCongruent{:, 1}]*factor; % in ms
+x = [RTstatsContextCongruent{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [statsActionCongruent{:, 2}];
-yCon = [statsContextCongruent{:, 2}];
+yAct = [RTstatsActionCongruent{:, 2}];
+yCon = [RTstatsContextCongruent{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [statsActionCongruent{:, 3}];
-stdCon = [statsContextCongruent{:, 3}];
+stdAct = [RTstatsActionCongruent{:, 3}];
+stdCon = [RTstatsContextCongruent{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -188,14 +202,14 @@ print('-dpng','-r300','plots/rt_congruent')
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [statsActionIncongruent{:, 1}]*factor; % in ms
+x = [RTstatsActionIncongruent{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [statsActionIncongruent{:, 2}];
-yCon = [statsContextIncongruent{:, 2}];
+yAct = [RTstatsActionIncongruent{:, 2}];
+yCon = [RTstatsContextIncongruent{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [statsActionIncongruent{:, 3}];
-stdCon = [statsContextIncongruent{:, 3}];
+stdAct = [RTstatsActionIncongruent{:, 3}];
+stdCon = [RTstatsContextIncongruent{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -215,14 +229,14 @@ print('-dpng','-r300','plots/rt_incongruent')
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [statsContextCongruent{:, 1}]*factor; % in ms
+x = [RTstatsContextCongruent{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [statsActionCongruent{:, 2}];
-yCon = [statsActionIncongruent{:, 2}];
+yAct = [RTstatsActionCongruent{:, 2}];
+yCon = [RTstatsActionIncongruent{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [statsActionCongruent{:, 3}];
-stdCon = [statsActionIncongruent{:, 3}];
+stdAct = [RTstatsActionCongruent{:, 3}];
+stdCon = [RTstatsActionIncongruent{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -242,14 +256,14 @@ print('-dpng','-r300','plots/rt_actions')
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [statsContextCongruent{:, 1}]*factor; % in ms
+x = [vstatsContextCongruent{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [statsContextCongruent{:, 2}];
-yCon = [statsContextIncongruent{:, 2}];
+yAct = [RTstatsContextCongruent{:, 2}];
+yCon = [RTstatsContextIncongruent{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [statsActionCongruent{:, 3}];
-stdCon = [statsContextIncongruent{:, 3}];
+stdAct = [RTstatsActionCongruent{:, 3}];
+stdCon = [RTstatsContextIncongruent{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -298,7 +312,7 @@ legend('Action','Context')
 title('Sensitivity index (S1) [CONGRUENT]');
 xlabel('Presentation time [ms]')
 ylabel('d''')
-print('-dpng','-r300','plots/dprime_congruent')
+print('-dpng','-r300','plots/dprime_congruent_nan')
 
 %% [INCONGRUENT] Plot d-prime
 assert(height(t_statsActionIncongruent) == height(t_statsContextIncongruent));
@@ -313,7 +327,7 @@ legend('Action','Context')
 title('Sensitivity index (S1) [INCONGRUENT]');
 xlabel('Presentation time [ms]')
 ylabel('d''')
-print('-dpng','-r300','plots/dprime_incongruent')
+print('-dpng','-r300','plots/dprime_incongruent_nan')
 
 %% Plot d-prime : ACTIONS
 assert(height(t_statsActionIncongruent) == height(t_statsActionCongruent));
@@ -360,8 +374,8 @@ function stats = getRTstats(t_trials)
   for i=1:length(uniqTimes)
     values = t_trials.RT(t_trials.PresTime==uniqTimes(i));
     if isequal(class(values), 'cell'); values = cell2mat(values); end
-    avg = mean(values);
-    stdev = std(values);
+    avg = nanmean(values);
+    stdev = nanstd(values);
     fprintf('PresTime: %d; Mean RT: %.2fms; SD RT: %.2fms\n',...
             uniqTimes(i), avg, stdev);
     stats(end+1, :) = {uniqTimes(i), avg, stdev};
@@ -406,6 +420,7 @@ function stats = extractResponseStats(tTrials, key_yes, key_no)
   % = false alarms (hit "yes" when NO; hit "no" when YES)
   % = false alarm rate (false_alarms / total_responses)
   % = hit_rate - falarm_rate (specificity index, i.e. d-prime)
+
   fprintf('Computing RT-statistics ...\n')
 
   stats = {};
@@ -432,28 +447,41 @@ function stats = extractResponseStats(tTrials, key_yes, key_no)
     misses = 0;
     corr_rejections = 0;
     f_alarms = 0;
-    %falarms = 0;
+    
     for j=1:length(ResKeys)
       n_samples = n_samples + 1;
       switch ResKeys(j)
         case key_yes % "yes" response
           if ResKeys(j) == TrueKeys(j)
             hits = hits + 1;
-          else
+          else % either empty or $key_no
+            disp('miss (key_yes)!');
             misses = misses + 1;
           end
+        
         case key_no % "no" response
           if ResKeys(j) == TrueKeys(j)
             corr_rejections = corr_rejections + 1;
-          else
+          elseif ResKeys(j) == key_yes % false alarm
             f_alarms = f_alarms + 1;
+          else
+            misses = misses + 1;
+            disp('miss (key_no)!');
           end
       end
     end
     
     % compute hit- and false alarm rates
-    hit_rate = hits / (hits + misses);
-    f_alarm_rate = f_alarms / (f_alarms + corr_rejections);
+    if hits ~= 0
+      hit_rate = hits / (hits + misses);
+    else
+      hit_rate = 0;
+    end
+    if f_alarms ~= 0
+      f_alarm_rate = f_alarms / (f_alarms + corr_rejections);
+    else
+      f_alarm_rate = 0;
+    end
     
     % concatenate
     stats(end+1, :) = {uniqTimes(i),n_samples,...
