@@ -20,7 +20,7 @@ importlib.reload(utils)
 importlib.reload(stimset)
 
 # %% Load files and create StimulusSet
-path_input = Path('../stimuli_new')
+path_input = Path('../stimuli_targets/')
 l_files = list(path_input.glob('**/*.png'))
 
 dict_lookup = {
@@ -38,53 +38,11 @@ my_set = stimset.StimulusSet(path_input, dict_lookup, 'png',
 df = my_set.create_dataframe()
 print(df.head())
 
-# %%
+# %% Load test image
 img = cv2.imread(str(my_set.filelist[0]))
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 print(img.shape)
-
 plt.imshow(img)
-
-# %% Rotation
-from scipy import ndimage
-img_scipy = ndimage.rotate(img, 90, reshape=True)
-plt.imshow(img_scipy)
-#cv2.imwrite('rotate_scipy.png', img_scipy)
-
-# %%
-im = img
-M = 22
-N = 32
-
-# https://stackoverflow.com/a/47581978
-tiles = [im[x:x+M,y:y+N] for x in range(0,im.shape[0],M) for y in range(0,im.shape[1],N)]
-
-
-#%% From tiles back to image
-a_tiles = np.concatenate(tiles, axis=0)
-print(a_tiles.shape)
-im_new = np.reshape(tiles, im.shape[:2])
-print(im_new.shape)
-plt.imshow(im_new)
-
-# %%
-import random
-
-# 1) shuffle positions in a list
-idxs_shuffled = [i for i in range(len(tiles))]
-random.shuffle(idxs_shuffled)
-tiles = [tiles[i] for i in idxs_shuffled]
-
-# 2) random rotation (0, 90, 180, 270)
-# iterate through tiles
-for i in range(len(tiles)):
-    #angle = random.choice([0, 90, 180, 270])
-    angle = random.choice([0, 180])
-    tiles[i] = ndimage.rotate(tiles[i], angle)
-    
-# 3) reconstruct (TODO)
-im_shuff = np.reshape(tiles, im.shape)
-plt.imshow(im_shuff)
 
 #%% ==========================================================================
 # IDEA
@@ -96,13 +54,36 @@ plt.imshow(im_shuff)
 # 
 # THIS IS HOW PREVIOUS CODE (TZ'S) WORKED, WHICH IN TURN WAS TAKEN FROM AL.
 
-#%%
-M = 20
 
-#%%
-def reshape_split(img : np.ndarray, kernel_size : tuple):
-    h, w = img.shape
-    h_tile, w_tile = kernel_size
+#%% Size of (square) tiles : smallest common divisors
+width = img.shape[1]
+height = img.shape[0]
+
+minim = min([width, height])
+
+l_divisors = []
+for i in range(1, minim+1):
+    if((width % i == 0) and (height % i == 0)):
+       l_divisors.append(i)
+       
+print('Common divisors:', l_divisors)
+
+#%% Tiling function
+def tile_(im, tw, th=None):
+    # https://stackoverflow.com/a/47581978
+    if not th:
+        th = tw
+    #return np.reshape(im, (im.shape[0] // th * im.shape[1] // tw, th, tw))
+    return np.reshape(im, (th, tw, -1))
+
+#%% Tiling function
+def tile(img, w_tile, h_tile=None):
+    # given landscape mode
+    h = img.shape[0]
+    w = img.shape[1]
+
+    if not h_tile:
+        h_tile = w_tile
     
     tiled_array = img.reshape(h // h_tile,
                               h_tile,
@@ -110,68 +91,77 @@ def reshape_split(img : np.ndarray, kernel_size : tuple):
                               w_tile)
     
     #tiled_array = tiled_array.swapaxes(1,2) # only for RGB
-    return tiled_array
-# %%
-W = 16
-H = 11
-t_size = (H, W)
-tiles = reshape_split(img, t_size)
+    
+    tiles = []
+
+    for i in range(tiled_array.shape[0]):
+        for j in range(tiled_array.shape[2]):
+            tiles.append(tiled_array[i, :, j, :])
+            
+    return np.array(tiles)
+
+# %% Test tiling
+M = 192
+
+tiles = tile(img, M)
 print(tiles.shape)
-# %%
-untiled = tiles.reshape(img.shape)
+plt.imshow(tiles[2])
+
+#%% From tiles to img
+def untile(tiles, shape):
+    # check if tiles are compatible with shape
+    # TODO
+    
+    if tiles.shape[1] != tiles.shape[2]:
+        raise ValueError('Tiles are not square!')
+    
+    th = tiles.shape[1]
+    tw = tiles.shape[2]
+    
+    untiled = np.zeros(shape)
+    
+    k = 0
+    for i in range(shape[0]//th):
+        for j in range(shape[1]//tw):
+            untiled[i*th:(i+1)*th, j*tw:(j+1)*tw] = tiles[k]
+            k+=1
+            
+    return untiled
+
+#%% Test untiling
+untiled = untile(tiles, img.shape)
 plt.imshow(untiled)
 
-#%% 1) Load image
-img = cv2.imread(str(my_set.filelist[0]))
-img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-print(img.shape)
 
-plt.imshow(img)
+# %% Test tiling & untiling
+im = img
+M = 192 #32
+N = M
 
-#%% 2) Create tile
-W = 16
-H = 11
-t_size = (H, W)
-tiles = reshape_split(img, t_size)
-print(tiles.shape)
+tiles = tile(im, M)
+print(len(tiles))
 
-#%% 3) Random rotation
-import random
-n_tiles = tiles.shape[0] * tiles.shape[2]
-print(n_tiles)
+# %% Shuffling order and angle
+def shuffle_tiles(tiles):  
+    # 1) shuffle positions in a list
+    idxs_shuffled = [i for i in range(len(tiles))]
+    random.shuffle(idxs_shuffled)
+    tiles = tiles[idxs_shuffled]
 
-for i in range(tiles.shape[0]):
-    # i : height
-    for j in range(tiles.shape[2]):
-        # j : width
-        angle = random.choice([0, 180])
-        tiles[i, :, j, :] = ndimage.rotate(tiles[i, :, j, :], angle)
-        
-untiled_rotated = tiles.reshape(img.shape)
-plt.imshow(untiled_rotated)
+    # 2) random rotation (0, 90, 180, 270)
+    if tiles.shape[1] == tiles.shape[2]: 
+        angles = [0, 90, 180, 270]
+    else:
+        angles = [0, 180]
+    # iterate through tiles
+    for i in range(len(tiles)):
+        tiles[i] = ndimage.rotate(tiles[i], random.choice(angles))
 
-#%% Test
-tiles_rotated_flat = np.reshape(tiles, (-1, H, W))
-plt.imshow(tiles_rotated_flat.reshape(img.shape))
+    return tiles
 
-#%% 4) Shuffle order
-tiles_rotated_flat = np.reshape(tiles, (-1, H, W)) #np.reshape(untiled_rotated, (-1, H, W))
-print('Rotated flat:', tiles_rotated_flat.shape)
-idxs_shuffled = [i for i in range(tiles_rotated_flat.shape[0])]
-random.shuffle(idxs_shuffled)
-#tiles_flat = tiles_flat[idxs_shuffled, :, :]
+#%% Test shuffling
+tiles_shuf = shuffle_tiles(tiles)
+plt.imshow(untile(tiles_shuf, img.shape))
 
-tiles_rotated_shuff = tiles_rotated_flat
-np.random.shuffle(tiles_rotated_shuff)
-print('Rotated shuffled flat:', tiles_rotated_shuff.shape)
-
-#%% 5) Recreate
-untiled_rotated_shuff = tiles_rotated_shuff.reshape(img.shape)
-untiled_rotated = tiles_rotated_flat.reshape(img.shape)
-plt.imshow(untiled_rotated)
-plt.show(block=False)
-plt.imshow(untiled_rotated_shuff)
-cv2.imwrite('untiled_shuffled.png', untiled_rotated_shuff)
-
-# %%
-# %%
+#%% Write TODO
+#cv2.imwrite('untiled_shuffled.png', tiles_shuf)
