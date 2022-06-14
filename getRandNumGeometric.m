@@ -1,21 +1,19 @@
-function x = drawNumberFromGeoDist_GA(lowest, highest, steps, p)
-%function x = drawNumberFromGeoDist_GA(lowest, highest, steps, p)
+function x = getRandNumGeometric(lowest, highest, steps, p)
+%function x = getRandNumGeometric(lowest, highest, steps, p)
 %%Draws an number from a truncated geometric distribution with 
 %%event-probability p. The number will be between lowest and highest in
 %%steps indicated by the "steps"
 %
-% last change: giacomo ariani 2015.01.22 (adapted from jens.schwarzbach@unitn.it)
-%
 %%Examples
 %%1. Draw one random number between 0 and 8 in steps of 1, p of event = 0.4
-%x = drawNumberFromGeoDist_GA(0, 8, 1, 0.4)
+%x = getRandNumGeometric(0, 8, 1, 0.4)
 %
 %%2. Draw 100000 random numbers between 0 and 10 in steps of 0.5, p of event = 0.2
 %%   and plot frequency distribution
 % n = 100000;
 % y = zeros(n, 1);
 % for i = 1:n
-%    y(i) = drawNumberFromGeoDist_GA(0, 10, 0.5, 0.2);
+%    y(i) = getRandNumGeometric(0, 10, 0.5, 0.2);
 % end
 % mean(y)
 % uy = unique(y);
@@ -23,6 +21,8 @@ function x = drawNumberFromGeoDist_GA(lowest, highest, steps, p)
 % hist(y, numel(uy))
 % xlabel('X')
 % ylabel('frequency')
+%
+% last change: giacomo ariani 2015.01.22 (adapted from jens.schwarzbach@unitn.it)
 
 %define the range of possible outcomes
 range=lowest:steps:highest;

@@ -267,9 +267,9 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   TRD = shuffleBlockWise(TRD, lBlock, 'all');
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %% 7) Add (random) jitter to fixation (for a 60Hz screen)
-  jitt_shortest = 18; % in frames
-  jitt_longest = 36; % in in frames
+  %% 7) Add (random) jitter (100-200ms) to fixation (for a 60Hz screen)
+  jitt_shortest = 6; % in frames
+  jitt_longest = 18; % in in frames
   step = 2; % in frames
   
   type = 'geometric'; % distribution from which to sample (or 'normal')
@@ -422,10 +422,10 @@ function TrialDefinitions = addBlankJitter(TrialDefinitions, type, lowest, highe
     p = 0.5; % TODO : why?
   
     for iTrial = 2:nTrials
-      jitter = drawNumberFromGeoDist_GA(lowest,...
-                                        highest,...
-                                        step,...
-                                        p);
+      jitter = getRandNumGeometric(lowest,...
+                                   highest,...
+                                   step,...
+                                   p);
       TrialDefinitions(iTrial).durations(pageNumber) = jitter;
       l_jitters = [l_jitters, jitter];
     end
