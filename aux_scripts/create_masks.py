@@ -19,6 +19,86 @@ import stimset
 importlib.reload(utils)
 importlib.reload(stimset)
 
+#%% Function
+def make_masks(l_files, tw, th=None, outdir='.'):
+    """
+    Given a list of picture files, creates masks by:
+        (1) tiling the image,
+        (2) shuffling tile order and
+        (3) randomly rotating each tile (0, 90, 180 or 270 degrees).
+    
+    Parameters
+    ==========
+    l_files : list
+        List of picture file names.
+    tw : int
+        Tile width
+    th : int or None
+        Tile height. If None, then will be equal to "tw".
+    """
+    # If tile height not given, equal to given tile width
+    if not th:
+        th = tw
+        
+    # TODO check if tiles are compatible with shape
+        
+    # iterate over files
+    for fname in tqdm(l_files):
+        # load image
+        img = cv2.imread(str(fname))
+        
+        # convert to grayscale, if not already
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
+        # given landscape mode
+        h = img.shape[0]
+        w = img.shape[1]
+        
+        #print(img.shape)
+    
+        # extract tiles as (n_height, th, n_width, tw) array
+        tiled_array = img.reshape(h // th, th, w // tw, tw)
+        
+        # reshape to (n_height x n_width, th, tw)
+        # TODO : make it with arrays
+        tiles = []
+        for i in range(tiled_array.shape[0]):
+            for j in range(tiled_array.shape[2]):
+                tiles.append(tiled_array[i, :, j, :])
+            
+        tiles = np.array(tiles)
+        
+        # perform order shuffling
+        idxs_shuffled = [i for i in range(len(tiles))]
+        random.shuffle(idxs_shuffled)
+        tiles = tiles[idxs_shuffled]
+
+        # # perform random rotation [0, 90, 180, 270]
+        if tw == th:    # square
+            angles = [0, 90, 180, 270]
+        else:   # rectangle 
+            angles = [0, 180]
+        # iterate through tiles & rotate
+        for i in range(len(tiles)):
+            tiles[i] = ndimage.rotate(tiles[i], random.choice(angles))
+        
+        
+        # untile -> (im_height, im_width)
+        untiled = np.zeros((h, w))
+        k = 0
+        for i in range(h//th):
+            for j in range(w//tw):
+                untiled[i*th:(i+1)*th, j*tw:(j+1)*tw] = tiles[k]
+                k+=1
+        
+        # write in out dir
+        # check if out dir exists
+        utils.check_mkdir(outdir)
+        fname_mask = outdir + '/mask_' + str(fname).split('/')[-1]
+        #print(fname_mask)
+        cv2.imwrite(fname_mask, untiled)
+
+    
 # %% Load files and create StimulusSet
 path_input = Path('../stimuli_targets/')
 l_files = list(path_input.glob('**/*.png'))
@@ -44,17 +124,6 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 print(img.shape)
 plt.imshow(img)
 
-#%% ==========================================================================
-# IDEA
-# Given a size of (square) tiles to split the image into,
-# 1) Find the biggest area that can be split (uniformly) from that image with
-# the tiles
-# 2) Perform shuffling on those tiles AND ingnore the rest (?)
-# 3) Reconstruct
-# 
-# THIS IS HOW PREVIOUS CODE (TZ'S) WORKED, WHICH IN TURN WAS TAKEN FROM AL.
-
-
 #%% Size of (square) tiles : smallest common divisors
 width = img.shape[1]
 height = img.shape[0]
@@ -68,100 +137,5 @@ for i in range(1, minim+1):
        
 print('Common divisors:', l_divisors)
 
-#%% Tiling function
-def tile_(im, tw, th=None):
-    # https://stackoverflow.com/a/47581978
-    if not th:
-        th = tw
-    #return np.reshape(im, (im.shape[0] // th * im.shape[1] // tw, th, tw))
-    return np.reshape(im, (th, tw, -1))
-
-#%% Tiling function
-def tile(img, w_tile, h_tile=None):
-    # given landscape mode
-    h = img.shape[0]
-    w = img.shape[1]
-
-    if not h_tile:
-        h_tile = w_tile
-    
-    tiled_array = img.reshape(h // h_tile,
-                              h_tile,
-                              w // w_tile,
-                              w_tile)
-    
-    #tiled_array = tiled_array.swapaxes(1,2) # only for RGB
-    
-    tiles = []
-
-    for i in range(tiled_array.shape[0]):
-        for j in range(tiled_array.shape[2]):
-            tiles.append(tiled_array[i, :, j, :])
-            
-    return np.array(tiles)
-
-# %% Test tiling
-M = 192
-
-tiles = tile(img, M)
-print(tiles.shape)
-plt.imshow(tiles[2])
-
-#%% From tiles to img
-def untile(tiles, shape):
-    # check if tiles are compatible with shape
-    # TODO
-    
-    if tiles.shape[1] != tiles.shape[2]:
-        raise ValueError('Tiles are not square!')
-    
-    th = tiles.shape[1]
-    tw = tiles.shape[2]
-    
-    untiled = np.zeros(shape)
-    
-    k = 0
-    for i in range(shape[0]//th):
-        for j in range(shape[1]//tw):
-            untiled[i*th:(i+1)*th, j*tw:(j+1)*tw] = tiles[k]
-            k+=1
-            
-    return untiled
-
-#%% Test untiling
-untiled = untile(tiles, img.shape)
-plt.imshow(untiled)
-
-
-# %% Test tiling & untiling
-im = img
-M = 192 #32
-N = M
-
-tiles = tile(im, M)
-print(len(tiles))
-
-# %% Shuffling order and angle
-def shuffle_tiles(tiles):  
-    # 1) shuffle positions in a list
-    idxs_shuffled = [i for i in range(len(tiles))]
-    random.shuffle(idxs_shuffled)
-    tiles = tiles[idxs_shuffled]
-
-    # 2) random rotation (0, 90, 180, 270)
-    if tiles.shape[1] == tiles.shape[2]: 
-        angles = [0, 90, 180, 270]
-    else:
-        angles = [0, 180]
-    # iterate through tiles
-    for i in range(len(tiles)):
-        tiles[i] = ndimage.rotate(tiles[i], random.choice(angles))
-
-    return tiles
-
-#%% Test shuffling
-tiles_shuf = shuffle_tiles(tiles)
-plt.imshow(untile(tiles_shuf, img.shape))
-
-#%% Write TODO
-#cv2.imwrite('untiled_shuffled.png', tiles_shuf)
+#%% Make & write masks
+make_masks(l_files, 16, outdir='../masks/')
