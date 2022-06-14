@@ -268,8 +268,8 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %% 7) Add (random) jitter (100-200ms) to fixation (for a 60Hz screen)
-  jitt_shortest = 6; % in frames
-  jitt_longest = 18; % in in frames
+  jitt_shortest = 18; % in frames
+  jitt_longest = 36; % in in frames
   step = 2; % in frames
   
   type = 'geometric'; % distribution from which to sample (or 'normal')
@@ -348,7 +348,7 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   
   info.pauseTrial.pictures = info.emptyPicture;
   info.pauseTrial.picDuration = 0;
-  info.pauseTrial.durations = 30*60; % in frames
+  info.pauseTrial.durations = 30*60; % 30s in frames 
   info.pauseTrial.startRTonPage = 1;
   info.pauseTrial.endRTonPage = 1;
   info.pauseTrial.correctResponse = 0;
@@ -359,7 +359,7 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   % Add StartTrial (w/ instructions)
   info.startTrial = info.pauseTrial;
   info.startTrial.code = 1000;
-  
+  info.startTrial.durations = 120*60; % 2min in frames 
   TRD = addStartTrial(TRD, info.startTrial);
   
   %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -448,7 +448,7 @@ function TrialDefinitions = addBlankJitter(TrialDefinitions, type, lowest, highe
     error('Unknown jittering type: \"%s\"', type);
 
   end
-  fprintf('Mean jitter time: %.2fms (min=%.2fs, max=%.2fs).\n',...
+  fprintf('Mean jitter time: %.2fs (min=%.2fs, max=%.2fs).\n',...
           mean(l_jitters)/60, min(l_jitters)/60, max(l_jitters)/60);
 end
 
@@ -562,7 +562,7 @@ function TrialDefinitionsNew = addPauseTrials(TrialDefinitions, pauseTrial, inte
   
   % Sweep through trials and find positions to place pauses
   pause_idxs = [];
-  for iTrial = nTrials:-1:2
+  for iTrial = nTrials-1:-1:1
     %TrialDefinitionsNew(iTrial) = TrialDefinitions(iTrial);
     
     if mod(iTrial, interval) == 0
@@ -573,7 +573,7 @@ function TrialDefinitionsNew = addPauseTrials(TrialDefinitions, pauseTrial, inte
   %------------------------
   % Place pause trials
   TrialDefinitionsNew = TrialDefinitions;
-  for iTrial = nTrials:-1:2
+  for iTrial = nTrials-1:-1:1
     if mod(iTrial, interval) == 0
     % Add pauseTrial in between pre- & post-idx segments of TRD
     TrialDefinitionsNew = [TrialDefinitionsNew(1:iTrial), ...

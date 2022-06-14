@@ -652,7 +652,7 @@ function EndScreen(window, Cfg, tmax)
   text_ = sprintf('Das Experiment ist beendet!\n'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
   %text_ = sprintf('\n\nThanks for your participation!'); % EN
-  text_ = sprintf('\n\nVielen Dank für Ihre Teilnahme!'); % DE
+  text_ = sprintf('\n\nVielen Dank fï¿½r Ihre Teilnahme!'); % DE
   DrawFormattedText(window, text_, 'center', 'center', [255 255 255]);
   
   Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
@@ -686,12 +686,15 @@ function WaitToStartScreen(window, Cfg, tmax)
 
 
   % Draw text in the middle of the screen in Courier in white
-  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
   Screen('TextFont', window, Cfg.Messages.TextFont);
   %DrawFormattedText(window, 'Welcome!', 'center', round(heightRect/3),
   %[255 255 255]); % EN
-  DrawFormattedText(window, 'Willkommen!', 'center', round(heightRect/3), [255 255 255]); % DE
-  
+  DrawFormattedText(window, 'Willkommen!', 'center', round(heightRect/3.5), [255 255 255]); % DE
+
+  Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+  DrawFormattedText(window, 'Antworten:', 'center', round(heightRect/2.5), [255 255 255]);
+
   if ismember(Cfg.probe.keyYes, {'left'})
     % EN
     %DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]); 
@@ -707,7 +710,7 @@ function WaitToStartScreen(window, Cfg, tmax)
 
   %DrawFormattedText(window, 'To start experiment, press "Space"!', 'center',...
   %                  screenYpixels * 0.80, [128 128 128]);
-  DrawFormattedText(window, 'Um das Experiment zu starten, drücken Sie die "Lehrtaste"!', 'center',...
+  DrawFormattedText(window, 'Um das Experiment zu starten, drï¿½cken Sie die "Lehrtaste"!', 'center',...
                     screenYpixels * 0.80, [128 128 128]);
   
   % Flip to the screen
