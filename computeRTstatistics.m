@@ -1,5 +1,5 @@
 function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
-          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots)
+          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT statistics (mean & std) per condition for each probe type and
 % congruency.
 %
@@ -45,7 +45,10 @@ if make_plots
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim([1.5 8.5]*factor)
-  print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_congruent'])
+
+  if save_plots
+    print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_congruent'])
+  end
   
   % Plot [INCONGRUENT]
   figure
@@ -73,7 +76,10 @@ if make_plots
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim([1.5 8.5]*factor)
-  print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_incongruent'])
+
+  if save_plots
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_incongruent'])
+  end
   
   % Plot ACTIONS : congruent vs incongruent
   figure
@@ -101,8 +107,11 @@ if make_plots
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim([1.5 8.5]*factor)
-  print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_actions'])
-  
+
+  if save_plots
+    print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_actions'])
+  end
+
   % Plot CONTEXT : congruent vs incongruent
   figure
   % Plot RT's as a function of presentation time
@@ -129,7 +138,10 @@ if make_plots
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim([1.5 8.5]*factor)
-  print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_contexts'])
+
+  if save_plots
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_contexts'])
+  end
 end
 
 end
