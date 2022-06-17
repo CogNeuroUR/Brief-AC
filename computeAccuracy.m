@@ -114,6 +114,7 @@ function t_stats = accuracy(stats)
                        'VariableNames',{'PresTime' 'Hits'...
                                         'CorrRejections' 'N'});
 
+  disp(t_stats)
   for i=1:height(t_stats)
     % Compute accuracy as ratio
     ratio = (t_stats{i, 'Hits'} + t_stats{i, 'CorrRejections'})...

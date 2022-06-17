@@ -40,11 +40,12 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
     
     for j=1:length(ResKeys)
       n_samples = n_samples + 1;
+      
       switch ResKeys(j)
         case key_yes % "yes" : correct response
           if ResKeys(j) == TrueKeys(j)
             hits = hits + 1;
-          else % either empty or $key_no
+          else % key_no
             misses = misses + 1;
           end
         
@@ -53,13 +54,13 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
             corr_rejections = corr_rejections + 1;
           elseif ResKeys(j) == key_yes % false alarm
             f_alarms = f_alarms + 1;
-          else
-            misses = misses + 1;
+            misses = misses + 1; %  (?)
           end
+          
         case 0 % No response given : consider miss
-          %disp('No response given!');
           empty_response = empty_response + 1;
       end % switch
+
       misses = misses + empty_response;
     end
 
@@ -82,7 +83,8 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
     % concatenate
     stats(end+1, :) = {uniqTimes(i),n_samples,...
                        hits, hit_rate,...
-                       f_alarms, f_alarm_rate, corr_rejections};%,...
+                       f_alarms, f_alarm_rate, corr_rejections};
+    % TODO : f_alarms, and f_alarm_rate are missing!
                        %norminv(hit_rate) - norminv(f_alarm_rate)};
   end
 end
