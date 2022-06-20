@@ -34,7 +34,7 @@ function ScreenPause(window, Cfg, tmax)
       Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
       %DrawFormattedText(window, 'Time for a short break!', 'center',
       %'center', [255 255 255]); % EN
-      DrawFormattedText(window, 'Zeit fÃ¼r eine kurze Pause!', 'center', 'center', [255 255 255]); % DE
+      DrawFormattedText(window, 'Zeit für eine kurze Pause!', 'center', 'center', [255 255 255]); % DE
       
       %tstring = sprintf('Time left : %d seconds.', t_left); % EN
       tstring = sprintf('Verbleibende Zeit : %d Sekunden.', t_left); % DE
@@ -43,7 +43,7 @@ function ScreenPause(window, Cfg, tmax)
       
       %DrawFormattedText(window, 'When ready, press and hold "Space bar" .', 'center',...
       %                  screenYpixels * 0.85, [128 128 128]); % EN
-      DrawFormattedText(window, 'Wenn Sie bereit sind, halten Sie die "Leertaste" gedrÃ¼ckt.', 'center',...
+      DrawFormattedText(window, 'Wenn Sie bereit sind, halten Sie die "Leertaste" gedrückt.', 'center',...
                         screenYpixels * 0.85, [128 128 128]); % DE
       
       % Flip to the screen

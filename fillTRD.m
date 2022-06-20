@@ -267,13 +267,13 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   TRD = shuffleBlockWise(TRD, lBlock, 'all');
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  %% 7) Add (random) jitter (100-200ms) to fixation (for a 60Hz screen)
-  jitt_shortest = 18; % in frames
-  jitt_longest = 36; % in in frames
+  %% 7) Add (random) jitter (100-200ms) to blank screen
+  jitt_shortest = 18; % in frames (300ms, 60Hz)
+  jitt_longest = 36; % in in frames (600ms, 60Hz)
   step = 2; % in frames
   
   type = 'geometric'; % distribution from which to sample (or 'normal')
-  pageNumber = 2; % page 2 : fixation cross
+  pageNumber = 2; % page 2 : blank screen
 
   TRD = addBlankJitter(TRD, type, jitt_shortest, jitt_longest, step, pageNumber);
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
