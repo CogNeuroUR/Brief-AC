@@ -20,7 +20,7 @@ importlib.reload(utils)
 importlib.reload(stimset)
 
 #%% Function
-def make_masks_across(l_files, tw, th=None, outdir='.'):
+def make_masks(l_files, tw, th=None, outdir='.'):
     """
     Given a list of picture files, creates masks by:
         (1) tiling the image,
@@ -41,16 +41,8 @@ def make_masks_across(l_files, tw, th=None, outdir='.'):
         th = tw
         
     # TODO check if tiles are compatible with shape
-
-    # check if out dir exists
-    utils.check_mkdir(outdir)
-
-    # 1) Collect tiles from all target pictures TOGETHER
-    l_tiles = []
-    i_tilen = 0
-    
+        
     # iterate over files
-    print('Loading tiles from files ...')
     for fname in tqdm(l_files):
         # load image
         img = cv2.imread(str(fname))
@@ -69,60 +61,48 @@ def make_masks_across(l_files, tw, th=None, outdir='.'):
         
         # reshape to (n_height x n_width, th, tw)
         # TODO : make it with arrays
-        #tiles = []
+        tiles = []
         for i in range(tiled_array.shape[0]):
             for j in range(tiled_array.shape[2]):
-                #tiles.append(tiled_array[i, :, j, :])
-                l_tiles.append(tiled_array[i, :, j, :])
+                tiles.append(tiled_array[i, :, j, :])
+            
+        tiles = np.array(tiles)
         
-        # Get nr. of tiles per picture
-        i_tilen = (h // th) * (w // tw)
-        #l_tiles.append(tiles)
-    
-    print(f'Created tiles: {len(l_tiles)} ({len(l_tiles)//i_tilen}) ')
-    
-    # 2) Randomly shuffle tile order TOGETHER
-    print('Randomizing tile order ...\n')
-    #idxs_shuffled = [i for i in range(len(l_tiles))]
-    #random.shuffle(idxs_shuffled)
-    #l_tiles = l_tiles[idxs_shuffled]
-    # in place
-    random.shuffle(l_tiles)
-    
-    # 3) Randomly rotate [0, 90, 180, 270] EACH tile
-    print('Randomly rotating each tile ...')
-    if tw == th:    # square
-        angles = [0, 90, 180, 270]
-    else:   # rectangle 
-        angles = [0, 180]
-    # iterate through tiles & rotate
-    for i in tqdm(range(len(l_tiles))):
-        l_tiles[i] = ndimage.rotate(l_tiles[i], random.choice(angles))
-    
-    # 4) Untile -> mask w/ size of original picture
-    # Split entire list of tiles into sub-sets i_tilen-tiles
-    print('Untiling & writing to files ...')
-    for l in tqdm(range(len(l_tiles)//i_tilen)):
-        # Load subset
-        tiles = l_tiles[l*i_tilen : (l+1)*i_tilen]
+        # perform order shuffling
+        idxs_shuffled = [i for i in range(len(tiles))]
+        random.shuffle(idxs_shuffled)
+        print(len(idxs_shuffled))
+        print(type(idxs_shuffled[0]))
+        tiles = tiles[idxs_shuffled]
+
+        # # perform random rotation [0, 90, 180, 270]
+        if tw == th:    # square
+            angles = [0, 90, 180, 270]
+        else:   # rectangle 
+            angles = [0, 180]
+        # iterate through tiles & rotate
+        for i in range(len(tiles)):
+            tiles[i] = ndimage.rotate(tiles[i], random.choice(angles))
         
-        # Untile
+        
+        # untile -> (im_height, im_width)
         untiled = np.zeros((h, w))
         k = 0
         for i in range(h//th):
             for j in range(w//tw):
                 untiled[i*th:(i+1)*th, j*tw:(j+1)*tw] = tiles[k]
                 k+=1
-
-        # 5) Assign filename & write
-        fname_mask = outdir + '/mask_' + str(l_files[l]).split('/')[-1]
+        
+        # write in out dir
+        # check if out dir exists
+        utils.check_mkdir(outdir)
+        fname_mask = outdir + '/mask_' + str(fname).split('/')[-1]
         #print(fname_mask)
         cv2.imwrite(fname_mask, untiled)
-    
-    print('Finished!')
 
+    
 # %% Load files and create StimulusSet
-path_input = Path('stimuli_targets')
+path_input = Path('../stimuli_targets/')
 l_files = list(path_input.glob('**/*.png'))
 
 dict_lookup = {
@@ -160,6 +140,4 @@ for i in range(1, minim+1):
 print('Common divisors:', l_divisors)
 
 #%% Make & write masks
-make_masks_across(l_files, 16, outdir='../masks_across/')
-
-# %%
+make_masks(l_files, 16, outdir='../masks/')
