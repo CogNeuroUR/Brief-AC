@@ -148,4 +148,8 @@ Cfg.Messages.TextFont = 'Verdana';
 %==========================================================================
 
 ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB-%02d_%s.trd', subjectID, expName), sprintf('SUB-%02d_%s', subjectID, expName), Cfg)
-    
+
+%==========================================================================
+% Summary of the experiment
+%==========================================================================
+summaryExpInfo(ExpInfo);
