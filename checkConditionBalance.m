@@ -58,8 +58,8 @@ function checkConditionBalance2(TRD, lBlock, factorialStructure,...
   for iCode=1:length(uniqCodes)
     code = uniqCodes(iCode);
     % Decode factors from code
-    %factors = ASF_decode(code, simplifiedFactorialStructure);
-    factors = ASF_decode(code, factorialStructure);
+    factors = ASF_decode(code, simplifiedFactorialStructure);
+    %factors = ASF_decode(code, factorialStructure);
     c = factors(1);   % congruency
     t = factors(2);   % probe type
     d = factors(3);   % duration
