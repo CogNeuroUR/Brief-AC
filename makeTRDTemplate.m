@@ -64,7 +64,8 @@ info.factorialStructureSimplified = [info.nCongruencyLevels, info.nProbeTypeLeve
 %--------------------------------------------------------------------------
 info.emptyPicture = 1;
 info.fixationPicture = 1;
-prefix = ['.' filesep 'stimuli' filesep];
+%prefix = ['.' filesep 'stimuli' filesep]; % platform agnostic
+prefix = ['.' '\' 'stimuli' '\']; % for stimdef created on Windows
 picFormat = 'png';
 
 % Read std-file

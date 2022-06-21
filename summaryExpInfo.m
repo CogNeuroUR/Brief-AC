@@ -26,8 +26,10 @@ end
 
 fprintf('====================================================')
 fprintf('\nShort response summary:\n');
-fprintf('= Correct responses: %d/%d.\n', i_correct, n_trials);
-fprintf('= Empty responses: %d/%d.\n', i_empty, n_trials);
+fprintf('= Correct responses: %d/%d (%.2f%%).\n', i_correct, n_trials,...
+                                                i_correct*100/n_trials);
+fprintf('= Empty responses: %d/%d (%.2f%%).\n', i_empty, n_trials,...
+                                              i_empty*100/n_trials);
 fprintf('====================================================')
 fprintf('\n');
 
