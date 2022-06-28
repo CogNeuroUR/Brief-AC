@@ -1,6 +1,6 @@
 function [stats_act_con, stats_ctx_con,...
           stats_act_inc, stats_ctx_inc] =...
-          computeSensitivity(ExpInfo, key_yes, key_no, make_plots, save_plots)
+          computeAccuracy(ExpInfo, key_yes, key_no, make_plots, save_plots)
 
 
 %% Extract trials for each probe by decoding trials' ASF code
@@ -106,19 +106,14 @@ end % function
 %% ########################################################################
 % Functions
 %% ########################################################################
-function t_stats = accuracy(stats)
+function t_stats = accuracy(t_stats)
   % 1) Extract nr of HITS and CORRECT REJECTIONS
   % 2) Compute accuracy as the ration of (HITS+CORR_REJECT) / N_samples
   fprintf('Computing accuracy ...\n')
-  t_stats = cell2table(stats(:, [1, 3, 7, 2]),...
-                       'VariableNames',{'PresTime' 'Hits'...
-                                        'CorrRejections' 'N'});
 
-  disp(t_stats)
   for i=1:height(t_stats)
     % Compute accuracy as ratio
-    ratio = (t_stats{i, 'Hits'} + t_stats{i, 'CorrRejections'})...
-                              / t_stats{i, 'N'};
+    ratio = (t_stats.Hits(i) + t_stats.CorrectRejections(i)) / t_stats.N_samples(i);
     t_stats{i, 'accuracy'} = ratio * 100;
   end
 end

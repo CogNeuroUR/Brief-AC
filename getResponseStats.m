@@ -1,16 +1,20 @@
-function stats = getResponseStats(tTrials, key_yes, key_no)
+function t_stats = getResponseStats(tTrials, key_yes, key_no)
   % Extract responses as a function of presentation time by probe type
   % Iterate over unique values in PresTime and compute mean & std for each
+  %
   % Extracted information:
   % = presentation time
   % = samples
-  % = hit (correct response)
-  % = hit rate (hits / total_responses)
-  % = false alarms (hit "yes" when NO; hit "no" when YES)
-  % = false alarm rate (false_alarms / total_responses)
-  % = correct rejections
+  % = hits : "yes when YES"
+  % = misses : "no when YES"
+  % = hit rate : hits / (hits + misses)
+  % = false alarms : "yes when NO"
+  % = correct rejections : "no when NO"
+  % = false alarm rate : false_alarms / (false alarms + correct rejections)
+  %
+  % Vrabie 2022
 
-  fprintf('Computing RT-statistics ...\n')
+  fprintf('Computing statistics ...\n')
 
   stats = {};
   uniqTimes = unique(tTrials.PresTime);
@@ -34,7 +38,7 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
     n_samples = 0;
     hits = 0;
     misses = 0;
-    empty_response = 0;
+    n_empty = 0;
     corr_rejections = 0;
     f_alarms = 0;
     
@@ -57,14 +61,15 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
           end
           
         case 0 % No response given : consider miss
-          empty_response = empty_response + 1;
+          n_empty = n_empty + 1;
       end % switch
 
-      %misses = misses + empty_response;
     end
-
-    if empty_response ~= 0
-      fprintf('\tCounted missing responses: %d.\n', empty_response)
+    
+    % Subtract empty trials
+    n_samples = n_samples - n_empty;
+    if n_empty ~= 0
+      fprintf('\tCounted missing responses: %d.\n', n_empty)
     end
 
     % compute hit- and false alarm rates
@@ -80,10 +85,12 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
     end
     
     % concatenate
-    stats(end+1, :) = {uniqTimes(i),n_samples,...
-                       hits, hit_rate,...
+    stats(end+1, :) = {uniqTimes(i), n_samples,...
+                       hits, hit_rate, misses,...
                        f_alarms, f_alarm_rate, corr_rejections};
-    % TODO : f_alarms, and f_alarm_rate are missing!
-                       %norminv(hit_rate) - norminv(f_alarm_rate)};
+
+    % Convert to table
+    varnames = {'PresTime' 'N_samples' 'Hits' 'H' 'Misses' 'FalseAlarms' 'F' 'CorrectRejections'};
+    t_stats = cell2table(stats, 'VariableNames', varnames);
   end
 end

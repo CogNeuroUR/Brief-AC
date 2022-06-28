@@ -14,7 +14,6 @@ statsContextCongruent = getResponseStats(t_trialsContextCongruent, key_yes, key_
 statsActionIncongruent = getResponseStats(t_trialsActionIncongruent, key_yes, key_no);
 statsContextIncongruent = getResponseStats(t_trialsContextIncongruent, key_yes, key_no);
 
-
 %% Compute d-prime  
 stats_act_con = dprime(statsActionCongruent);
 stats_ctx_con = dprime(statsContextCongruent);
@@ -35,7 +34,7 @@ if make_plots
   ylim([0, max(stats_act_con{:, 'd-prime'}) + 1])
   
   legend('Action','Context')
-  title('Sensitivity index (S1) [CONGRUENT]');
+  title('Sensitivity index [CONGRUENT]');
   xlabel('Presentation time [ms]')
   ylabel('d''')
 
@@ -54,7 +53,7 @@ if make_plots
   ylim([0, max(stats_act_inc{:, 'd-prime'}) + 1])
   
   legend('Action','Context')
-  title('Sensitivity index (S1) [INCONGRUENT]');
+  title('Sensitivity index [INCONGRUENT]');
   xlabel('Presentation time [ms]')
   ylabel('d''')
 
@@ -73,7 +72,7 @@ if make_plots
   ylim([0, max(stats_act_con{:, 'd-prime'}) + 1])
   
   legend('Congruent','Incongruent')
-  title('Sensitivity index (S1) : ACTIONS');
+  title('Sensitivity index : ACTIONS');
   xlabel('Presentation time [ms]')
   ylabel('d''')
 
@@ -92,7 +91,7 @@ if make_plots
   ylim([0, max(stats_ctx_con{:, 'd-prime'}) + 1])
   
   legend('Congruent','Incongruent')
-  title('Sensitivity index (S1) : CONTEXT');
+  title('Sensitivity index : CONTEXT');
   xlabel('Presentation time [ms]')
   ylabel('d''')
 
@@ -107,28 +106,24 @@ end % function
 % Functions
 %% ########################################################################
 %% ------------------------------------------------------------------------
-function t_stats = dprime(stats)
+function t_stats = dprime(t_stats)
   % 1) Extract rates
   % 2) Replace zeros and ones (to prevent infinities)
   %   Zeros -> 1/(2N); N : max nr. of observation in a group
   %   Ones  -> 1 - 1/(2N)
   % 3) Compute d-prime
 
-  fprintf('Computing specificity (d-prime)...\n')
-  t_stats = cell2table(stats(:, [1, 4, 6, 2]),...
-                       'VariableNames',{'PresTime' 'Hit Rate'...
-                       'False Alarm Rate' 'N'});
-
   for i=1:height(t_stats)
-    % Action trials
-    if t_stats{i, 'Hit Rate'} == 1
-      t_stats{i, 'Hit Rate'} = 1 - 1/(2*t_stats{i, 'N'}); end
-    if t_stats{i, 'False Alarm Rate'} == 0
-      t_stats{i, 'False Alarm Rate'} = 1/(2*t_stats{i, 'N'}); end
+    % Convert proportions of 0 and 1 to 1/(2N) and 1-1/(2N)
+    % See Macmillan & Creelman (2005), Page 8.
+    if t_stats.H(i) == 1
+      t_stats.H(i) = 1 - 1/(2*(t_stats.Hits(i) + t_stats.Misses(i)));
+    end
+    if t_stats.FalseAlarms(i) == 0
+      t_stats.FalseAlarms(i) = 1/((t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
+    end
     
     % Compute d-prime
-    t_stats{i, 'd-prime'} = ...
-      norminv(t_stats{i, 'Hit Rate'}) - norminv(t_stats{i,...
-                                                      'False Alarm Rate'});
+    t_stats{i, 'd-prime'} = norminv(t_stats.H(i)) - norminv(t_stats.FalseAlarms(i));
   end
 end
