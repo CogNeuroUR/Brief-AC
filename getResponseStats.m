@@ -54,14 +54,13 @@ function stats = getResponseStats(tTrials, key_yes, key_no)
             corr_rejections = corr_rejections + 1;
           elseif ResKeys(j) == key_yes % false alarm
             f_alarms = f_alarms + 1;
-            misses = misses + 1; %  (?)
           end
           
         case 0 % No response given : consider miss
           empty_response = empty_response + 1;
       end % switch
 
-      misses = misses + empty_response;
+      %misses = misses + empty_response;
     end
 
     if empty_response ~= 0

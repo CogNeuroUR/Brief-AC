@@ -1,6 +1,6 @@
 function [stats_act_con, stats_ctx_con,...
           stats_act_inc, stats_ctx_inc] =...
-          computeAccuracy(ExpInfo, key_yes, key_no, make_plots, save_plots)
+          computeSensitivity(ExpInfo, key_yes, key_no, make_plots, save_plots)
 
 
 %% Extract trials for each probe by decoding trials' ASF code

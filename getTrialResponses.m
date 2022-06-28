@@ -36,6 +36,8 @@ for i=1:length(ExpInfo.TrialInfo)
   code = ExpInfo.TrialInfo(i).trial.code;
   % Exclude special trials:
   if code > 999; continue; end
+
+  % Decode congruency and probe
   [congruency, probeType, Probe] = decodeProbe(code, info.factorialStructure,...
                                                info.CongruencyLevels,...
                                                info.ProbeTypeLevels, info.ProbeLevels);
@@ -58,7 +60,7 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe};
+                        congruency, probeType, Probe};
     end
 
   % incongruent
@@ -79,7 +81,7 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe};
+                        congruency, probeType, Probe};
     end  
   end
 
