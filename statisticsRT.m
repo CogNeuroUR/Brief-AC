@@ -1,10 +1,12 @@
-function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
-          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
+function computeRTstatistics(ExpInfo, key_yes, key_no, save_plots)
+%function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
+%          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT statistics (mean & std) per condition for each probe type and
 % congruency.
 %
 % Written for BriefAC (AinC)
 % Vrabie 2022
+make_plots = 1;
 
 %% Extract trials for each probe by decoding trials' ASF code
 [t_trialsActionCongruent, t_trialsContextCongruent,...
@@ -20,10 +22,14 @@ rt_ctx_inc = getRTstats(t_trialsContextIncongruent);
 %% ########################################################################
 % Plots [CONGRUENT]
 if make_plots
-  figure
+  fh = figure;
+  
+  subplot(2,2,1);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
   factor = screen_freq*1000;
+  ylimits = [500 1500];
+  xlimits = [1.8 8.2]*factor;
   x = [rt_ctx_con{:, 1}]*factor; % in ms
   
   % Collect mean RT's for action and context probes
@@ -40,18 +46,15 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RT for Action and Context Probes [CONGRUNET]');
+  title('RT : Action & Context Probes [CONGRUENT]');
   legend('Actions','Context')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
-  xlim([1.5 8.5]*factor)
-
-  if save_plots
-    print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_congruent'])
-  end
+  xlim(xlimits)
+  ylim(ylimits);
   
   % Plot [INCONGRUENT]
-  figure
+  subplot(2,2,2);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
   factor = screen_freq*1000;
@@ -71,18 +74,15 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RT for Action and Context Probes [INCONGRUENT]');
+  title('RT : Action & Context Probes [INCONGRUENT]');
   legend('Actions','Context')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
-  xlim([1.5 8.5]*factor)
-
-  if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_incongruent'])
-  end
+  xlim(xlimits)
+  ylim(ylimits);
   
   % Plot ACTIONS : congruent vs incongruent
-  figure
+  subplot(2,2,3);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
   factor = screen_freq*1000;
@@ -102,18 +102,15 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RTs for Actions');
+  title('RT : Actions');
   legend('Congruent','Incongruent')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
-  xlim([1.5 8.5]*factor)
-
-  if save_plots
-    print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_rt_actions'])
-  end
+  xlim(xlimits)
+  ylim(ylimits);
 
   % Plot CONTEXT : congruent vs incongruent
-  figure
+  subplot(2,2,4);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
   factor = screen_freq*1000;
@@ -133,14 +130,21 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RTs for Contexts');
+  title('RTs : Contexts');
   legend('Congruent','Incongruent')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
-  xlim([1.5 8.5]*factor)
+  xlim(xlimits)
+  ylim(ylimits);
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_rt_contexts'])
+     % define resolution figure to be saved in dpi
+   res = 420;
+   % recalculate figure size to be saved
+   set(fh,'PaperPositionMode','manual')
+   fh.PaperUnits = 'inches';
+   fh.PaperPosition = [0 0 5000 2500]/res;
+   print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_RT_statistics'])
   end
 end
 
@@ -162,9 +166,10 @@ function stats = getRTstats(t_trials)
     values = t_trials.RT(t_trials.PresTime==uniqTimes(i));
     if isequal(class(values), 'cell'); values = cell2mat(values); end
     avg = nanmean(values);
-    stdev = nanstd(values);
-    fprintf('PresTime: %d; Mean RT: %.2fms; SD RT: %.2fms\n',...
-            uniqTimes(i), avg, stdev);
-    stats(end+1, :) = {uniqTimes(i), avg, stdev};
+    %stdev = nanstd(values); % SD
+    stderr = nanstd(values) / sqrt(length(values)); % SE : standard error
+    fprintf('PresTime: %d; Mean RT: %.2fms; SE RT: %.2fms\n',...
+            uniqTimes(i), avg, stderr);
+    stats(end+1, :) = {uniqTimes(i), avg, stderr};
   end
 end
