@@ -12,18 +12,31 @@ function summaryExpInfo(ExpInfo)
 %% ------------------------------------------------------------------------
 t_trials = getExpSummary(ExpInfo);
 
+%% Collect correct & empty responses
 i_correct = 0;
 i_empty = 0;
 [n_trials, ~] = size(t_trials);
 for i=1:n_trials
-  if isequal(t_trials.ResKey(i), {[]})
+  response = t_trials.ResKey(i);
+  truth = t_trials.TrueKey(i);
+  % convert to matrix, if cell
+  if isequal(class(response), 'cell')
+    response = cell2mat(response);
+  end
+  if isequal(class(truth), 'cell')
+    truth = cell2mat(truth);
+  end
+  % count empty
+  if isequal(response, [])
     i_empty = i_empty + 1;
   end
-  if isequal(t_trials.ResKey(i), t_trials.TrueKey(i))
+  % count correct
+  if response == truth
       i_correct = i_correct + 1;
   end
 end
 
+%% Print
 fprintf('====================================================')
 fprintf('\nShort response summary:\n');
 fprintf('= Correct responses: %d/%d (%.2f%%).\n', i_correct, n_trials,...

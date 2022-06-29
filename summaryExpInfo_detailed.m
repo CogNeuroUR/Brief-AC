@@ -30,16 +30,16 @@ str_Empty_CI = str_Empty_AC;
 for iPT=1:6
   %disp(iPT);
   %str_PT = [str_PT, '\t', sprintf('%.1f', acc_ActCon.PresTime(iPT))];
-  str_PT = [str_PT, '\t', sprintf('%.1f', l_pts(iPT))];
+  str_PT = [str_PT, '\t', sprintf('%.1f', l_pts(iPT)*1000/60)];
   str_Acc_AC = [str_Acc_AC, '\t', sprintf('%.1f', acc_ActCon.Accuracy(iPT)*100)];
   str_Acc_AI = [str_Acc_AI, '\t', sprintf('%.1f', acc_ActInc.Accuracy(iPT)*100)];
   str_Acc_CC = [str_Acc_CC, '\t', sprintf('%.1f', acc_CtxCon.Accuracy(iPT)*100)];
   str_Acc_CI = [str_Acc_CI, '\t', sprintf('%.1f', acc_CtxInc.Accuracy(iPT)*100)];
    
-  str_Empty_AC = [str_Empty_AC, '\t', sprintf('%.1f', acc_ActCon.N_empty(iPT))];
-  str_Empty_AI = [str_Empty_AI, '\t', sprintf('%.1f', acc_ActInc.N_empty(iPT))];
-  str_Empty_CC = [str_Empty_CC, '\t', sprintf('%.1f', acc_CtxCon.N_empty(iPT))];
-  str_Empty_CI = [str_Empty_CI, '\t', sprintf('%.1f', acc_CtxInc.N_empty(iPT))];
+  str_Empty_AC = [str_Empty_AC, '\t', sprintf('%d', acc_ActCon.N_empty(iPT))];
+  str_Empty_AI = [str_Empty_AI, '\t', sprintf('%d', acc_ActInc.N_empty(iPT))];
+  str_Empty_CC = [str_Empty_CC, '\t', sprintf('%d', acc_CtxCon.N_empty(iPT))];
+  str_Empty_CI = [str_Empty_CI, '\t', sprintf('%d', acc_CtxInc.N_empty(iPT))];
 end
 
 str_PT = [str_PT, '\n'];
