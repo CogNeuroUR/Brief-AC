@@ -1,4 +1,4 @@
-function groupDprime = computeSensitivityGroup(ExpInfo, make_plots, save_plots)
+function groupDprime = computeSensitivityGroup(make_plots, save_plots)
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -62,7 +62,7 @@ for i=1:length(l_files)
 end
 
 %% TABLE (auxiliary!)
-groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
+%groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
 probes = ["AC", "AI", "CC", "CI"];
 times = [2:6 8];
 vars = {};
@@ -73,51 +73,96 @@ for iP=1:length(probes)
   end
 end
 
-groupDprime.Properties.VariableNames = vars;
+%groupDprime.Properties.VariableNames = vars;
 
 %% Add subject IDs to table AND re-arrange columns
-groupDprime.Subject = l_subjects';
-groupDprime = groupDprime(:, [25, 1:24]);
+%groupDprime.Subject = l_subjects';
+%groupDprime = groupDprime(:, [25, 1:24]);
 
 %% ########################################################################
 % PLOTS: TODO
 %% ########################################################################
+%%
+
+figure
+x = [1:12];
+%indices = [2:7, 14:19]; % TODO :  use these instead
+i1 = [1, 6];
+i2 = [13, 18];
+data1 = [groupDprime(:,i1(1):i1(2))];
+data2 = [groupDprime(:,i2(1):i2(2))];
+
+y1 = mean(data1);
+y2 = mean(data2);
+
+err1 = std(data1);
+err2 = std(data2);
+
+errorbar(x, [y1, y2], err);
+
+xticks(x)
+%xticklabels(round(x, 2)) 
+xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
+ylim([-1, 3.2])
+xlim([0.5, 12.5])
+
+%legend('Congruent (AC & CC)')
+title('Sensitivity index [CONGRUENT : Actions and Context]');
+xlabel('Conditions')
+ylabel('d''')
+
+%%
 % Plots [CONGRUENT]
 if make_plots
   figure
-  x = times * 1000/60; % ms
-  bar(x, [groupDprime(:,2:7), groupDprime(:,14:19)]);
+  x = [1:12];
+  %indices = [2:7, 14:19]; % TODO :  use these instead
+  i1 = [1, 6];
+  i2 = [13, 18];
+  data = [groupDprime(:,i1(1):i1(2)), groupDprime(:,i2(1):i2(2))];
+  y = mean(data);
+  err = std(data);
+  errorbar(x, y, err);
   
   xticks(x)
-  xticklabels(round(x, 2)) 
-  ylim([0, 3])
+  %xticklabels(round(x, 2)) 
+  xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
+  ylim([-1, 3.2])
+  xlim([0.5, 12.5])
   
-  legend('Action','Context')
-  title('Sensitivity index (S1) [CONGRUENT]');
-  xlabel('Presentation time [ms]')
+  %legend('Congruent (AC & CC)')
+  title('Sensitivity index [CONGRUENT : Actions and Context]');
+  xlabel('Conditions')
   ylabel('d''')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_dprime_congruent'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_congruent'])
   end
   
-  %% [INCONGRUENT] Plot d-prime
+%% [INCONGRUENT] Plot d-prime
   figure
-  assert(height(dprimeAI) == height(dprimeCI));
-  x = [dprimeAI{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [dprimeAI{:, 'd-prime'}, dprimeCI{:, 'd-prime'}]);
+  x = [1:12];
+  %indices = [2:7, 14:19]; % TODO :  use these instead
+  i1 = [1, 6];
+  i2 = [13, 18];
+  data = [groupDprime(:,i1(1):i1(2)), groupDprime(:,i2(1):i2(2))];
+  y = mean(data);
+  err = std(data);
+  errorbar(x, y, err);
   
-  xticks([dprimeAI{:, 'PresTime'}]/0.06)
-  xticklabels(round([dprimeAI{:, 'PresTime'}]/0.06, 2)) 
-  ylim([0, max(dprimeAI{:, 'd-prime'}) + 1])
+  xticks(x)
+  %xticklabels(round(x, 2)) 
+  xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
+  ylim([-1, 3.2])
+  xlim([0.5, 12.5])
   
-  legend('Action','Context')
-  title('Sensitivity index (S1) [INCONGRUENT]');
-  xlabel('Presentation time [ms]')
+  %legend('Congruent (AC & CC)')
+  title('Sensitivity index [CONGRUENT : Actions and Context]');
+  xlabel('Conditions')
   ylabel('d''')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_dprime_incongruent'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_incongruent'])
   end
   
   %% Plot d-prime : ACTIONS
@@ -136,7 +181,7 @@ if make_plots
   ylabel('d''')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_dprime_actions'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_actions'])
   end
   
   %% Plot d-prime : ACTIONS
@@ -155,7 +200,7 @@ if make_plots
   ylabel('d''')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_dprime_context'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_context'])
   end
 end % plots
 end % function
