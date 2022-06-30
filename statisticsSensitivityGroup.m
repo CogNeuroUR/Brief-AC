@@ -1,4 +1,10 @@
-function groupDprime = computeSensitivityGroup(make_plots, save_plots)
+function groupDprime = statisticsSensitivityGroup(save_plots)
+% Computes sensitivity (d-prime) group statistics (mean & std) per condition for
+% each probe type and congruency.
+% 
+% Written for BriefAC (AinC)
+% Vrabie 2022
+make_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -9,6 +15,7 @@ groupDprime = [];
 l_subjects = {};
 
 % iterate over files
+fprintf('Sweeping through files ...\n');
 for i=1:length(l_files)
   path2file = [path_results, l_files(i).name];
   
@@ -19,7 +26,7 @@ for i=1:length(l_files)
     case '.mat'
       % ignore demo-results
       if ~contains(l_files(i).name, 'demo')
-        fprintf('%s : %s\n', l_files(i).name, fExt);
+        fprintf('\tLoading : %s\n', l_files(i).name);
         clear ExpInfo;
         load(path2file, 'ExpInfo');
 
@@ -80,127 +87,158 @@ end
 %groupDprime = groupDprime(:, [25, 1:24]);
 
 %% ########################################################################
-% PLOTS: TODO
+% PLOTS
 %% ########################################################################
-%%
-
-figure
-x = [1:12];
-%indices = [2:7, 14:19]; % TODO :  use these instead
-i1 = [1, 6];
-i2 = [13, 18];
-data1 = [groupDprime(:,i1(1):i1(2))];
-data2 = [groupDprime(:,i2(1):i2(2))];
-
-y1 = mean(data1);
-y2 = mean(data2);
-
-err1 = std(data1);
-err2 = std(data2);
-
-errorbar(x, [y1, y2], err);
-
-xticks(x)
-%xticklabels(round(x, 2)) 
-xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
-ylim([-1, 3.2])
-xlim([0.5, 12.5])
-
-%legend('Congruent (AC & CC)')
-title('Sensitivity index [CONGRUENT : Actions and Context]');
-xlabel('Conditions')
-ylabel('d''')
-
-%%
-% Plots [CONGRUENT]
 if make_plots
-  figure
-  x = [1:12];
-  %indices = [2:7, 14:19]; % TODO :  use these instead
-  i1 = [1, 6];
-  i2 = [13, 18];
-  data = [groupDprime(:,i1(1):i1(2)), groupDprime(:,i2(1):i2(2))];
-  y = mean(data);
-  err = std(data);
-  errorbar(x, y, err);
+  fh = figure;
   
+  % General parameters
+  xfactor = 1000/60;
+  ylimits = [-1, 3.2];
+  xlimits = [1.6 8.4]*xfactor;
+  x = [2:6 8]*xfactor; % in ms
+
+  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
+  subplot(2,2,1);
+  % Define indices for for condition category
+  i1 = [1, 6];         % ACTION Probe & CONGRUENT
+  i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+  
+  data1 = [groupDprime(:,i1(1):i1(2))];
+  data2 = [groupDprime(:,i2(1):i2(2))];
+  
+  y1 = mean(data1);
+  y2 = mean(data2);
+  
+  err1 = std(data1) / sqrt(length(data1)); % standard error
+  err2 = std(data2) / sqrt(length(data2)); % standard error
+  
+  e1 = errorbar(x, y1, err1);
+  hold on
+  e2 = errorbar(x, y2, err2);
+  
+  e1.Marker = "x";
+  e2.Marker = "o";
+
   xticks(x)
-  %xticklabels(round(x, 2)) 
-  xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
-  ylim([-1, 3.2])
-  xlim([0.5, 12.5])
+  xticklabels(round(x, 2)) 
+  xlim(xlimits)
+  ylim(ylimits)
   
-  %legend('Congruent (AC & CC)')
-  title('Sensitivity index [CONGRUENT : Actions and Context]');
-  xlabel('Conditions')
+  legend('Actions','Context')
+  stitle = sprintf('Sensitivity : CONGRUENT (N=%d)', height(groupDprime));
+  title(stitle);
+  xlabel('Presentation Time [ms]')
   ylabel('d''')
 
-  if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_congruent'])
-  end
+  % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
+  subplot(2,2,2);
+  % Define indices for for condition category
+  i1 = [7, 12];         % ACTION Probe & INCONGRUENT
+  i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+
+  data1 = [groupDprime(:,i1(1):i1(2))];
+  data2 = [groupDprime(:,i2(1):i2(2))];
   
-%% [INCONGRUENT] Plot d-prime
-  figure
-  x = [1:12];
-  %indices = [2:7, 14:19]; % TODO :  use these instead
-  i1 = [1, 6];
-  i2 = [13, 18];
-  data = [groupDprime(:,i1(1):i1(2)), groupDprime(:,i2(1):i2(2))];
-  y = mean(data);
-  err = std(data);
-  errorbar(x, y, err);
+  y1 = mean(data1);
+  y2 = mean(data2);
   
+  err1 = std(data1) / sqrt(length(data1)); % standard error
+  err2 = std(data2) / sqrt(length(data2)); % standard error
+  
+  e1 = errorbar(x, y1, err1);
+  hold on
+  e2 = errorbar(x, y2, err2);
+  
+  e1.Marker = "x";
+  e2.Marker = "o";
+
   xticks(x)
-  %xticklabels(round(x, 2)) 
-  xticklabels([vars(i1(1):i1(2)); vars(i2(1):i2(2))]);
-  ylim([-1, 3.2])
-  xlim([0.5, 12.5])
+  xticklabels(round(x, 2)) 
+  xlim(xlimits)
+  ylim(ylimits)
   
-  %legend('Congruent (AC & CC)')
-  title('Sensitivity index [CONGRUENT : Actions and Context]');
-  xlabel('Conditions')
+  legend('Actions','Context')
+  stitle = sprintf('Sensitivity : INCONGRUENT (N=%d)', height(groupDprime));
+  title(stitle);
+  xlabel('Presentation Time [ms]')
   ylabel('d''')
 
-  if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_incongruent'])
-  end
+  % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
+  subplot(2,2,3);
+  % Define indices for for condition category
+  i1 = [1, 6];         % ACTION Probe & Congruent
+  i2 = [7, 12];        % ACTION Probe & Incongruent
+
+  data1 = [groupDprime(:,i1(1):i1(2))];
+  data2 = [groupDprime(:,i2(1):i2(2))];
   
-  %% Plot d-prime : ACTIONS
-  figure
-  assert(height(dprimeAI) == height(dprimeAC));
-  x = [dprimeAI{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [dprimeAC{:, 'd-prime'}, dprimeAI{:, 'd-prime'}]);
+  y1 = mean(data1);
+  y2 = mean(data2);
   
-  xticks([dprimeAC{:, 'PresTime'}]/0.06)
-  xticklabels(round([dprimeAC{:, 'PresTime'}]/0.06, 2)) 
-  ylim([0, max(dprimeAC{:, 'd-prime'}) + 1])
+  err1 = std(data1) / sqrt(length(data1)); % standard error
+  err2 = std(data2) / sqrt(length(data2)); % standard error
+  
+  e1 = errorbar(x, y1, err1);
+  hold on
+  e2 = errorbar(x, y2, err2);
+  
+  e1.Marker = "x";
+  e2.Marker = "o";
+
+  xticks(x)
+  xticklabels(round(x, 2)) 
+  xlim(xlimits)
+  ylim(ylimits)
   
   legend('Congruent','Incongruent')
-  title('Sensitivity index (S1) : ACTIONS');
-  xlabel('Presentation time [ms]')
+  stitle = sprintf('Sensitivity : ACTIONS (N=%d)', height(groupDprime));
+  title(stitle);
+  xlabel('Presentation Time [ms]')
   ylabel('d''')
 
-  if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_actions'])
-  end
+  % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
+  subplot(2,2,4);
+  % Define indices for for condition category
+  i1 = [13, 18];         % CONTEXT Probe & Congruent
+  i2 = [19, 24];        % CONTEXT Probe & Incongruent
+
+  data1 = [groupDprime(:,i1(1):i1(2))];
+  data2 = [groupDprime(:,i2(1):i2(2))];
   
-  %% Plot d-prime : ACTIONS
-  figure
-  assert(height(dprimeCC) == height(dprimeCI));
-  x = [dprimeCC{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [dprimeCC{:, 'd-prime'}, dprimeCI{:, 'd-prime'}]);
+  y1 = mean(data1);
+  y2 = mean(data2);
   
-  xticks([dprimeCC{:, 'PresTime'}]/0.06)
-  xticklabels(round([dprimeCC{:, 'PresTime'}]/0.06, 2)) 
-  ylim([0, max(dprimeCC{:, 'd-prime'}) + 1])
+  err1 = std(data1) / sqrt(length(data1)); % standard error
+  err2 = std(data2) / sqrt(length(data2)); % standard error
+  
+  e1 = errorbar(x, y1, err1);
+  hold on
+  e2 = errorbar(x, y2, err2);
+  
+  e1.Marker = "x";
+  e2.Marker = "o";
+
+  xticks(x)
+  xticklabels(round(x, 2)) 
+  xlim(xlimits)
+  ylim(ylimits)
   
   legend('Congruent','Incongruent')
-  title('Sensitivity index (S1) : CONTEXT');
-  xlabel('Presentation time [ms]')
+  stitle = sprintf('Sensitivity : CONTEXT (N=%d)', height(groupDprime));
+  title(stitle);
+  xlabel('Presentation Time [ms]')
   ylabel('d''')
-
+  
+  % SAVE PLOTS ============================================================
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_group_dprime_context'])
+     % define resolution figure to be saved in dpi
+   res = 420;
+   % recalculate figure size to be saved
+   set(fh,'PaperPositionMode','manual')
+   fh.PaperUnits = 'inches';
+   fh.PaperPosition = [0 0 5000 2500]/res;
+   print('-dpng','-r300',['plots/group_dprime_statistics'])
   end
-end % plots
+end % if make_plots
 end % function

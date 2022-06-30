@@ -1,7 +1,7 @@
 function groupRT = statisticsRTgroup(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
-% Computes RT statistics (mean & std) per condition for each probe type and
+% Computes RT group statistics (mean & std) per condition for each probe type and
 % congruency.
 %
 % Written for BriefAC (AinC)
@@ -118,8 +118,8 @@ if make_plots
   legend('Actions','Context')
   stitle = sprintf('RT : CONGRUENT (N=%d)', height(groupRT));
   title(stitle);
-  xlabel('Conditions')
-  ylabel('RT')
+  xlabel('Presentation Time [ms]')
+  ylabel('RT [ms]')
 
   % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
   subplot(2,2,2);
@@ -151,8 +151,8 @@ if make_plots
   legend('Actions','Context')
   stitle = sprintf('RT : INCONGRUENT (N=%d)', height(groupRT));
   title(stitle);
-  xlabel('Conditions')
-  ylabel('RT')
+  xlabel('Presentation Time [ms]')
+  ylabel('RT [ms]')
 
   % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
   subplot(2,2,3);
@@ -184,8 +184,8 @@ if make_plots
   legend('Congruent','Incongruent')
   stitle = sprintf('RT : ACTIONS (N=%d)', height(groupRT));
   title(stitle);
-  xlabel('Conditions')
-  ylabel('RT')
+  xlabel('Presentation Time [ms]')
+  ylabel('RT [ms]')
 
   % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
   subplot(2,2,4);
@@ -217,8 +217,8 @@ if make_plots
   legend('Congruent','Incongruent')
   stitle = sprintf('RT : CONTEXT (N=%d)', height(groupRT));
   title(stitle);
-  xlabel('Conditions')
-  ylabel('RT')
+  xlabel('Presentation Time [ms]')
+  ylabel('RT [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots
