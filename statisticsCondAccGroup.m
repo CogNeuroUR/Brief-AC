@@ -1,7 +1,10 @@
-function groupDprime = statisticsSensitivityGroup(save_plots)
-% Computes sensitivity (d-prime) group statistics (mean & std) per condition for
-% each probe type and congruency.
-% 
+function groupAcc = statisticsCondAccGroup(save_plots)
+%function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
+%          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
+% Computes "Conditional" Accuracy group statistics, meaning
+% 1) Accuracies per action, across participants
+% 2) --//--     per context, --//--
+%
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
@@ -11,7 +14,7 @@ make_plots = 1;
 path_results = 'results/final/';
 l_files = dir(path_results);
 
-groupDprime = [];
+groupAcc = [];
 l_subjects = {};
 
 % iterate over files
@@ -20,7 +23,7 @@ for i=1:length(l_files)
   path2file = [path_results, l_files(i).name];
   
   % check if of mat-extension
-  [fPath, fName, fExt] = fileparts(l_files(i).name);
+  [~, fName, fExt] = fileparts(l_files(i).name);
   
   switch fExt
     case '.mat'
@@ -34,32 +37,24 @@ for i=1:length(l_files)
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
-        % 2) Extract statistics: hits, false alarms and their rates
-        % by PROBE TYPE & CONGRUENCY
-        if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-          key_yes = 37;
-          key_no = 39;
-        else
-          key_yes = 39;
-          key_no = 37;
-        end
-        l_subjects = [l_subjects, fName];
+        % 2) Extract trials with action probes and context probes
+        
 
+        % Extract RT = f(presentation time) by probe type
         statsAC = getResponseStats(trialsAC, key_yes, key_no);
         statsAI = getResponseStats(trialsAI, key_yes, key_no);
         statsCC = getResponseStats(trialsCC, key_yes, key_no);
         statsCI = getResponseStats(trialsCI, key_yes, key_no);
         
-        % 3) Compute d-prime  
-        dprimeAC = dprime(statsAC);
-        dprimeAI = dprime(statsAI);
-        dprimeCC = dprime(statsCC);
-        dprimeCI = dprime(statsCI);
+        % 3) Compute accuracy
+        acc_AC = accuracy(statsAC);
+        acc_AI = accuracy(statsAI);
+        acc_CC = accuracy(statsCC);
+        acc_CI = accuracy(statsCI);
 
-        % 4) Dump into matrix
-        groupDprime = [groupDprime;...
-                       dprimeAC.dprime(:)', dprimeAI.dprime(:)',...
-                       dprimeCC.dprime(:)', dprimeCI.dprime(:)'];
+
+        % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
+        groupAcc = [groupAcc; acc_AC, acc_AI, acc_CC, acc_CI];
 
       end
     otherwise
@@ -68,8 +63,8 @@ for i=1:length(l_files)
 
 end
 
-%% TABLE (auxiliary!)
-%groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
+%% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
+%groupAcc = array2table(groupAcc); %array2table(zeros(0,24));
 probes = ["AC", "AI", "CC", "CI"];
 times = [2:6 8];
 vars = {};
@@ -80,21 +75,15 @@ for iP=1:length(probes)
   end
 end
 
-%groupDprime.Properties.VariableNames = vars;
-
-%% Add subject IDs to table AND re-arrange columns
-%groupDprime.Subject = l_subjects';
-%groupDprime = groupDprime(:, [25, 1:24]);
-
 %% ########################################################################
-% PLOTS
+% Plots [CONGRUENT]
 %% ########################################################################
 if make_plots
   fh = figure;
   
   % General parameters
   xfactor = 1000/60;
-  ylimits = [-1, 3.3];
+  ylimits = [30 109];
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
@@ -104,14 +93,14 @@ if make_plots
   i1 = [1, 6];         % ACTION Probe & CONGRUENT
   i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
   
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  data1 = [groupAcc(:,i1(1):i1(2))];
+  data2 = [groupAcc(:,i2(1):i2(2))];
   
   y1 = mean(data1);
   y2 = mean(data2);
   
-  err1 = std(data1) / sqrt(length(data1)); % standard error
-  err2 = std(data2) / sqrt(length(data2)); % standard error
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
   
   e1 = errorbar(x, y1, err1);
   hold on
@@ -126,27 +115,26 @@ if make_plots
   ylim(ylimits)
   
   lgd = legend('Actions','Context');
-  lgd.Location = 'northwest';
-  
-  stitle = sprintf('Sensitivity : CONGRUENT (N=%d)', height(groupDprime));
+  lgd.Location = 'best';
+  stitle = sprintf('Accuracy : CONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  ylabel('Accuracy [%]')
 
   % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
   subplot(2,2,2);
   % Define indices for for condition category
   i1 = [7, 12];         % ACTION Probe & INCONGRUENT
   i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
-
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  
+  data1 = [groupAcc(:,i1(1):i1(2))];
+  data2 = [groupAcc(:,i2(1):i2(2))];
   
   y1 = mean(data1);
   y2 = mean(data2);
   
-  err1 = std(data1) / sqrt(length(data1)); % standard error
-  err2 = std(data2) / sqrt(length(data2)); % standard error
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
   
   e1 = errorbar(x, y1, err1);
   hold on
@@ -154,34 +142,33 @@ if make_plots
   
   e1.Marker = "x";
   e2.Marker = "o";
-
+  
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
-  lgd = legend('Actions','Context');
-  lgd.Location = 'northwest';
 
-  stitle = sprintf('Sensitivity : INCONGRUENT (N=%d)', height(groupDprime));
+  lgd = legend('Actions','Context');
+  lgd.Location = 'best';
+  stitle = sprintf('Accuracy : INCONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  ylabel('Accuracy [%]')
 
   % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
   subplot(2,2,3);
   % Define indices for for condition category
   i1 = [1, 6];         % ACTION Probe & Congruent
   i2 = [7, 12];        % ACTION Probe & Incongruent
-
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  
+  data1 = [groupAcc(:,i1(1):i1(2))];
+  data2 = [groupAcc(:,i2(1):i2(2))];
   
   y1 = mean(data1);
   y2 = mean(data2);
   
-  err1 = std(data1) / sqrt(length(data1)); % standard error
-  err2 = std(data2) / sqrt(length(data2)); % standard error
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
   
   e1 = errorbar(x, y1, err1);
   hold on
@@ -189,34 +176,33 @@ if make_plots
   
   e1.Marker = "x";
   e2.Marker = "o";
-
+  
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
+
   lgd = legend('Congruent','Incongruent');
-  lgd.Location = 'northwest';
-  
-  stitle = sprintf('Sensitivity : ACTIONS (N=%d)', height(groupDprime));
+  lgd.Location = 'best';
+  stitle = sprintf('Accuracy : ACTIONS (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  ylabel('Accuracy [%]')
 
   % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
   subplot(2,2,4);
   % Define indices for for condition category
   i1 = [13, 18];         % CONTEXT Probe & Congruent
   i2 = [19, 24];        % CONTEXT Probe & Incongruent
-
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  
+  data1 = [groupAcc(:,i1(1):i1(2))];
+  data2 = [groupAcc(:,i2(1):i2(2))];
   
   y1 = mean(data1);
   y2 = mean(data2);
   
-  err1 = std(data1) / sqrt(length(data1)); % standard error
-  err2 = std(data2) / sqrt(length(data2)); % standard error
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
   
   e1 = errorbar(x, y1, err1);
   hold on
@@ -224,20 +210,19 @@ if make_plots
   
   e1.Marker = "x";
   e2.Marker = "o";
-
+  
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
+
   lgd = legend('Congruent','Incongruent');
-  lgd.Location = 'northwest';
-  
-  stitle = sprintf('Sensitivity : CONTEXT (N=%d)', height(groupDprime));
+  lgd.Location = 'best';
+  stitle = sprintf('Accuracy : CONTEXT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
-  
+  ylabel('Accuracy [%]')
+
   % SAVE PLOTS ============================================================
   if save_plots
      % define resolution figure to be saved in dpi
@@ -245,8 +230,23 @@ if make_plots
    % recalculate figure size to be saved
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 5000 2500]/res;
-   print('-dpng','-r300',['plots/group_dprime_statistics'])
+   fh.PaperPosition = [0 0 4800 2500]/res;
+   print('-dpng','-r300',['plots/group_accuracy_statistics'])
   end
 end % if make_plots
-end % function
+end
+
+%% ------------------------------------------------------------------------
+% Functions
+function acc = accuracy(t_stats)
+  % 1) Extract nr of HITS and CORRECT REJECTIONS
+  % 2) Compute accuracy as the ration of (HITS+CORR_REJECT) / N_samples
+  %fprintf('Computing accuracy ...\n')
+
+  acc = [];
+  for i=1:height(t_stats)
+    % Compute accuracy as ratio
+    ratio = (t_stats.Hits(i) + t_stats.CorrectRejections(i)) / t_stats.N_samples(i);
+    acc = [acc, ratio * 100];
+  end
+end

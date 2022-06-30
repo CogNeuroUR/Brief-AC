@@ -13,10 +13,10 @@ function t_stats = dprime(t_stats)
       t_stats.H(i) = 1/((t_stats.Hits(i) + t_stats.Misses(i)));
     end
 
-    if t_stats.FalseAlarms(i) == 0
-      t_stats.FalseAlarms(i) = 1/((t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
-    elseif t_stats.FalseAlarms(i) == 1
-      t_stats.FalseAlarms(i) = 1 - 1/(2*(t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
+    if t_stats.F(i) == 0
+      t_stats.F(i) = 1/((t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
+    elseif t_stats.F(i) == 1
+      t_stats.F(i) = 1 - 1/(2*(t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
     end
 
     % Compute d-prime

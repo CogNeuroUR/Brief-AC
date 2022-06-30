@@ -122,7 +122,7 @@ if make_plots
   ylim(ylimits)
   
   lgd = legend('Actions','Context');
-  lgd.Location = 'best';
+  lgd.Location = 'northwest';
   stitle = sprintf('Accuracy : CONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -156,7 +156,7 @@ if make_plots
   ylim(ylimits)
 
   lgd = legend('Actions','Context');
-  lgd.Location = 'best';
+  lgd.Location = 'northwest';
   stitle = sprintf('Accuracy : INCONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -190,7 +190,7 @@ if make_plots
   ylim(ylimits)
 
   lgd = legend('Congruent','Incongruent');
-  lgd.Location = 'best';
+  lgd.Location = 'northwest';
   stitle = sprintf('Accuracy : ACTIONS (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -224,7 +224,7 @@ if make_plots
   ylim(ylimits)
 
   lgd = legend('Congruent','Incongruent');
-  lgd.Location = 'best';
+  lgd.Location = 'northwest';
   stitle = sprintf('Accuracy : CONTEXT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
