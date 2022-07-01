@@ -17,6 +17,17 @@ l_files = dir(path_results);
 groupAcc = [];
 l_subjects = {};
 
+probes_action = ["cutting" "grating" "whisking"...
+                 "hole-punching" "stamping" "stapling"...
+                  "hammering" "painting" "sawing"];
+probes_context = ["kitchen"    "office"    "workshop"];
+
+probes = ["cutting" "grating" "whisking"...
+          "hole-punching" "stamping" "stapling"...
+          "hammering" "painting" "sawing"...
+          "kitchen"    "office"    "workshop"];
+
+
 % iterate over files
 fprintf('Sweeping through files ...\n');
 for i=1:length(l_files)
@@ -36,43 +47,76 @@ for i=1:length(l_files)
         % perform analysis
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
-
-        % 2) Extract trials with action probes and context probes
         
+        % 2) Remove trials with no response 
+        trialsAC = removeEmptyByColumn(trialsAC, 'RT');
+        trialsCC = removeEmptyByColumn(trialsCC, 'RT');
+        trialsAI = removeEmptyByColumn(trialsAI, 'RT');
+        trialsCI = removeEmptyByColumn(trialsCI, 'RT');
 
-        % Extract RT = f(presentation time) by probe type
-        statsAC = getResponseStats(trialsAC, key_yes, key_no);
-        statsAI = getResponseStats(trialsAI, key_yes, key_no);
-        statsCC = getResponseStats(trialsCC, key_yes, key_no);
-        statsCI = getResponseStats(trialsCI, key_yes, key_no);
+        % 3.1) Convert ResKeys to array
+        trialsAC = convertColumn2array(trialsAC, 'ResKey');
+        trialsCC = convertColumn2array(trialsCC, 'ResKey');
+        trialsAI = convertColumn2array(trialsAI, 'ResKey');
+        trialsCI = convertColumn2array(trialsCI, 'ResKey');
+
+        % 3.2) Convert RT to array
+        trialsAC = convertColumn2array(trialsAC, 'RT');
+        trialsCC = convertColumn2array(trialsCC, 'RT');
+        trialsAI = convertColumn2array(trialsAI, 'RT');
+        trialsCI = convertColumn2array(trialsCI, 'RT');
+
+        % 4) Concatenate congruent & incongruent tables respectively
+        trialsC = [trialsAC; trialsCC];
+        trialsI = [trialsAI; trialsCI];
+
+
+        % 5) Compute accuracies for each individual action & context probe
+        % by congruence
+        % for each probe [congruent] : trialsC
+        accs_congruent = [];
+        for i = 1:length(probes)
+          % 1) find all given responses & trueKeys
+          ResKeys = trialsC.ResKey(trialsC.Probe == probes(i));
+          TrueKeys = trialsC.TrueKey(trialsC.Probe == probes(i));
+
+          % 2) compute accuracy
+          n_correct = sum(ResKeys == TrueKeys);
+          
+          acc = 100 * n_correct/length(ResKeys); % in percent
+          
+          % 3) dump
+          accs_congruent = [accs_congruent, acc];
+        end
+
+        % for each probe [incongruent] : trialsI
+        accs_incongruent = [];
+        for i = 1:length(probes)
+          % 1) find all given responses & trueKeys
+          ResKeys = trialsI.ResKey(trialsI.Probe == probes(i));
+          TrueKeys = trialsI.TrueKey(trialsI.Probe == probes(i));
+
+          if isequal(class(ResKeys), 'cell')
+            ResKeys = cell2mat(ResKeys);
+          end
+          
+          % 2) compute accuracy
+          n_correct = sum(ResKeys == TrueKeys);
+          acc = 100 * n_correct/length(ResKeys); % in percent
+          
+          % 3) dump
+          accs_incongruent = [accs_incongruent, acc];
+        end
+
+        % Concatenate congruent & incongruent -> 24-long vector
+        groupAcc = [groupAcc; accs_congruent, accs_incongruent];
         
-        % 3) Compute accuracy
-        acc_AC = accuracy(statsAC);
-        acc_AI = accuracy(statsAI);
-        acc_CC = accuracy(statsCC);
-        acc_CI = accuracy(statsCI);
-
-
-        % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
-        groupAcc = [groupAcc; acc_AC, acc_AI, acc_CC, acc_CI];
-
+        
       end
     otherwise
       continue
   end % switch
 
-end
-
-%% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
-%groupAcc = array2table(groupAcc); %array2table(zeros(0,24));
-probes = ["AC", "AI", "CC", "CI"];
-times = [2:6 8];
-vars = {};
-
-for iP=1:length(probes)
-  for iT=1:length(times)
-    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
-  end
 end
 
 %% ########################################################################
@@ -82,16 +126,14 @@ if make_plots
   fh = figure;
   
   % General parameters
-  xfactor = 1000/60;
   ylimits = [30 109];
-  xlimits = [1.6 8.4]*xfactor;
-  x = [2:6 8]*xfactor; % in ms
+  xlimits = [0.5 length(probes)+0.5];
+  x = 1:length(probes); % in ms
 
-  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
-  subplot(2,2,1);
+  % PLOT : CONGRUENT VS INCONGRUENT (Actions & Context) ===============================
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & CONGRUENT
-  i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+  i1 = [1, 12];         % ACTION Probe & CONGRUENT
+  i2 = [13, 24];        % CONTEXT Probe & CONGRUENT
   
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
@@ -110,117 +152,15 @@ if make_plots
   e2.Marker = "o";
 
   xticks(x)
-  xticklabels(round(x, 2)) 
+  xticklabels(probes) 
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Actions','Context');
-  lgd.Location = 'best';
-  stitle = sprintf('Accuracy : CONGRUENT (N=%d)', height(groupAcc));
-  title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('Accuracy [%]')
-
-  % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
-  subplot(2,2,2);
-  % Define indices for for condition category
-  i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
-  
-  data1 = [groupAcc(:,i1(1):i1(2))];
-  data2 = [groupAcc(:,i2(1):i2(2))];
-  
-  y1 = mean(data1);
-  y2 = mean(data2);
-  
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
-  
-  e1 = errorbar(x, y1, err1);
-  hold on
-  e2 = errorbar(x, y2, err2);
-  
-  e1.Marker = "x";
-  e2.Marker = "o";
-  
-  xticks(x)
-  xticklabels(round(x, 2)) 
-  xlim(xlimits)
-  ylim(ylimits)
-
-  lgd = legend('Actions','Context');
-  lgd.Location = 'best';
-  stitle = sprintf('Accuracy : INCONGRUENT (N=%d)', height(groupAcc));
-  title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('Accuracy [%]')
-
-  % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
-  subplot(2,2,3);
-  % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & Congruent
-  i2 = [7, 12];        % ACTION Probe & Incongruent
-  
-  data1 = [groupAcc(:,i1(1):i1(2))];
-  data2 = [groupAcc(:,i2(1):i2(2))];
-  
-  y1 = mean(data1);
-  y2 = mean(data2);
-  
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
-  
-  e1 = errorbar(x, y1, err1);
-  hold on
-  e2 = errorbar(x, y2, err2);
-  
-  e1.Marker = "x";
-  e2.Marker = "o";
-  
-  xticks(x)
-  xticklabels(round(x, 2)) 
-  xlim(xlimits)
-  ylim(ylimits)
-
   lgd = legend('Congruent','Incongruent');
   lgd.Location = 'best';
-  stitle = sprintf('Accuracy : ACTIONS (N=%d)', height(groupAcc));
+  stitle = sprintf('Accuracies per Probe (N=%d)', height(groupAcc));
   title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('Accuracy [%]')
-
-  % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
-  subplot(2,2,4);
-  % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Congruent
-  i2 = [19, 24];        % CONTEXT Probe & Incongruent
-  
-  data1 = [groupAcc(:,i1(1):i1(2))];
-  data2 = [groupAcc(:,i2(1):i2(2))];
-  
-  y1 = mean(data1);
-  y2 = mean(data2);
-  
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
-  
-  e1 = errorbar(x, y1, err1);
-  hold on
-  e2 = errorbar(x, y2, err2);
-  
-  e1.Marker = "x";
-  e2.Marker = "o";
-  
-  xticks(x)
-  xticklabels(round(x, 2)) 
-  xlim(xlimits)
-  ylim(ylimits)
-
-  lgd = legend('Congruent','Incongruent');
-  lgd.Location = 'best';
-  stitle = sprintf('Accuracy : CONTEXT (N=%d)', height(groupAcc));
-  title(stitle);
-  xlabel('Presentation Time [ms]')
+  xlabel('Probe')
   ylabel('Accuracy [%]')
 
   % SAVE PLOTS ============================================================
@@ -231,22 +171,31 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 4800 2500]/res;
-   print('-dpng','-r300',['plots/group_accuracy_statistics'])
+   print('-dpng','-r300',['plots/group_accuracy_per-probe_statistics'])
   end
 end % if make_plots
 end
 
 %% ------------------------------------------------------------------------
 % Functions
-function acc = accuracy(t_stats)
-  % 1) Extract nr of HITS and CORRECT REJECTIONS
-  % 2) Compute accuracy as the ration of (HITS+CORR_REJECT) / N_samples
-  %fprintf('Computing accuracy ...\n')
+function table_ = convertColumn2array(table_, column)
+  % Separate ResKeys from main tables
+  sColumn = table_{:, column};
+  % Remove ResKeys columns
+  table_.(column) = [];
+  % Convert separated ResKeys to array
+  if isequal(class(sColumn), 'cell')
+    sColumn = cell2mat(sColumn);
+  end
+  % Add it as new column in table
+  table_{:, column} = sColumn;
+end
 
-  acc = [];
-  for i=1:height(t_stats)
-    % Compute accuracy as ratio
-    ratio = (t_stats.Hits(i) + t_stats.CorrectRejections(i)) / t_stats.N_samples(i);
-    acc = [acc, ratio * 100];
+function table_ = removeEmptyByColumn(table_, column)
+  % 1.5) Remove trials with no response 
+  for i=height(table_):-1:1
+    if isequal(table_{i, column}, {[]})
+      table_(i, :) = [];
+    end
   end
 end
