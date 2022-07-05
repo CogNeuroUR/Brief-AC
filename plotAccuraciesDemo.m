@@ -78,7 +78,7 @@ xlabel('Subject');
 ylabel('Accuracy [%]')
 
 lgd = legend('Accuracy','Empty');
-lgd.Location = 'best';
+lgd.Location = 'northeast';
 
 if save_plots
    print('-dpng','-r300',['plots/practice_accuracies'])

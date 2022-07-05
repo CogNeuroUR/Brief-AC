@@ -1,11 +1,21 @@
-function computeRTstatistics(ExpInfo, key_yes, key_no, save_plots)
-%function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
-%          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
+function statisticsRT(ExpInfo, save_plots)
+%function computeRTstatistics(ExpInfo, key_yes, key_no, save_plots)
 % Computes RT statistics (mean & std) per condition for each probe type and
 % congruency.
 %
 % Written for BriefAC (AinC)
 % Vrabie 2022
+
+%% Custom parameters:
+exp_name = split(ExpInfo.Cfg.name, '_');
+if isequal(exp_name{2}, 'right')
+  key_yes = 39;
+  key_no = 37;
+elseif isequal(exp_name{2}, 'left')
+  key_yes = 37;
+  key_no = 39;
+end
+
 make_plots = 1;
 
 %% Extract trials for each probe by decoding trials' ASF code
