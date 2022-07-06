@@ -84,7 +84,8 @@ if make_plots
   
   % General parameters
   xfactor = 1000/60;
-  ylimits = [650 1100];
+  %ylimits = [650 1100]; % without individual lines
+  ylimits = [490 1250];
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
@@ -106,16 +107,31 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
 
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+  
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
   
-  legend('Actions','Context')
+  lgd = legend('Actions','Context');
+  lgd.Location = 'northwest';
+  lgd.Color = 'none';
+
   stitle = sprintf('RT : CONGRUENT (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -139,16 +155,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
-  
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
 
-  legend('Actions','Context')
+  lgd = legend('Actions','Context');
+  lgd.Location = 'northwest';
+  lgd.Color = 'none';
+
   stitle = sprintf('RT : INCONGRUENT (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -172,16 +202,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
   
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
 
-  legend('Congruent','Incongruent')
+  lgd = legend('Congruent','Incongruent');
+  lgd.Location = 'northwest';
+  lgd.Color = 'none';
+  
   stitle = sprintf('RT : ACTIONS (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -205,16 +249,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+ % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
-  
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
 
-  legend('Congruent','Incongruent')
+  lgd = legend('Congruent','Incongruent');
+  lgd.Location = 'northwest';
+  lgd.Color = 'none';
+  
   stitle = sprintf('RT : CONTEXT (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')

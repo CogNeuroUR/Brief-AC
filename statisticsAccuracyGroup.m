@@ -90,7 +90,7 @@ if make_plots
   
   % General parameters
   xfactor = 1000/60;
-  ylimits = [30 109];
+  ylimits = [20 105];
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
@@ -112,9 +112,21 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   xticks(x)
   xticklabels(round(x, 2)) 
@@ -123,6 +135,8 @@ if make_plots
   
   lgd = legend('Actions','Context');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
+
   stitle = sprintf('Accuracy : CONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -146,9 +160,21 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
   
   xticks(x)
   xticklabels(round(x, 2)) 
@@ -157,6 +183,8 @@ if make_plots
 
   lgd = legend('Actions','Context');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
+  
   stitle = sprintf('Accuracy : INCONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -180,10 +208,22 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
-  
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
@@ -191,6 +231,8 @@ if make_plots
 
   lgd = legend('Congruent','Incongruent');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
+  
   stitle = sprintf('Accuracy : ACTIONS (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
@@ -214,10 +256,22 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
-  
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
@@ -225,6 +279,8 @@ if make_plots
 
   lgd = legend('Congruent','Incongruent');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
+
   stitle = sprintf('Accuracy : CONTEXT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')

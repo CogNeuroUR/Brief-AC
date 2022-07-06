@@ -94,7 +94,7 @@ if make_plots
   
   % General parameters
   xfactor = 1000/60;
-  ylimits = [-1, 3.3];
+  ylimits = [-1.6, 3.2];
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
@@ -116,9 +116,21 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   xticks(x)
   xticklabels(round(x, 2)) 
@@ -127,6 +139,7 @@ if make_plots
   
   lgd = legend('Actions','Context');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
   
   stitle = sprintf('Sensitivity : CONGRUENT (N=%d)', height(groupDprime));
   title(stitle);
@@ -151,17 +164,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
 
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
+  
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
+
   lgd = legend('Actions','Context');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
 
   stitle = sprintf('Sensitivity : INCONGRUENT (N=%d)', height(groupDprime));
   title(stitle);
@@ -186,17 +212,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
+
   lgd = legend('Congruent','Incongruent');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
   
   stitle = sprintf('Sensitivity : ACTIONS (N=%d)', height(groupDprime));
   title(stitle);
@@ -221,17 +260,30 @@ if make_plots
   e1 = errorbar(x, y1, err1);
   hold on
   e2 = errorbar(x, y2, err2);
+  hold on
+  % data from individual subjects
+  l1 = plot(x, data1);
+  hold on
+  l2 = plot(x, data2);
   
   e1.Marker = "x";
   e2.Marker = "o";
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
+  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   xticks(x)
   xticklabels(round(x, 2)) 
   xlim(xlimits)
   ylim(ylimits)
-  
+
   lgd = legend('Congruent','Incongruent');
   lgd.Location = 'northwest';
+  lgd.Color = 'none';
   
   stitle = sprintf('Sensitivity : CONTEXT (N=%d)', height(groupDprime));
   title(stitle);
