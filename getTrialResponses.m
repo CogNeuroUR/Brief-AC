@@ -13,6 +13,9 @@ function [trials_act_con, trials_ctx_con,...
 %% Load "info" about factorial structure
 info = getFactorialStructure();
 
+%% Load stimulus definitions
+std_fids = read_std();
+
 %% Extract trials for each probe by decoding trials' ASF code
 % Two types: (1) action; (2) context
 % Information extracted:
@@ -26,6 +29,10 @@ trials_action_congruent = {};
 trials_context_congruent = {};
 trials_action_incongruent = {};
 trials_context_incongruent = {};
+
+% TODOs
+% [x] collect target action
+% [x] collect target context
 
 % Iterate over trials and extract trials from each probe type
 for i=1:length(ExpInfo.TrialInfo)
@@ -42,6 +49,14 @@ for i=1:length(ExpInfo.TrialInfo)
                                                info.CongruencyLevels,...
                                                info.ProbeTypeLevels, info.ProbeLevels);
 
+  % Extract target "context" and "action"
+  target_d = ExpInfo.TrialInfo(i).trial.pageNumber(3);
+  target_split = split(std_fids(target_d), '_');
+  target_csplit = split(target_split(2), '-');
+  
+  target_context = target_csplit(1);
+  target_action = target_split(4);
+  
   % congruent
   if isequal(congruency, 'congruent')
     % check if from action probes
@@ -51,7 +66,8 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
                        ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe};    
+                       congruency, probeType, Probe,...
+                       target_context, target_action};    
     
     % check if from context probes 
     elseif isequal(probeType, "context")
@@ -60,7 +76,8 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                        congruency, probeType, Probe};
+                        congruency, probeType, Probe,...
+                        target_context, target_action};
     end
 
   % incongruent
@@ -72,7 +89,8 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
                        ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe};    
+                       congruency, probeType, Probe,...
+                       target_context, target_action};    
     
     % check if from context probes 
     elseif isequal(probeType, "context")
@@ -81,14 +99,16 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                        congruency, probeType, Probe};
+                        congruency, probeType, Probe,...
+                        target_context, target_action};
     end  
   end
 
 end
 
 %% Convert cells to tables
-varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruency', 'ProbeType', 'Probe'};
+varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruency', 'ProbeType',...
+            'Probe', 'Target_Context', 'Target_Action'};
 trials_act_con = cell2table(trials_action_congruent,...
                             'VariableNames', varnames);
 trials_ctx_con = cell2table(trials_context_congruent,...
