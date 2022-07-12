@@ -94,7 +94,7 @@ if make_plots
   
   % General parameters
   xfactor = 1000/60;
-  ylimits = [-1.6, 3.2];
+  ylimits = [-1.8, 3.4];
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 

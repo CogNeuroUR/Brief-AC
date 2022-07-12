@@ -73,9 +73,11 @@ fh = figure;
 x = 1:height(groupAcc);
 bar(x, groupAcc,'stacked')
 
-title('Accuracies during PRACTICE trials');
+title('Accuracies & empty trials during PRACTICE');
 xlabel('Subject');
-ylabel('Accuracy [%]')
+ylabel('Ratio [%]')
+
+ylim([20, 90])
 
 lgd = legend('Accuracy','Empty');
 lgd.Location = 'northeast';
