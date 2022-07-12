@@ -49,15 +49,17 @@ function t_stats = getResponseStats(tTrials, key_yes, key_no)
         case key_yes % Targets ("yes" : correct response)
           if key_yes == TrueKeys(j) % Hit
             hits = hits + 1;
-          else % Miss
-            misses = misses + 1;
+          else % False alarm : "yes" when NO
+            %misses = misses + 1;
+            f_alarms = f_alarms + 1;
           end
         
         case key_no % Distractors ("no" : correct response)
           if key_no == TrueKeys(j)  % correct rejection
             corr_rejections = corr_rejections + 1;
-          else % false alarm
-            f_alarms = f_alarms + 1;
+          else % Miss : "no" when YES
+            %f_alarms = f_alarms + 1;
+            misses = misses + 1;
           end
           
         case 0 % No response given
