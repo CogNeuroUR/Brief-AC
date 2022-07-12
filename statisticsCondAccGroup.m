@@ -126,30 +126,58 @@ if make_plots
   fh = figure;
   
   % General parameters
-  ylimits = [30 109];
+  ylimits = [30 101];
   xlimits = [0.5 length(probes)+0.5];
   x = 1:length(probes); % in ms
 
   % PLOT : CONGRUENT VS INCONGRUENT (Actions & Context) ===============================
   % Define indices for for condition category
-  i1 = [1, 12];         % ACTION Probe & CONGRUENT
-  i2 = [13, 24];        % CONTEXT Probe & CONGRUENT
+  i1 = [1, 12];         % CONGRUENT
+  i2 = [13, 24];        % INCONGRUENT
   
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
   y1 = mean(data1);
   y2 = mean(data2);
-  
+  y = [y1; y2]';
+
   err1 = std(data1) / sqrt(length(data1));
   err2 = std(data2) / sqrt(length(data2));
-  
-  e1 = errorbar(x, y1, err1);
+  err = [err1; err2]';
+
+  b = bar(y);
   hold on
-  e2 = errorbar(x, y2, err2);
-  
-  e1.Marker = "x";
-  e2.Marker = "o";
+  % From https://stackoverflow.com/a/59257318
+  for k = 1:size(y,2)
+    % get x positions per group
+    xpos = b(k).XData + b(k).XOffset;
+    % draw errorbar
+    errorbar(xpos, y(:,k), err(:,k), 'LineStyle', 'none', ... 
+        'Color', 'k', 'LineWidth', 1);
+  end
+
+%   err1 = std(data1) / sqrt(length(data1));
+%   err2 = std(data2) / sqrt(length(data2));
+%   err = [err1; err2]';
+% 
+%   %b1 = bar(y1);
+%   %hold on
+%   e1 = errorbar(x, y1, err1);
+%   hold on
+%   %b2 = bar(y2);
+%   hold on
+%   e2 = errorbar(x, y2, err2);
+% 
+% 
+%   e = errorbar(x, y, err);
+% 
+%   e1 = errorbar(x, y1, err1);
+%   hold on
+%   e2 = errorbar(x, y2, err2);
+%   
+%   e1.Marker = "x";
+%   e2.Marker = "o";
 
   xticks(x)
   xticklabels(probes) 
