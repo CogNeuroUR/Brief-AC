@@ -308,8 +308,9 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
   %codeSanityCheck(TRD, info.factorialStructure, info.CongruencyLevels,...
   %                info.ProbeTypeLevels, info.ProbeLevels, info.DurationLevels)
 
-  %% 10) Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
-  TRD = shuffleConditionalBlockWise(TRD, lBlock);
+  %% 10) [DOESN'T DO WHAT'S EXPECTED] : Final shuffling
+  % Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
+  TRD = shuffleConditionalBlockWise(TRD, lBlock); % [DOESN'T DO WHAT'S EXPECTED]
 
   %% 10.2) Recode with the full factorial strucure
   for iTrial = 1:length(TRD)

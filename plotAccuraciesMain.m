@@ -14,7 +14,7 @@ groupAcc = [];
 l_subjects = {};
 
 % iterate over files
-fprintf('Sweeping through DEMO files ...\n');
+fprintf('Sweeping through Main files ...\n');
 for i=1:length(l_files)
   path2file = [path_results, l_files(i).name];
   
@@ -24,7 +24,7 @@ for i=1:length(l_files)
   switch fExt
     case '.mat'
       % ignore demo-results
-      if contains(l_files(i).name, 'demo')
+      if ~contains(l_files(i).name, 'demo')
         fprintf('\tLoading : %s\n', l_files(i).name);
         clear ExpInfo;
         load(path2file, 'ExpInfo');
@@ -73,7 +73,7 @@ fh = figure;
 x = 1:height(groupAcc);
 bar(x, groupAcc,'stacked')
 
-title('Accuracies & empty trials during PRACTICE');
+title('Accuracies & empty trials during MAIN experiment');
 xlabel('Subject');
 ylabel('Ratio [%]')
 
@@ -83,7 +83,7 @@ lgd = legend('Accuracy','Empty');
 lgd.Location = 'northeast';
 
 if save_plots
-   print('-dpng','-r300',['plots/accuracies_practice'])
+   print('-dpng','-r300',['plots/accuracies_main-experiment'])
 end
 
 end
