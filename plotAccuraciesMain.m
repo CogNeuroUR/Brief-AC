@@ -1,4 +1,4 @@
-function plotAccuraciesDemo(save_plots)
+function plotAccuraciesMain(save_plots)
 % Computes RT statistics (mean & std) per condition for each probe type and
 % congruency.
 %
@@ -57,8 +57,8 @@ for i=1:length(l_files)
           end
         end
 
-        % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
-        groupAcc = [groupAcc; i_correct*100/n_trials, i_empty*100/n_trials];
+        % 3) Dump Accuracy ONLY in the matrix as rows (ONE PER SUBJECT)
+        groupAcc = [groupAcc; i_correct*100/n_trials - 50, i_empty*100/n_trials];
 
       end
     otherwise
@@ -67,19 +67,39 @@ for i=1:length(l_files)
 
 end
 
+%% Define colors
+clrs = [];
+col_blue = [0, 0.4470, 0.7410];
+col_yellow = [0.9290, 0.6940, 0.1250];
+col_orange = [0.8500, 0.3250, 0.0980];
+
+for i=1:height(groupAcc)
+  if mod(i, 2) % if odd, make yellow, otherwise blue
+    clrs = [clrs; col_yellow];
+  else
+    clrs = [clrs; col_blue];
+  end
+end
+
 %% PLOT : stacked bars
 fh = figure;
 
 x = 1:height(groupAcc);
-bar(x, groupAcc,'stacked')
+b = bar(x, groupAcc,'stacked', 'FaceColor','flat');
+hold on
+bar(NaN, 'FaceColor', col_blue);
+bar(NaN, 'FaceColor',col_orange);
 
-title('Accuracies & empty trials during MAIN experiment');
+b(1).CData = clrs;
+
+title('Accuracy & empty trials (main experiment)');
 xlabel('Subject');
-ylabel('Ratio [%]')
+ylabel('Accuracy - chance [%]')
 
-ylim([20, 90])
+%ylim([20, 95])
+ylim([-10, 50])
 
-lgd = legend('Accuracy','Empty');
+lgd = legend('Left', 'Empty', 'Right');
 lgd.Location = 'northeast';
 
 if save_plots

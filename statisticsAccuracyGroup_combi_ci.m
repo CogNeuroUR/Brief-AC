@@ -1,4 +1,4 @@
-function groupAcc = statisticsAccuracyGroup(save_plots)
+function groupAcc = statisticsAccuracyGroup_combi_ci(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes Accuracy group statistics (mean & std) per condition for each probe type and
@@ -7,7 +7,7 @@ function groupAcc = statisticsAccuracyGroup(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files

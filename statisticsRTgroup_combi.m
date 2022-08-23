@@ -7,7 +7,7 @@ function groupRT = statisticsRTgroup(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -113,7 +113,6 @@ if make_plots
   hold on
   %m1 = plot(x-1,data1,'rx');
   %m2 = plot(x+1,data2,'bo');
-  SAVE PLOT
   e1.Marker = "x";
   e2.Marker = "o";
 

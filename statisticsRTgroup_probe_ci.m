@@ -7,7 +7,7 @@ function groupRT = statisticsRTgroup_probe_ci(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files

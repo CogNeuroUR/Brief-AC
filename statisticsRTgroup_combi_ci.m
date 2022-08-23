@@ -7,7 +7,7 @@ function groupRT = statisticsRTgroup(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -172,7 +172,7 @@ if make_plots
   stitle = sprintf('Action - Context (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('Reaction Time difference (A-C) [ms]')
+  ylabel('RT difference : A-C [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots

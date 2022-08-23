@@ -7,6 +7,7 @@ function groupAcc = statisticsAccuracyGroup(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
+%save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -89,10 +90,19 @@ if make_plots
   fh = figure;
   
   % General parameters
+  mark_ctx = "s";
+  mark_act = "o";
+  color_act = "#EDB120";
+  color_ctx = "#7E2F8E";
+  color_congruent = "#77AC30";
+  color_incongruent = "#D95319";
+
+  lgd_location = 'northeast';
   xfactor = 1000/60;
   ylimits = [20 105];
-  xlimits = [1.6 8.4]*xfactor;
+  xlimits = [1.6 9.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
+  xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
   subplot(2,2,1);
@@ -103,33 +113,57 @@ if make_plots
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
-  y1 = mean(data1);
-  y2 = mean(data2);
+%   y1 = mean(data1);
+%   y2 = mean(data2);
+%   
+%   err1 = std(data1) / sqrt(length(data1));
+%   err2 = std(data2) / sqrt(length(data2));
   
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
+  [y1, err1] = statisticsSampleConditional(data1);
+  [y2, err2] = statisticsSampleConditional(data2);
+  % Add Overall
+  [b1, ber1] = simple_ci(y1);
+  [b2, ber2] = simple_ci(y2);
+  xe = 150;
   
-  e1 = errorbar(x, y1, err1);
+  e1 = errorbar(x-1.5, y1, err1);
   hold on
-  e2 = errorbar(x, y2, err2);
-  hold on
+  e2 = errorbar(x+1.5, y2, err2);
+  e3 = errorbar(xe-1.5, b1, ber1);
+  e4 = errorbar(xe+1.5, b2, ber2);
   % data from individual subjects
-  l1 = plot(x, data1);
-  hold on
-  l2 = plot(x, data2);
+  l1 = plot(x, data1, 'Color',color_act);
+  l2 = plot(x, data2, 'Color',color_ctx);
+  hold off
   
-  e1.Marker = "x";
-  e2.Marker = "o";
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
+  
+  e1.Color = color_congruent;
+  e2.Color = color_congruent;
+  e3.Color = color_congruent;
+  e4.Color = color_congruent;
+
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
+  e1.MarkerFaceColor = color_congruent;
+  e2.MarkerFaceColor = color_congruent;
+  e3.MarkerFaceColor = color_congruent;
+  e4.MarkerFaceColor = color_congruent;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
-  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
   set(l1, 'LineStyle', '--')
   set(l2, 'LineStyle', '--')
-
-  xticks(x)
-  xticklabels(round(x, 2)) 
+  
+  xticks([x, xe])
+  xticklabels(xlabels) 
   xlim(xlimits)
   ylim(ylimits)
   
@@ -137,10 +171,14 @@ if make_plots
   lgd.Location = 'northwest';
   lgd.Color = 'none';
 
-  stitle = sprintf('Accuracy : CONGRUENT (N=%d)', height(groupAcc));
+  stitle = sprintf('CONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
-  xlabel('Presentation Time [ms]')
+  %xlabel('Presentation Time [ms]')
   ylabel('Accuracy [%]')
+
+  fprintf('\nOverall Results: CONGRUENT (Actions vs Context)\n')
+  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
+  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
 
   % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
   subplot(2,2,2);
@@ -151,33 +189,59 @@ if make_plots
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
-  y1 = mean(data1);
-  y2 = mean(data2);
+%   y1 = mean(data1);
+%   y2 = mean(data2);
+%   
+%   err1 = std(data1) / sqrt(length(data1));
+%   err2 = std(data2) / sqrt(length(data2));
   
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
+  [y1, err1] = statisticsSampleConditional(data1);
+  [y2, err2] = statisticsSampleConditional(data2);
   
-  e1 = errorbar(x, y1, err1);
-  hold on
-  e2 = errorbar(x, y2, err2);
-  hold on
-  % data from individual subjects
-  l1 = plot(x, data1);
-  hold on
-  l2 = plot(x, data2);
-  
-  e1.Marker = "x";
-  e2.Marker = "o";
+  % Add Overall
+  [b1, ber1] = simple_ci(y1);
+  [b2, ber2] = simple_ci(y2);
+  xe = 145;
 
+  e1 = errorbar(x-1.5, y1, err1);
+  hold on
+  e2 = errorbar(x+1.5, y2, err2);
+  e3 = errorbar(xe-1.5, b1, ber1);
+  e4 = errorbar(xe+1.5, b2, ber2);
+  % data from individual subjects
+  l1 = plot(x, data1, 'Color',color_act);
+  l2 = plot(x, data2, 'Color',color_ctx);
+  hold off
+  
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
-  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
   set(l1, 'LineStyle', '--')
   set(l2, 'LineStyle', '--')
+
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
   
-  xticks(x)
-  xticklabels(round(x, 2)) 
+  e1.Color = color_incongruent;
+  e2.Color = color_incongruent;
+  e3.Color = color_incongruent;
+  e4.Color = color_incongruent;
+
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
+  e1.MarkerFaceColor = color_incongruent;
+  e2.MarkerFaceColor = color_incongruent;
+  e3.MarkerFaceColor = color_incongruent;
+  e4.MarkerFaceColor = color_incongruent;
+
+  xticks([x, xe])
+  %xticklabels(round(x, 2)) 
+  xticklabels(xlabels) 
   xlim(xlimits)
   ylim(ylimits)
 
@@ -187,8 +251,12 @@ if make_plots
   
   stitle = sprintf('Accuracy : INCONGRUENT (N=%d)', height(groupAcc));
   title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('Accuracy [%]')
+  %xlabel('Presentation Time [ms]')
+  %ylabel('Accuracy [%]')
+
+  fprintf('\nOverall Results: INCONGRUENT (Actions vs Context)\n')
+  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
+  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
 
   % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
   subplot(2,2,3);
@@ -199,33 +267,64 @@ if make_plots
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
-  y1 = mean(data1);
-  y2 = mean(data2);
+%   y1 = mean(data1);
+%   y2 = mean(data2);
+%   
+%   err1 = std(data1) / sqrt(length(data1));
+%   err2 = std(data2) / sqrt(length(data2));
+  [y1, err1] = statisticsSampleConditional(data1);
+  [y2, err2] = statisticsSampleConditional(data2);
   
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
+  % Add Overall
+  [b1, ber1] = simple_ci(y1);
+  [b2, ber2] = simple_ci(y2);
+  xe = 150;
   
-  e1 = errorbar(x, y1, err1);
+  e1 = errorbar(x-1.5, y1, err1);
   hold on
-  e2 = errorbar(x, y2, err2);
-  hold on
+  e2 = errorbar(x+1.5, y2, err2);
+  e3 = errorbar(xe-1.5, b1, ber1);
+  e4 = errorbar(xe+1.5, b2, ber2);
   % data from individual subjects
-  l1 = plot(x, data1);
-  hold on
-  l2 = plot(x, data2);
+  l1 = plot(x, data1, 'Color',color_congruent);
+  l2 = plot(x, data2, 'Color',color_incongruent);
+  hold off
+  hold off
   
   e1.Marker = "x";
   e2.Marker = "o";
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
-  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
   set(l1, 'LineStyle', '--')
   set(l2, 'LineStyle', '--')
 
-  xticks(x)
-  xticklabels(round(x, 2)) 
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
+  
+  e1.Color = color_congruent;
+  e2.Color = color_incongruent;
+  e3.Color = color_congruent;
+  e4.Color = color_incongruent;
+
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
+  e1.MarkerFaceColor = color_congruent;
+  e2.MarkerFaceColor = color_incongruent;
+  e3.MarkerFaceColor = color_congruent;
+  e4.MarkerFaceColor = color_incongruent;
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+
+  xticks([x, xe])
+  xticklabels(xlabels) 
   xlim(xlimits)
   ylim(ylimits)
 
@@ -233,10 +332,14 @@ if make_plots
   lgd.Location = 'northwest';
   lgd.Color = 'none';
   
-  stitle = sprintf('Accuracy : ACTIONS (N=%d)', height(groupAcc));
+  stitle = sprintf('ACTIONS (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
   ylabel('Accuracy [%]')
+
+  fprintf('\nOverall Results: ACTIONS (Congruent vs Incongruent)\n')
+  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
+  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
 
   % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
   subplot(2,2,4);
@@ -247,33 +350,63 @@ if make_plots
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
-  y1 = mean(data1);
-  y2 = mean(data2);
+%   y1 = mean(data1);
+%   y2 = mean(data2);
+%   
+%   err1 = std(data1) / sqrt(length(data1));
+%   err2 = std(data2) / sqrt(length(data2));
+  [y1, err1] = statisticsSampleConditional(data1);
+  [y2, err2] = statisticsSampleConditional(data2);
   
-  err1 = std(data1) / sqrt(length(data1));
-  err2 = std(data2) / sqrt(length(data2));
+  % Add Overall
+  [b1, ber1] = simple_ci(y1);
+  [b2, ber2] = simple_ci(y2);
+  xe = 150;
   
-  e1 = errorbar(x, y1, err1);
+e1 = errorbar(x-1.5, y1, err1);
   hold on
-  e2 = errorbar(x, y2, err2);
-  hold on
+  e2 = errorbar(x+1.5, y2, err2);
+  e3 = errorbar(xe-1.5, b1, ber1);
+  e4 = errorbar(xe+1.5, b2, ber2);
   % data from individual subjects
-  l1 = plot(x, data1);
-  hold on
-  l2 = plot(x, data2);
+  l1 = plot(x, data1, 'Color',color_congruent);
+  l2 = plot(x, data2, 'Color',color_incongruent);
+  hold off
   
   e1.Marker = "x";
   e2.Marker = "o";
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'Color', [0, 0.4470, 0.7410, 0.3])
-  set(l2, 'Color', [0.8500, 0.3250, 0.0980, 0.3])
   set(l1, 'LineStyle', '--')
   set(l2, 'LineStyle', '--')
 
-  xticks(x)
-  xticklabels(round(x, 2)) 
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
+  95%%CI
+  e1.Color = color_congruent;
+  e2.Color = color_incongruent;
+  e3.Color = color_congruent;
+  e4.Color = color_incongruent;
+
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
+  e1.MarkerFaceColor = color_congruent;
+  e2.MarkerFaceColor = color_incongruent;
+  e3.MarkerFaceColor = color_congruent;
+  e4.MarkerFaceColor = color_incongruent;
+
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+
+  xticks([x, xe])
+  xticklabels(xlabels) 
   xlim(xlimits)
   ylim(ylimits)
 
@@ -281,10 +414,14 @@ if make_plots
   lgd.Location = 'northwest';
   lgd.Color = 'none';
 
-  stitle = sprintf('Accuracy : CONTEXT (N=%d)', height(groupAcc));
+  stitle = sprintf('CONTEXT (N=%d)', height(groupAcc));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('Accuracy [%]')
+  %ylabel('Accuracy [%]')
+
+  fprintf('\nOverall Results: CONTEXT (Congruent vs Incongruent)\n')
+  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
+  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -294,7 +431,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 4800 2500]/res;
-   print('-dpng','-r300',['plots/group_accuracy_statistics'])
+   print('-dpng','-r300',['plots/group_accuracy_statistics_ci'])
   end
 end % if make_plots
 end
