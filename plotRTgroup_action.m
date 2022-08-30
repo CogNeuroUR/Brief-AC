@@ -1,4 +1,4 @@
-function groupRT = statisticsRTgroup_compatGain(save_plots)
+function groupRT = plotRTgroup_action(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -15,18 +15,6 @@ path_results = 'results/final/';
 
 [groupRT, l_subjects] = extract_groupRT(path_results);
 
-%% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
-%groupRT = array2table(groupRT); %array2table(zeros(0,24));
-probes = ["AC", "AI", "CC", "CI"];
-times = [2:6 8];
-vars = {};
-
-for iP=1:length(probes)
-  for iT=1:length(times)
-    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
-  end
-end
-
 %% ########################################################################
 % Plots [CONGRUENT]
 %% ########################################################################
@@ -34,75 +22,78 @@ if make_plots
   fh = figure;
 
   % General parameters
+  mark_ctx = "s";
+  mark_act = "o";
   color_congruent = "#77AC30";
   color_incongruent = "#D95319";
 
   lgd_location = 'northeast';
+  %mark_colors = ["#0072BD", "#D95319"];
 
-  ylimits = [700 920]; % without individual lines
-  x = [1:2];
-  xlabels = {'Action', 'Context'};
+  xfactor = 1000/60;
+  ylimits = [670 1050]; % without individual lines
+  %ylimits = [490 1250];
+  xlimits = [1.6 9.4]*xfactor;
+  %x = [2:6 8]*xfactor; % in ms
+  x = [2:7]*xfactor; % in ms
+  %x = [1:6];
+  xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
-  % PLOT : Actions vs Context =============================================
-  
+  % PLOT : ACTIONS (Congruent vs Incongruent) =============================
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION & CONGRUENT
-  i2 = [7, 12];         % ACTION & INCONGRUENT
-  i3 = [13, 18];        % CONTEXT & CONGRUENT
-  i4 = [19, 24];        % CONTEXT & INCONGRUENT
+  i1 = [1, 6];         % ACTION Probe & Congruent
+  i2 = [7, 12];        % ACTION Probe & Incongruent
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
-  data3 = [groupRT(:,i3(1):i3(2))];
-  data4 = [groupRT(:,i4(1):i4(2))];
   
-  [y1, ~] = statisticsSampleConditional(data1);
-  [y2, ~] = statisticsSampleConditional(data2);
-  [y3, ~] = statisticsSampleConditional(data3);
-  [y4, ~] = statisticsSampleConditional(data4);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
-  % Mean and 95%CI on differences across PT
+  % Add Overall
   [b1, ber1] = simple_ci(y1);
   [b2, ber2] = simple_ci(y2);
-  [b3, ber3] = simple_ci(y3);
-  [b4, ber4] = simple_ci(y4);
-
-  % Concatenate (1st row: compatible; 2nd row: incompatible)
-  y = [b1, b2; b3, b4];
-  yerr = [ber1, ber2; ber3, ber4];
-
-  b = bar(x, y);
+  xe = 150;
+  
+  e1 = errorbar(x-1.5, y1, err1);
   hold on
-  % From https://stackoverflow.com/a/59257318
-  for k = 1:size(y,2)
-    % get x positions per group
-    xpos = b(k).XData + b(k).XOffset;
-    % draw errorbar
-    errorbar(xpos, y(:,k), yerr(:,k), 'LineStyle', 'none', ... 
-        'Color', 'k', 'LineWidth', 1);
-  end
+  e2 = errorbar(x+1.5, y2, err2);
+  hold on
+  e3 = errorbar(xe-1.5, b1, ber1);
+  hold on
+  e4 = errorbar(xe+1.5, b2, ber2);
+  
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
+  
+  e1.Color = color_congruent;
+  e2.Color = color_incongruent;
+  e3.Color = color_congruent;
+  e4.Color = color_incongruent;
+  e1.MarkerFaceColor = color_congruent;
+  e2.MarkerFaceColor = color_incongruent;
+  e3.MarkerFaceColor = color_congruent;
+  e4.MarkerFaceColor = color_incongruent;
 
-  b(1).FaceColor = color_congruent;
-  b(2).FaceColor = color_incongruent;
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
 
+  
+  xticks([x, xe])
   xticklabels(xlabels) 
+  xlim(xlimits)
   ylim(ylimits)
   
   lgd = legend('Congruent','Incongruent');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
-
-  stitle = sprintf('Compatibility gain (N=%d)', height(groupRT));
+  
+  stitle = sprintf('ACTIONS (N=%d)', height(groupRT));
   title(stitle);
-  xlabel('Probe Type')
-  ylabel('Reaction Time [ms]')
-
-  % Print summary results =================================================
-  fprintf('\nOverall results: Actions, Context (Compatible vs Incompatible)\n')
-  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
-  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b3, b3-ber3, b3+ber3)
-  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
-  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b4, b4-ber4, b4+ber4)
+  xlabel('Presentation Time [ms]')
+  ylabel('RT [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -112,7 +103,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/group_RT_statistics_compatGain'])
+   print('-dpng','-r300',['plots/groupRT_actions'])
   end
 end % if make_plots
 end

@@ -1,4 +1,4 @@
-function groupDprime = statisticsSensitivityGroup(save_plots)
+function groupDprime = plotSensitivityGroup(save_plots)
 % Computes sensitivity (d-prime) group statistics (mean & std) per condition for
 % each probe type and congruency.
 % 

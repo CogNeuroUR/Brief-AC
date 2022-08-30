@@ -1,4 +1,4 @@
-function groupDprime = statisticsSensitivityGroup_combi_ci(save_plots)
+function groupDprime = plotSensitivityGroup_combi_ci(save_plots)
 % Computes sensitivity (d-prime) group statistics (mean & std) per condition for
 % each probe type and congruency.
 % 
@@ -46,8 +46,8 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';
@@ -85,8 +85,8 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';
@@ -123,8 +123,8 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';
@@ -163,8 +163,8 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';

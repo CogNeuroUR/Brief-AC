@@ -1,4 +1,4 @@
-function groupAcc = statisticsCondAccGroup(save_plots)
+function groupAcc = plotCondAccGroup(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes "Conditional" Accuracy group statistics, meaning
@@ -44,8 +44,8 @@ if make_plots
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';

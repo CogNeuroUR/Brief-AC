@@ -1,4 +1,4 @@
-function groupRT = statisticsRTgroup(save_plots)
+function groupRT = plotRTgroup_combi(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and

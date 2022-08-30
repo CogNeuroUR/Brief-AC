@@ -1,7 +1,5 @@
-function statisticsAccuracy(ExpInfo, save_plots)
-% function [stats_act_con, stats_ctx_con,...
-%           stats_act_inc, stats_ctx_inc] =...
-%           computeAccuracy(ExpInfo, key_yes, key_no, make_plots, save_plots)
+function plotSensitivity(ExpInfo, save_plots)
+%function statisticsSensitivity(ExpInfo, key_yes, key_no, save_plots)
 %
 % Vrabie 2022
 
@@ -28,92 +26,85 @@ statsContextCongruent = getResponseStats(t_trialsContextCongruent, key_yes, key_
 statsActionIncongruent = getResponseStats(t_trialsActionIncongruent, key_yes, key_no);
 statsContextIncongruent = getResponseStats(t_trialsContextIncongruent, key_yes, key_no);
 
-
-%% Compute accuracy  
-stats_act_con = accuracy(statsActionCongruent);
-stats_ctx_con = accuracy(statsContextCongruent);
-stats_act_inc = accuracy(statsActionIncongruent);
-stats_ctx_inc = accuracy(statsContextIncongruent);
+%% Compute d-prime  
+stats_act_con = dprime(statsActionCongruent);
+stats_ctx_con = dprime(statsContextCongruent);
+stats_act_inc = dprime(statsActionIncongruent);
+stats_ctx_inc = dprime(statsContextIncongruent);
 
 
 %% ########################################################################
 % Plots [CONGRUENT]
 if make_plots
+  % Plot parameters
   fh = figure;
+  screen_freq = (1/60);
+  factor = screen_freq*1000;
+  ylimits = [-1.5, 3.1];
+  xlimits = [1.6 8.4]*factor;
+  x = [stats_act_con{:, 'PresTime'}]/0.06; % in ms
 
-  % General parameters
-  xfactor = 1000/60;
-  ylimits = [20 109];
-  xlimits = [1.6 8.4]*xfactor;
-  x = [2:6 8]*xfactor; % in ms
 
-  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
+  % Plot [CONGRUENT]
   subplot(2,2,1);
   assert(height(stats_act_con) == height(stats_ctx_con));
-  x = [stats_act_con{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [stats_act_con{:, 'accuracy'}, stats_ctx_con{:, 'accuracy'}]);
+  bar(x, [stats_act_con{:, 'dprime'}, stats_ctx_con{:, 'dprime'}]);
   
   xticks([stats_act_con{:, 'PresTime'}]/0.06)
   xticklabels(round([stats_act_con{:, 'PresTime'}]/0.06, 2)) 
-  
   xlim(xlimits)
   ylim(ylimits)
-
-  legend('Action','Context')
-  title('Accuracy [CONGRUENT]');
-  xlabel('Presentation time [ms]')
-  ylabel('Accuracy (%)')
   
-  % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
+  legend('Action','Context')
+  title('Sensitivity index [CONGRUENT]');
+  xlabel('Presentation time [ms]')
+  ylabel('d''')
+
+  
+  % Plot [INCONGRUENT]
   subplot(2,2,2);
   assert(height(stats_act_inc) == height(stats_ctx_inc));
-  x = [stats_act_inc{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [stats_act_inc{:, 'accuracy'}, stats_ctx_inc{:, 'accuracy'}]);
+  bar(x, [stats_act_inc{:, 'dprime'}, stats_ctx_inc{:, 'dprime'}]);
   
   xticks([stats_act_inc{:, 'PresTime'}]/0.06)
   xticklabels(round([stats_act_inc{:, 'PresTime'}]/0.06, 2)) 
-
   xlim(xlimits)
   ylim(ylimits)
-
+  
   legend('Action','Context')
-  title('Accuracy [INCONGRUENT]');
+  title('Sensitivity index [INCONGRUENT]');
   xlabel('Presentation time [ms]')
-  ylabel('Accuracy (%)')
-
-  % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
+  ylabel('d''')
+  
+  % Plot [ACTIONS]
   subplot(2,2,3);
   assert(height(stats_act_inc) == height(stats_act_con));
-  x = [stats_act_inc{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [stats_act_con{:, 'accuracy'}, stats_act_inc{:, 'accuracy'}]);
+  bar(x, [stats_act_con{:, 'dprime'}, stats_act_inc{:, 'dprime'}]);
   
   xticks([stats_act_con{:, 'PresTime'}]/0.06)
   xticklabels(round([stats_act_con{:, 'PresTime'}]/0.06, 2)) 
-  
   xlim(xlimits)
   ylim(ylimits)
   
   legend('Congruent','Incongruent')
-  title('Accuracy : ACTIONS');
+  title('Sensitivity index : ACTIONS');
   xlabel('Presentation time [ms]')
-  ylabel('Accuracy (%)')
+  ylabel('d''')
   
-  % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
+  % Plot  : CONTEXT
   subplot(2,2,4);
   assert(height(stats_ctx_con) == height(stats_ctx_inc));
-  x = [stats_ctx_con{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-  bar(x, [stats_ctx_con{:, 'accuracy'}, stats_ctx_inc{:, 'accuracy'}]);
+  bar(x, [stats_ctx_con{:, 'dprime'}, stats_ctx_inc{:, 'dprime'}]);
   
   xticks([stats_ctx_con{:, 'PresTime'}]/0.06)
   xticklabels(round([stats_ctx_con{:, 'PresTime'}]/0.06, 2)) 
-
   xlim(xlimits)
   ylim(ylimits)
-
+  
   legend('Congruent','Incongruent')
-  title('Accuracy : CONTEXT');
+  title('Sensitivity index : CONTEXT');
   xlabel('Presentation time [ms]')
-  ylabel('Accuracy (%)')
+  ylabel('d''')
 
   if save_plots
      % define resolution figure to be saved in dpi
@@ -122,23 +113,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 5000 2500]/res;
-   print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_accuracies'])
+   print('-dpng','-r300',['plots/' ExpInfo.Cfg.name '_sensitivity_statistics'])
   end
 end % plots
 end % function
-
-
-%% ########################################################################
-% Functions
-%% ########################################################################
-function t_stats = accuracy(t_stats)
-  % 1) Extract nr of HITS and CORRECT REJECTIONS
-  % 2) Compute accuracy as the ration of (HITS+CORR_REJECT) / N_samples
-  %fprintf('Computing accuracy ...\n')
-
-  for i=1:height(t_stats)
-    % Compute accuracy as ratio
-    ratio = (t_stats.Hits(i) + t_stats.CorrectRejections(i)) / t_stats.N_samples(i);
-    t_stats{i, 'accuracy'} = ratio * 100;
-  end
-end

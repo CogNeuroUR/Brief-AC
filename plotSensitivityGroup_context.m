@@ -1,7 +1,11 @@
-function groupDprime = statisticsSensitivityGroup_AvC_(save_plots)
+function groupDprime = plotSensitivityGroup_context(save_plots)
+%function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
+%          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
+% Computes RT group statistics (mean & std) per condition for each probe type and
+% congruency.
+%
 % Written for BriefAC (AinC)
 % Vrabie 2022
-
 make_plots = 1;
 %save_plots = 0;
 
@@ -18,67 +22,74 @@ if make_plots
   fh = figure;
 
   % General parameters
-  color_act = "#EDB120";
-  color_ctx = "#7E2F8E";
+  mark_ctx = "s";
+  mark_act = "o";
+  color_congruent = "#77AC30";
+  color_incongruent = "#D95319";
 
   lgd_location = 'northeast';
 
   xfactor = 1000/60;
-  ylimits = [-1, 3.5];
-  x = [1:6 8];
+  ylimits = [-1, 3];
+  xlimits = [1.6 9.4]*xfactor;
+  x = [2:7]*xfactor; % in ms
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
+  % PLOT : CONTEXT (Congruent vs Incongruent) =============================
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION Probe & CONGRUENT
-  i2 = [13, 18];        % CONTEXT Probe & CONGRUENT
-  i3 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i4 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [13, 18];         % CONTEXT Probe & Congruent
+  i2 = [19, 24];        % CONTEXT Probe & Incongruent
   
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
-  data3 = [groupDprime(:,i3(1):i3(2))];
-  data4 = [groupDprime(:,i4(1):i4(2))];
   
-  % compute differences in RT : Action - Context
-  diff_congruent = data1 - data3;
-  diff_incongruent = data2 - data4;
-
-  [y1, err1] = statisticsSampleConditional(diff_congruent);
-  [y2, err2] = statisticsSampleConditional(diff_incongruent);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
-  % Append "overall" mean to y1 and y2
-  [y1(end+1), err1(end+1)] = simple_ci(y1);
-  [y2(end+1), err2(end+1)] = simple_ci(y2);
-
-  y = [y1; y2]';
-  err = [err1; err2]';
-
-  b = bar(x, y);
+  % Add Overall
+  [b1, ber1] = simple_ci(y1);
+  [b2, ber2] = simple_ci(y2);
+  xe = 150;
+  
+  e1 = errorbar(x-1.5, y1, err1);
   hold on
-  % From https://stackoverflow.com/a/59257318
-  for k = 1:size(y,2)
-    % get x positions per group
-    xpos = b(k).XData + b(k).XOffset;
-    % draw errorbar
-    errorbar(xpos, y(:,k), err(:,k), 'LineStyle', 'none', ... 
-        'Color', 'k', 'LineWidth', 0.65);
-  end
+  e2 = errorbar(x+1.5, y2, err2);
+  e3 = errorbar(xe-1.5, b1, ber1);
+  e4 = errorbar(xe+1.5, b2, ber2);
+  yline(0, '--');
+  hold off
 
-  b(1).FaceColor = color_act;
-  b(2).FaceColor = color_ctx;
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  e3.Marker = mark_act;
+  e4.Marker = mark_ctx;
+  
+  e1.Color = color_congruent;
+  e2.Color = color_incongruent;
+  e3.Color = color_congruent;
+  e4.Color = color_incongruent;
+  e1.MarkerFaceColor = color_congruent;
+  e2.MarkerFaceColor = color_incongruent;
+  e3.MarkerFaceColor = color_congruent;
+  e4.MarkerFaceColor = color_incongruent;
 
-  xticks(x)
+  set(e1, 'LineWidth', 0.8)
+  set(e2, 'LineWidth', 0.8)
+
+  
+  xticks([x, xe])
   xticklabels(xlabels) 
+  xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Action', 'Context');
+  lgd = legend('Congruent','Incongruent');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
-
-  stitle = sprintf('Compatible - Incompatible (N=%d)', height(groupDprime));
+  
+  stitle = sprintf('CONTEXT (N=%d)', height(groupDprime));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d-prime difference : C-I')
+  ylabel('d-prime [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -88,7 +99,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/groupDprime_CvI'])
+   print('-dpng','-r300',['plots/groupDprime_context'])
   end
 end % if make_plots
 end

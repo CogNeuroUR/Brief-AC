@@ -1,4 +1,4 @@
-function groupAcc = statisticsAccuracyGroup_recoded(save_plots)
+function groupAcc = plotAccuracyGroup(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes Accuracy group statistics (mean & std) per condition for each probe type and
@@ -8,10 +8,6 @@ function groupAcc = statisticsAccuracyGroup_recoded(save_plots)
 % Vrabie 2022
 make_plots = 1;
 %save_plots = 0;
-
-%%
-info = getFactorialStructure();
-
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -51,40 +47,6 @@ for i=1:length(l_files)
           key_no = 37;
         end
         l_subjects = [l_subjects, fName];
-
-        % =================================================================
-        % RECODE CORRECT RESPONSES for "Context":
-        % =================================================================
-        % IF probed with context, consider correct context the source
-        % context of the TARGET ACTION.
-        % 1) CONGRUENT
-        for i=1:height(trialsCC)
-          % extract source context of the target action
-          [idx_ctx, ~] = find(info.ActionLevels == trialsCC.Target_Action(i));
-          src_ctx = info.ContextLevels(idx_ctx);
-
-          % check if source context is equal to probed context
-          if trialsCC.Probe(i) == src_ctx
-            trialsCC.TrueKey(i) = key_yes;
-          else
-            trialsCC.TrueKey(i) = key_no;
-          end
-        end
-        % 2) INCONGRUENT
-        for i=1:height(trialsCI)
-          % extract source context of the target action
-          [idx_ctx, ~] = find(info.ActionLevels == trialsCI.Target_Action(i));
-          src_ctx = info.ContextLevels(idx_ctx);
-
-          % check if source context is equal to probed context
-          if trialsCI.Probe(i) == src_ctx
-            trialsCI.TrueKey(i) = key_yes;
-          else
-            trialsCI.TrueKey(i) = key_no;
-          end
-        end
-        % =================================================================
-
 
         % Extract RT = f(presentation time) by probe type
         statsAC = getResponseStats(trialsAC, key_yes, key_no);
@@ -157,8 +119,8 @@ if make_plots
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   % Add Overall
   [b1, ber1] = simple_ci(y1);
   [b2, ber2] = simple_ci(y2);
@@ -233,8 +195,8 @@ if make_plots
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -310,8 +272,8 @@ if make_plots
 %   
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -393,8 +355,8 @@ if make_plots
 %   
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -469,7 +431,7 @@ e1 = errorbar(x-1.5, y1, err1);
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 4800 2500]/res;
-   print('-dpng','-r300',['plots/group_accuracy_statistics_ci_recoded'])
+   print('-dpng','-r300',['plots/group_accuracy_statistics_ci'])
   end
 end % if make_plots
 end

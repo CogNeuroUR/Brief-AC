@@ -1,4 +1,4 @@
-function groupRT = statisticsRTgroup(save_plots)
+function groupRT = plotRTgroup_se(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -62,11 +62,17 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  y1 = mean(data1);
+  y2 = mean(data2);
+  
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
+
   % Add Overall
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
+  b1 = mean(y1);
+  b2 = mean(y2);
+  ber1 = std(y1) / sqrt(length(y1));
+  ber2 = std(y2) / sqrt(length(y2));
   xe = 150;
   
   e1 = errorbar(x-1.5, y1, err1);
@@ -118,16 +124,22 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  y1 = mean(data1);
+  y2 = mean(data2);
+  
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
+
+  % Add Overall
+  b1 = mean(y1);
+  b2 = mean(y2);
+  ber1 = std(y1) / sqrt(length(y1));
+  ber2 = std(y2) / sqrt(length(y2));
   
   e1 = errorbar(x-1.5, y1, err1);
   hold on
   e2 = errorbar(x+1.5, y2, err2);
   hold on
-  % Add Overall
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
   
   xe = 145;
   e3 = errorbar(xe-1.5, b1, ber1);
@@ -185,12 +197,17 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  y1 = mean(data1);
+  y2 = mean(data2);
   
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
+
   % Add Overall
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
+  b1 = mean(y1);
+  b2 = mean(y2);
+  ber1 = std(y1) / sqrt(length(y1));
+  ber2 = std(y2) / sqrt(length(y2));
   xe = 150;
   
   e1 = errorbar(x-1.5, y1, err1);
@@ -242,12 +259,17 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  y1 = mean(data1);
+  y2 = mean(data2);
   
+  err1 = std(data1) / sqrt(length(data1));
+  err2 = std(data2) / sqrt(length(data2));
+
   % Add Overall
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
+  b1 = mean(y1);
+  b2 = mean(y2);
+  ber1 = std(y1) / sqrt(length(y1));
+  ber2 = std(y2) / sqrt(length(y2));
   xe = 150;
   
   e1 = errorbar(x-1.5, y1, err1);
@@ -297,7 +319,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 5000 2500]/res;
-   print('-dpng','-r300',['plots/group_RT_statistics'])
+   print('-dpng','-r300',['plots/group_RT_statistics_se'])
   end
 end % if make_plots
 end

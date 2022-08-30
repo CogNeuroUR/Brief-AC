@@ -1,22 +1,22 @@
-function groupAcc = statisticsAccuracyGroup_combi_ci(save_plots)
+function groupRT = plotRTgroup_combi_ci(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
-% Computes Accuracy group statistics (mean & std) per condition for each probe type and
+% Computes RT group statistics (mean & std) per condition for each probe type and
 % congruency.
 %
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-%save_plots = 1;
+%save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
 path_results = 'results/final/';
 
-[groupAcc, l_subjects] = extract_groupAcc(path_results);
+[groupRT, l_subjects] = extract_groupRT(path_results);
 
 %% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
-%groupAcc = array2table(groupAcc); %array2table(zeros(0,24));
+%groupRT = array2table(groupRT); %array2table(zeros(0,24));
 probes = ["AC", "AI", "CC", "CI"];
 times = [2:6 8];
 vars = {};
@@ -28,29 +28,32 @@ for iP=1:length(probes)
 end
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots
 %% ########################################################################
 if make_plots
   fh = figure;
-
+  %margins = [0.12, 0.12]; %[vertical,horizontal]
+  
   % General parameters
   xfactor = 1000/60;
-  %ylimits = [20 105];
-  ylimits = [-15 59];
+  %ylimits = [650 1100]; % without individual lines
+  ylimits = [500 1150];
   xlimits = [1.6 8.4]*xfactor;
-  x = [2:6 8]*xfactor; % in ms
+  %x = [2:6 8]*xfactor; % in ms
+  x = [1:6];
+  xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3'};
 
-  % PLOT 1 (Actions vs Context : Congruent) ===============================
+  % PLOT 1 (Actions vs Context : Congruent) ==================
   subplot(2,2,1);
   % Define indices for for condition category
   i1 = [1, 6];         % ACTION Probe & CONGRUENT
   i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
   
-  data1 = [groupAcc(:,i1(1):i1(2))]-50;
-  data2 = [groupAcc(:,i2(1):i2(2))]-50;
+  data1 = [groupRT(:,i1(1):i1(2))];
+  data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
 
   y = [y1; y2]';
   err = [err1; err2]';
@@ -67,17 +70,16 @@ if make_plots
   end
 
   xticks(x)
-  xticklabels(round(x, 1)) 
-  xlim(xlimits)
+  xticklabels(xlabels)
   ylim(ylimits)
   
   lgd = legend('Actions','Context');
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('CONGRUENT (N=%d)', height(groupAcc));
+  stitle = sprintf('CONGRUENT (N=%d)', height(groupRT));
   title(stitle);
-  ylabel('Accuracy [%] - Chance')
+  ylabel('Reaction Time [ms]')
 
   % PLOT 2 : Actions vs Context : Incongruent =============================
   subplot(2,2,2);
@@ -85,11 +87,11 @@ if make_plots
   i1 = [7, 12];         % ACTION Probe & INCONGRUENT
   i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
   
-  data1 = [groupAcc(:,i1(1):i1(2))]-50;
-  data2 = [groupAcc(:,i2(1):i2(2))]-50;
+  data1 = [groupRT(:,i1(1):i1(2))];
+  data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   y = [y1; y2]';
   err = [err1; err2]';
@@ -106,22 +108,20 @@ if make_plots
   end
 
   xticks(x)
-  xticklabels(round(x, 1)) 
-  xlim(xlimits)
+  xticklabels(xlabels)
   ylim(ylimits)
 
   lgd = legend('Actions','Context');
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('INCONGRUENT (N=%d)', height(groupAcc));
+  stitle = sprintf('INCONGRUENT (N=%d)', height(groupRT));
   title(stitle);
 
-  % PLOT 3 : Difference (Context - Action) ================================
-  subplot(2,2,[3,4]);  
-
-  % General parameters
-  ylimits = [-40 35];
+  % PLOT 3 : difference from the mean =====================================
+  subplot(2,2,[3,4]);
+  ylimits = [-50 100];
+  %xlimits = [1.6 8.4]*xfactor;
   x = [1:6 8];
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
@@ -131,17 +131,18 @@ if make_plots
   i3 = [7, 12];         % ACTION Probe & INCONGRUENT
   i4 = [19, 24];        % CONTEXT Probe & INCONGRUENT
   
-  data1 = [groupAcc(:,i1(1):i1(2))];
-  data2 = [groupAcc(:,i2(1):i2(2))];
-  data3 = [groupAcc(:,i3(1):i3(2))];
-  data4 = [groupAcc(:,i4(1):i4(2))];
-
-  diff_congruent = data2 - data1;
-  diff_incongruent = data4 - data3;
+  data1 = [groupRT(:,i1(1):i1(2))];
+  data2 = [groupRT(:,i2(1):i2(2))];
+  data3 = [groupRT(:,i3(1):i3(2))];
+  data4 = [groupRT(:,i4(1):i4(2))];
   
-  [y1, err1] = statisticsSampleConditional(diff_congruent);
-  [y2, err2] = statisticsSampleConditional(diff_incongruent);
+  % compute differences in RT : Action - Context
+  diff_congruent = data1 - data2;
+  diff_incongruent = data3 - data4;
 
+  [y1, err1] = meanCIgroup(diff_congruent);
+  [y2, err2] = meanCIgroup(diff_incongruent);
+  
   % Append "overall" mean to y1 and y2
   [y1(end+1), err1(end+1)] = simple_ci(y1);
   [y2(end+1), err2(end+1)] = simple_ci(y2);
@@ -161,18 +162,17 @@ if make_plots
   end
 
   xticks(x)
-  xticklabels(xlabels)
-  %xlim(xlimits)
+  xticklabels(xlabels) 
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Congruent', 'Incongruent');
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('Context - Action (N=%d)', height(groupAcc));
+  stitle = sprintf('Action - Context (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('Accuracy difference (C-A) [%]')
+  ylabel('RT difference : A-C [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -181,8 +181,8 @@ if make_plots
    % recalculate figure size to be saved
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 4800 2500]/res;
-   print('-dpng','-r300',['plots/group_accuracy_statistics_combi_ciudat'])
+   fh.PaperPosition = [0 0 5000 2500]/res;
+   print('-dpng','-r300',['plots/group_RT_statistics_combi_CI'])
   end
 end % if make_plots
 
@@ -194,13 +194,13 @@ end % if make_plots
 % for congruent & incongruent
 i1 = [1, 6];         % ACTION Probe & CONGRUENT
 i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
-data_act_c = [groupAcc(:,i1(1):i1(2))];
-data_ctx_c = [groupAcc(:,i2(1):i2(2))];
+data_act_c = [groupRT(:,i1(1):i1(2))];
+data_ctx_c = [groupRT(:,i2(1):i2(2))];
 
 i1 = [7, 12];         % ACTION Probe & INCONGRUENT
 i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
-data_act_i = [groupAcc(:,i1(1):i1(2))];
-data_ctx_i = [groupAcc(:,i2(1):i2(2))];
+data_act_i = [groupRT(:,i1(1):i1(2))];
+data_ctx_i = [groupRT(:,i2(1):i2(2))];
 
 % Averaging across PTs -> (N_subjs, 1)
 avg_act_c = mean(data_act_c, 2);
@@ -222,7 +222,7 @@ for i=1:4
 end
 
 %% Print a table
-fprintf('\nProbe Type | M(Acc) | CI_95(Acc)\n')
+fprintf('\nProbe Type | M(RT) |   CI_95(RT)\n')
 fprintf('-----------------------------------\n')
 probes_ = ["AC", "CC", "AI", "CI"];
 for i=1:length(stats)
@@ -233,26 +233,36 @@ end
 end
 
 %% ------------------------------------------------------------------------
-% Functions
-function acc = accuracy(t_stats)
-  % 1) Extract nr of HITS and CORRECT REJECTIONS
-  % 2) Compute accuracy as the ration of (HITS+CORR_REJECT) / N_samples
-  %fprintf('Computing accuracy ...\n')
+function stats = getRTstats(t_trials)
+  % t_trials : table
+  % iterate over unique values in PresTime and compute mean & std for each
+  %fprintf('Collecting RTs...\n')
 
-  acc = [];
-  for i=1:height(t_stats)
-    % Compute accuracy as ratio
-    ratio = (t_stats.Hits(i) + t_stats.CorrectRejections(i)) / t_stats.N_samples(i);
-    acc = [acc, ratio * 100];
+  stats = {};
+  uniqTimes = unique(t_trials.PresTime);
+  
+  %fprintf('\nTarget duration: mean & std RT\n')
+  for i=1:length(uniqTimes)
+    values = t_trials.RT(t_trials.PresTime==uniqTimes(i));
+    if isequal(class(values), 'cell'); values = cell2mat(values); end
+    avg = nanmean(values);
+    %stdev = nanstd(values); % SD
+    stderr = nanstd(values) / sqrt(length(values)); % SE : standard error
+    % Verbose
+    %fprintf('PresTime: %d; Mean RT: %.2fms; SE RT: %.2fms\n',...
+    %        uniqTimes(i), avg, stderr);
+    
+    stats(end+1, :) = {uniqTimes(i), avg, stderr};
   end
 end
 
 %% ------------------------------------------------------------------------
-function [groupAcc, l_subjects] = extract_groupAcc(path_results)
-  groupAcc = [];
-  l_subjects = {};
-
+function [groupRT, l_subjects] = extract_groupRT(path_results)
   l_files = dir(path_results);
+  
+  groupRT = [];
+  l_subjects = {};
+  
   % iterate over files
   fprintf('Sweeping through files ...\n');
   for i=1:length(l_files)
@@ -285,21 +295,15 @@ function [groupAcc, l_subjects] = extract_groupAcc(path_results)
           l_subjects = [l_subjects, fName];
   
           % Extract RT = f(presentation time) by probe type
-          statsAC = getResponseStats(trialsAC, key_yes, key_no);
-          statsAI = getResponseStats(trialsAI, key_yes, key_no);
-          statsCC = getResponseStats(trialsCC, key_yes, key_no);
-          statsCI = getResponseStats(trialsCI, key_yes, key_no);
+          statsAC = getRTstats(trialsAC);
+          statsCC = getRTstats(trialsCC);
+          statsAI = getRTstats(trialsAI);
+          statsCI = getRTstats(trialsCI);
           
-          % 3) Compute accuracy
-          acc_AC = accuracy(statsAC);
-          acc_AI = accuracy(statsAI);
-          acc_CC = accuracy(statsCC);
-          acc_CI = accuracy(statsCI);
-  
-  
           % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
-          groupAcc = [groupAcc; acc_AC, acc_AI, acc_CC, acc_CI];
-  
+          groupRT = [groupRT;...
+                     [statsAC{:,2}], [statsAI{:,2}],...
+                     [statsCC{:,2}], [statsCI{:,2}]];
         end
       otherwise
         continue

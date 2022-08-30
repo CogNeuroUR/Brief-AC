@@ -1,4 +1,4 @@
-function statisticsRT(ExpInfo, save_plots)
+function plotRT(ExpInfo, save_plots)
 %function computeRTstatistics(ExpInfo, key_yes, key_no, save_plots)
 % Computes RT statistics (mean & std) per condition for each probe type and
 % congruency.

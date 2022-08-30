@@ -1,4 +1,4 @@
-function groupRT = statisticsRTgroup_yesKey(save_plots)
+function groupRT = plotRTgroup(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -7,17 +7,13 @@ function groupRT = statisticsRTgroup_yesKey(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
 path_results = 'results/final/';
 
 [groupRT, l_subjects] = extract_groupRT(path_results);
-
-%% Split participant groups [1, 12] & [13, ..)
-groupRT_old = groupRT(1:12, :);
-groupRT_new = groupRT(13:end, :);
 
 %% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
 %groupRT = array2table(groupRT); %array2table(zeros(0,24));
@@ -66,8 +62,8 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   % Add Overall
   [b1, ber1] = simple_ci(y1);
   [b2, ber2] = simple_ci(y2);
@@ -122,8 +118,8 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   e1 = errorbar(x-1.5, y1, err1);
   hold on
@@ -189,8 +185,8 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -246,8 +242,8 @@ if make_plots
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -257,10 +253,9 @@ if make_plots
   e1 = errorbar(x-1.5, y1, err1);
   hold on
   e2 = errorbar(x+1.5, y2, err2);
-  hold on
   e3 = errorbar(xe-1.5, b1, ber1);
-  hold on
   e4 = errorbar(xe+1.5, b2, ber2);
+  hold off
   
   e1.Marker = mark_act;
   e2.Marker = mark_ctx;
@@ -302,7 +297,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 5000 2500]/res;
-   print('-dpng','-r300',['plots/group_RT_statistics_yesKey'])
+   print('-dpng','-r300',['plots/group_RT_statistics'])
   end
 end % if make_plots
 end

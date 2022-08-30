@@ -1,4 +1,4 @@
-function groupAcc = statisticsAccuracyGroup(save_plots)
+function groupAcc = plotAccuracyGroup_noOffice(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes Accuracy group statistics (mean & std) per condition for each probe type and
@@ -7,7 +7,11 @@ function groupAcc = statisticsAccuracyGroup(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-%save_plots = 0;
+save_plots = 1;
+
+%%
+info = getFactorialStructure();
+
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -47,6 +51,16 @@ for i=1:length(l_files)
           key_no = 37;
         end
         l_subjects = [l_subjects, fName];
+
+        % =================================================================
+        % REMOVE "Office" CONTEXT trials
+        % =================================================================
+        trialsCC(trialsCC.Target_Context == "office", :) = [];
+        trialsCI(trialsCI.Target_Context == "office", :) = [];
+        trialsAC(trialsAC.Target_Context == "office", :) = [];
+        trialsAI(trialsAI.Target_Context == "office", :) = [];
+        % =================================================================
+
 
         % Extract RT = f(presentation time) by probe type
         statsAC = getResponseStats(trialsAC, key_yes, key_no);
@@ -119,8 +133,8 @@ if make_plots
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   % Add Overall
   [b1, ber1] = simple_ci(y1);
   [b2, ber2] = simple_ci(y2);
@@ -195,8 +209,8 @@ if make_plots
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -272,8 +286,8 @@ if make_plots
 %   
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -355,8 +369,8 @@ if make_plots
 %   
 %   err1 = std(data1) / sqrt(length(data1));
 %   err2 = std(data2) / sqrt(length(data2));
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   
   % Add Overall
   [b1, ber1] = simple_ci(y1);
@@ -431,7 +445,7 @@ e1 = errorbar(x-1.5, y1, err1);
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 4800 2500]/res;
-   print('-dpng','-r300',['plots/group_accuracy_statistics_ci'])
+   print('-dpng','-r300',['plots/group_accuracy_statistics_ci_noOffice'])
   end
 end % if make_plots
 end

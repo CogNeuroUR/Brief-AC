@@ -1,4 +1,4 @@
-function groupDprime = statisticsSensitivityGroup_context(save_plots)
+function groupRT = plotRTgroup_acrossCompatibility(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -7,13 +7,25 @@ function groupDprime = statisticsSensitivityGroup_context(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-%save_plots = 0;
+save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
 path_results = 'results/final/';
 
-[groupDprime, ~] = extractData_meanDprime(path_results);
+[groupRT, l_subjects] = extract_groupRT(path_results);
+
+%% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
+%groupRT = array2table(groupRT); %array2table(zeros(0,24));
+probes = ["AC", "AI", "CC", "CI"];
+times = [2:6 8];
+vars = {};
+
+for iP=1:length(probes)
+  for iT=1:length(times)
+    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
+  end
+end
 
 %% ########################################################################
 % Plots [CONGRUENT]
@@ -24,28 +36,40 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_congruent = "#77AC30";
-  color_incongruent = "#D95319";
+  color_act = "#EDB120";
+  color_ctx = "#7E2F8E";
 
   lgd_location = 'northeast';
+  %mark_colors = ["#0072BD", "#D95319"];
 
   xfactor = 1000/60;
-  ylimits = [-1, 3];
+  ylimits = [700 1050]; % without individual lines
+  %ylimits = [490 1250];
   xlimits = [1.6 9.4]*xfactor;
+  %x = [2:6 8]*xfactor; % in ms
   x = [2:7]*xfactor; % in ms
+  %x = [1:6];
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
-  % PLOT : CONTEXT (Congruent vs Incongruent) =============================
+  % PLOT : Actions vs Context =============================================
+  
   % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Congruent
-  i2 = [19, 24];        % CONTEXT Probe & Incongruent
+  i11 = [1, 6];          % ACTION & CONGRUENT
+  i12 = [7, 12];         % ACTION & INCONGRUENT
+  i21 = [13, 18];        % CONTEXT & CONGRUENT
+  i22 = [19, 24];        % CONTEXT & INCONGRUENT
   
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  data11 = [groupRT(:,i11(1):i11(2))];
+  data12 = [groupRT(:,i12(1):i12(2))];
+  data21 = [groupRT(:,i21(1):i21(2))];
+  data22 = [groupRT(:,i22(1):i22(2))];
+
+  % Average within the subject across compatibility
+  data1 = [data11; data12];
+  data2 = [data21; data22];
   
-  [y1, err1] = statisticsSampleConditional(data1);
-  [y2, err2] = statisticsSampleConditional(data2);
-  
+  [y1, err1] = meanCIgroup(data1);
+  [y2, err2] = meanCIgroup(data2);
   % Add Overall
   [b1, ber1] = simple_ci(y1);
   [b2, ber2] = simple_ci(y2);
@@ -56,22 +80,21 @@ if make_plots
   e2 = errorbar(x+1.5, y2, err2);
   e3 = errorbar(xe-1.5, b1, ber1);
   e4 = errorbar(xe+1.5, b2, ber2);
-  yline(0, '--');
   hold off
-
+  
   e1.Marker = mark_act;
   e2.Marker = mark_ctx;
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_congruent;
-  e2.Color = color_incongruent;
-  e3.Color = color_congruent;
-  e4.Color = color_incongruent;
-  e1.MarkerFaceColor = color_congruent;
-  e2.MarkerFaceColor = color_incongruent;
-  e3.MarkerFaceColor = color_congruent;
-  e4.MarkerFaceColor = color_incongruent;
+  e1.Color = color_act;
+  e2.Color = color_ctx;
+  e3.Color = color_act;
+  e4.Color = color_ctx;
+  e1.MarkerFaceColor = color_act;
+  e2.MarkerFaceColor = color_ctx;
+  e3.MarkerFaceColor = color_act;
+  e4.MarkerFaceColor = color_ctx;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -82,14 +105,19 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Actions','Context');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
-  
-  stitle = sprintf('CONTEXT (N=%d)', height(groupDprime));
+
+  stitle = sprintf('Actions vs Context across compatibility (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d-prime [ms]')
+  ylabel('RT [ms]')
+
+  % Print summary results =================================================
+  fprintf('\nOverall results: Actions vs Context\n')
+  fprintf('\t1) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b1, b1-ber1, b1+ber1)
+  fprintf('\t2) Mean: %.1f, 95%%CI: [%.1f, %.1f].\n', b2, b2-ber2, b2+ber2)
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -99,7 +127,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/groupDprime_context'])
+   print('-dpng','-r300',['plots/group_RT_statistics_acrossCompatibility'])
   end
 end % if make_plots
 end
