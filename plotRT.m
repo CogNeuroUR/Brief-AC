@@ -19,18 +19,18 @@ end
 make_plots = 1;
 
 %% Extract trials for each probe by decoding trials' ASF code
-[t_trialsActionCongruent, t_trialsContextCongruent,...
- t_trialsActionIncongruent, t_trialsContextIncongruent] = getTrialResponses(ExpInfo);
+[t_trialsActionCompatible, t_trialsContextCompatible,...
+ t_trialsActionIncompatible, t_trialsContextIncompatible] = getTrialResponses(ExpInfo);
 
 %% Collect RT statistics
 % Extract RT = f(presentation time) by probe type
-rt_act_con = getRTstats(t_trialsActionCongruent);
-rt_ctx_con = getRTstats(t_trialsContextCongruent);
-rt_act_inc = getRTstats(t_trialsActionIncongruent);
-rt_ctx_inc = getRTstats(t_trialsContextIncongruent);
+rt_act_con = getRTstats(t_trialsActionCompatible);
+rt_ctx_con = getRTstats(t_trialsContextCompatible);
+rt_act_inc = getRTstats(t_trialsActionIncompatible);
+rt_ctx_inc = getRTstats(t_trialsContextIncompatible);
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 if make_plots
   fh = figure;
   
@@ -56,14 +56,14 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RT : Action & Context Probes [CONGRUENT]');
+  title('RT : Action & Context Probes [COMPATIBLE]');
   legend('Actions','Context')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim(xlimits)
   ylim(ylimits);
   
-  % Plot [INCONGRUENT]
+  % Plot [INCOMPATIBLE]
   subplot(2,2,2);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
@@ -84,14 +84,14 @@ if make_plots
   e1.Marker = "x";
   e2.Marker = "o";
   
-  title('RT : Action & Context Probes [INCONGRUENT]');
+  title('RT : Action & Context Probes [INCOMPATIBLE]');
   legend('Actions','Context')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim(xlimits)
   ylim(ylimits);
   
-  % Plot ACTIONS : congruent vs incongruent
+  % Plot ACTIONS : compatible vs incompatible
   subplot(2,2,3);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
@@ -113,13 +113,13 @@ if make_plots
   e2.Marker = "o";
   
   title('RT : Actions');
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim(xlimits)
   ylim(ylimits);
 
-  % Plot CONTEXT : congruent vs incongruent
+  % Plot CONTEXT : compatible vs incompatible
   subplot(2,2,4);
   % Plot RT's as a function of presentation time
   screen_freq = (1/60);
@@ -141,7 +141,7 @@ if make_plots
   e2.Marker = "o";
   
   title('RTs : Contexts');
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   xlabel('Presentation time [ms]')
   ylabel('RT [ms]')
   xlim(xlimits)

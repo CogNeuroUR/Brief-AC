@@ -1,4 +1,4 @@
-function groupRT = plotRTgroup_AvC_(save_plots)
+function groupRT = plotRTgroup_IvC(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -16,7 +16,7 @@ path_results = 'results/final/';
 [groupRT, ~] = extract_groupRT(path_results);
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -35,28 +35,28 @@ if make_plots
   %ylimits = [490 1250];
   xlimits = [1.6 9.4]*xfactor;
   %x = [2:6 8]*xfactor; % in ms
-  ylimits = [-100 100];
+  ylimits = [-80 120];
   %xlimits = [1.6 8.4]*xfactor;
   x = [1:6 8];
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION Probe & CONGRUENT
-  i2 = [13, 18];        % CONTEXT Probe & CONGRUENT
-  i3 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i4 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [1, 6];          % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];        % CONTEXT Probe & COMPATIBLE
+  i3 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i4 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
   data3 = [groupRT(:,i3(1):i3(2))];
   data4 = [groupRT(:,i4(1):i4(2))];
   
-  % compute differences in RT : Action - Context
-  diff_congruent = data1 - data3;
-  diff_incongruent = data2 - data4;
+  % compute differences in RT : Incompatible - Compatible
+  diff_compatible = data3 - data1;
+  diff_incompatible = data4 - data2;
 
-  [y1, err1] = meanCIgroup(diff_congruent);
-  [y2, err2] = meanCIgroup(diff_incongruent);
+  [y1, err1] = meanCIgroup(diff_compatible);
+  [y2, err2] = meanCIgroup(diff_incompatible);
   
   % Append "overall" mean to y1 and y2
   [y1(end+1), err1(end+1)] = simple_ci(y1);
@@ -87,7 +87,7 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
 
-  stitle = sprintf('Compatible - Incompatible (N=%d)', height(groupRT));
+  stitle = sprintf('Incompatible - Compatible (N=%d)', height(groupRT));
   title(stitle);
   xlabel('Presentation Time [ms]')
   ylabel('RT difference : C - I [ms]')
@@ -100,7 +100,7 @@ if make_plots
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
    fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/groupRT_CvI'])
+   print('-dpng','-r300',['plots/groupRT_IvC'])
   end
 end % if make_plots
 end

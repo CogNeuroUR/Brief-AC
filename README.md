@@ -1,5 +1,5 @@
 # Brief Actions in Context : Behavioral experiment [AinC]
-## *How are briefly-presented actions percieved in congruent vs incongruent contexts?*
+## *How are briefly-presented actions percieved in compatible vs incompatible contexts?*
 
 ![idea_hafri](docs/brief-ac_inspiration.png)
 

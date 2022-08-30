@@ -16,7 +16,7 @@ path_results = 'results/final/';
 [groupDprime, ~] = extractData_meanDprime(path_results);
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -24,8 +24,8 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_congruent = "#77AC30";
-  color_incongruent = "#D95319";
+  color_compatible = "#77AC30";
+  color_incompatible = "#D95319";
 
   lgd_location = 'northeast';
 
@@ -35,10 +35,10 @@ if make_plots
   x = [2:7]*xfactor; % in ms
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
-  % PLOT : CONTEXT (Congruent vs Incongruent) =============================
+  % PLOT : CONTEXT (Compatible vs Incompatible) =============================
   % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Congruent
-  i2 = [19, 24];        % CONTEXT Probe & Incongruent
+  i1 = [13, 18];         % CONTEXT Probe & Compatible
+  i2 = [19, 24];        % CONTEXT Probe & Incompatible
   
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
@@ -64,14 +64,14 @@ if make_plots
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_congruent;
-  e2.Color = color_incongruent;
-  e3.Color = color_congruent;
-  e4.Color = color_incongruent;
-  e1.MarkerFaceColor = color_congruent;
-  e2.MarkerFaceColor = color_incongruent;
-  e3.MarkerFaceColor = color_congruent;
-  e4.MarkerFaceColor = color_incongruent;
+  e1.Color = color_compatible;
+  e2.Color = color_incompatible;
+  e3.Color = color_compatible;
+  e4.Color = color_incompatible;
+  e1.MarkerFaceColor = color_compatible;
+  e2.MarkerFaceColor = color_incompatible;
+  e3.MarkerFaceColor = color_compatible;
+  e4.MarkerFaceColor = color_incompatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -82,14 +82,14 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
   stitle = sprintf('CONTEXT (N=%d)', height(groupDprime));
-  title(stitle);
+  %title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d-prime [ms]')
+  ylabel('Sensitivity (d'')')
 
   % SAVE PLOTS ============================================================
   if save_plots

@@ -16,7 +16,7 @@ path_results = 'results/final/';
 [groupRT, ~] = extract_groupRT(path_results);
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -24,8 +24,8 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_congruent = "#77AC30";
-  color_incongruent = "#D95319";
+  color_compatible = "#77AC30";
+  color_incompatible = "#D95319";
 
   lgd_location = 'northeast';
   %mark_colors = ["#0072BD", "#D95319"];
@@ -41,10 +41,10 @@ if make_plots
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION Probe & CONGRUENT
-  i2 = [13, 18];        % CONTEXT Probe & CONGRUENT
-  i3 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i4 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [1, 6];          % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];        % CONTEXT Probe & COMPATIBLE
+  i3 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i4 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -52,11 +52,11 @@ if make_plots
   data4 = [groupRT(:,i4(1):i4(2))];
   
   % compute differences in RT : Action - Context
-  diff_congruent = data1 - data2;
-  diff_incongruent = data3 - data4;
+  diff_compatible = data1 - data2;
+  diff_incompatible = data3 - data4;
 
-  [y1, err1] = meanCIgroup(diff_congruent);
-  [y2, err2] = meanCIgroup(diff_incongruent);
+  [y1, err1] = meanCIgroup(diff_compatible);
+  [y2, err2] = meanCIgroup(diff_incompatible);
   
   % Append "overall" mean to y1 and y2
   [y1(end+1), err1(end+1)] = simple_ci(y1);
@@ -76,14 +76,14 @@ if make_plots
         'Color', 'k', 'LineWidth', 1);
   end
 
-  b(1).FaceColor = color_congruent;
-  b(2).FaceColor = color_incongruent;
+  b(1).FaceColor = color_compatible;
+  b(2).FaceColor = color_incompatible;
 
   xticks(x)
   xticklabels(xlabels) 
   ylim(ylimits)
   
-  lgd = legend('Congruent', 'Incongruent');
+  lgd = legend('Compatible', 'Incompatible');
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 

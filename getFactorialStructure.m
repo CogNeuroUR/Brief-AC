@@ -2,7 +2,7 @@ function info = getFactorialStructure()
 %--------------------------------------------------------------------------
 % DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
-info.CongruencyLevels = ["congruent", "incongruent"];
+info.CongruencyLevels = ["compatible", "incompatible"];
 info.nCongruencyLevels = length(info.CongruencyLevels);
 
 info.ContextLevels = ["kitchen", "office", "workshop"];

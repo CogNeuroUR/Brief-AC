@@ -28,14 +28,14 @@ for iP=1:length(probes)
 end
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
 
   % General parameters
-  color_congruent = "#77AC30";
-  color_incongruent = "#D95319";
+  color_compatible = "#77AC30";
+  color_incompatible = "#D95319";
   color_act = "#EDB120";
   color_ctx = "#7E2F8E";
 
@@ -48,10 +48,10 @@ if make_plots
   % PLOT : Actions vs Context =============================================
   
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION & CONGRUENT
-  i2 = [7, 12];         % ACTION & INCONGRUENT
-  i3 = [13, 18];        % CONTEXT & CONGRUENT
-  i4 = [19, 24];        % CONTEXT & INCONGRUENT
+  i1 = [1, 6];          % ACTION & COMPATIBLE
+  i2 = [7, 12];         % ACTION & INCOMPATIBLE
+  i3 = [13, 18];        % CONTEXT & COMPATIBLE
+  i4 = [19, 24];        % CONTEXT & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -92,18 +92,18 @@ if make_plots
   l2 = plot(x_ind+1, data_ind_ctx, '-o', 'Color',color_ctx, 'Marker', 's');
   hold off
 
-  b(1).FaceColor = color_congruent;
-  b(2).FaceColor = color_incongruent;
+  b(1).FaceColor = color_compatible;
+  b(2).FaceColor = color_incompatible;
 
   xticklabels(xlabels) 
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
 
   stitle = sprintf('Compatibility gain (N=%d)', height(groupRT));
-  title(stitle);
+  %title(stitle);
   xlabel('Probe Type')
   ylabel('Reaction Time [ms]')
 

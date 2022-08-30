@@ -98,11 +98,11 @@ if make_plots
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
-  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
+  % PLOT 1 : COMPATIBLE (Actions vs Context) ===============================
   subplot(2,2,1);
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & CONGRUENT
-  i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+  i1 = [1, 6];         % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];       % CONTEXT Probe & COMPATIBLE
   
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
@@ -141,16 +141,16 @@ if make_plots
   lgd.Location = 'northwest';
   lgd.Color = 'none';
   
-  stitle = sprintf('Sensitivity : CONGRUENT (N=%d)', height(groupDprime));
+  stitle = sprintf('COMPATIBLE (N=%d)', height(groupDprime));
   title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  %xlabel('Presentation Time [ms]')
+  ylabel('Sensitivity (d'')')
 
-  % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
+  % PLOT 2 : INCOMPATIBLE (Actions vs Context) =============================
   subplot(2,2,2);
   % Define indices for for condition category
-  i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i2 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
 
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
@@ -189,16 +189,16 @@ if make_plots
   lgd.Location = 'northwest';
   lgd.Color = 'none';
 
-  stitle = sprintf('Sensitivity : INCONGRUENT (N=%d)', height(groupDprime));
+  stitle = sprintf('INCOMPATIBLE (N=%d)', height(groupDprime));
   title(stitle);
-  xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  %xlabel('Presentation Time [ms]')
+  %ylabel('Sensitivity (d'')')
 
-  % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
+  % PLOT 3 : ACTIONS (Compatible vs Incompatible) ===========================
   subplot(2,2,3);
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & Congruent
-  i2 = [7, 12];        % ACTION Probe & Incongruent
+  i1 = [1, 6];         % ACTION Probe & Compatible
+  i2 = [7, 12];        % ACTION Probe & Incompatible
 
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
@@ -233,20 +233,20 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
 
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = 'northwest';
   lgd.Color = 'none';
   
-  stitle = sprintf('Sensitivity : ACTIONS (N=%d)', height(groupDprime));
+  stitle = sprintf('ACTIONS (N=%d)', height(groupDprime));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  ylabel('Sensitivity (d'')')
 
-  % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
+  % PLOT 4 : CONTEXT (Compatible vs Incompatible) ===========================
   subplot(2,2,4);
   % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Congruent
-  i2 = [19, 24];        % CONTEXT Probe & Incongruent
+  i1 = [13, 18];         % CONTEXT Probe & Compatible
+  i2 = [19, 24];        % CONTEXT Probe & Incompatible
 
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
@@ -281,14 +281,14 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
 
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = 'northwest';
   lgd.Color = 'none';
   
-  stitle = sprintf('Sensitivity : CONTEXT (N=%d)', height(groupDprime));
+  stitle = sprintf('CONTEXT (N=%d)', height(groupDprime));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  %ylabel('Sensitivity (d'')')
   
   % SAVE PLOTS ============================================================
   if save_plots

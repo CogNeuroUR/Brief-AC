@@ -15,7 +15,7 @@ stimNames = ExpInfo.stimNames;
 %--------------------------------------------------------------------------
 % DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
-info.CongruencyLevels = ["congruent", "incongruent"];
+info.CongruencyLevels = ["compatible", "incompatible"];
 info.nCongruencyLevels = length(info.CongruencyLevels);
 
 info.ContextLevels = ["kitchen", "office", "workshop"];
@@ -67,10 +67,10 @@ fprintf('(%d) %s : %s\n', code, upper(probeType), upper(Probe));
 % = response time (RT)
 
 % Initialize cell arrays for context & action trials
-trials_action_congruent = {};
-trials_context_congruent = {};
-trials_action_incongruent = {};
-trials_context_incongruent = {};
+trials_action_compatible = {};
+trials_context_compatible = {};
+trials_action_incompatible = {};
+trials_context_incompatible = {};
 
 % Iterate over trials and extract trials from each probe type
 for i=1:length(ExpInfo.TrialInfo)
@@ -85,11 +85,11 @@ for i=1:length(ExpInfo.TrialInfo)
                                                info.CongruencyLevels,...
                                                info.ProbeTypeLevels, info.ProbeLevels);
 
-  % congruent
-  if isequal(congruency, 'congruent')
+  % compatible
+  if isequal(congruency, 'compatible')
     % check if from action probes
     if isequal(probeType, "action")
-      trials_action_congruent(end+1, :) = {...
+      trials_action_compatible(end+1, :) = {...
                        ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
@@ -98,7 +98,7 @@ for i=1:length(ExpInfo.TrialInfo)
     
     % check if from context probes 
     elseif isequal(probeType, "context")
-      trials_context_congruent(end+1, :) = {...
+      trials_context_compatible(end+1, :) = {...
                         ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
@@ -106,11 +106,11 @@ for i=1:length(ExpInfo.TrialInfo)
                        congruency, probeType, Probe};
     end
 
-  % incongruent
+  % incompatible
   else
     % check if from action probes
     if isequal(probeType, "action")
-      trials_action_incongruent(end+1, :) = {...
+      trials_action_incompatible(end+1, :) = {...
                        ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
@@ -119,7 +119,7 @@ for i=1:length(ExpInfo.TrialInfo)
     
     % check if from context probes 
     elseif isequal(probeType, "context")
-      trials_context_incongruent(end+1, :) = {...
+      trials_context_incompatible(end+1, :) = {...
                         ExpInfo.TrialInfo(i).trial.pageDuration(3),...
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
@@ -135,24 +135,24 @@ end
 % TODO: better perform nanmean() & nanstd, s.t. the misses are not ignored,
 % but considered for the accuracy.
 % TODO : print how many NaNs were found (and for what condition)
-% [rows, cols] = find(cellfun(@isempty,trials_action_congruent));
-% trials_action_congruent(unique(rows),:)=[];
-% [rows, cols] = find(cellfun(@isempty,trials_context_congruent));
-% trials_context_congruent(unique(rows),:)=[];
-% [rows, cols] = find(cellfun(@isempty,trials_action_incongruent));
-% trials_action_incongruent(unique(rows),:)=[];
-% [rows, cols] = find(cellfun(@isempty,trials_context_incongruent));
-% trials_context_incongruent(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_action_compatible));
+% trials_action_compatible(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_context_compatible));
+% trials_context_compatible(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_action_incompatible));
+% trials_action_incompatible(unique(rows),:)=[];
+% [rows, cols] = find(cellfun(@isempty,trials_context_incompatible));
+% trials_context_incompatible(unique(rows),:)=[];
 
 %% Convert cells to tables
 varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruency', 'ProbeType', 'Probe'};
-t_trialsActionCongruent = cell2table(trials_action_congruent,...
+t_trialsActionCompatible = cell2table(trials_action_compatible,...
                             'VariableNames', varnames);
-t_trialsContextCongruent = cell2table(trials_context_congruent,...
+t_trialsContextCompatible = cell2table(trials_context_compatible,...
                             'VariableNames', varnames);
-t_trialsActionIncongruent = cell2table(trials_action_incongruent,...
+t_trialsActionIncompatible = cell2table(trials_action_incompatible,...
                             'VariableNames', varnames);
-t_trialsContextIncongruent = cell2table(trials_context_incongruent,...
+t_trialsContextIncompatible = cell2table(trials_context_incompatible,...
                             'VariableNames', varnames);
 
 %% ########################################################################
@@ -160,23 +160,23 @@ t_trialsContextIncongruent = cell2table(trials_context_incongruent,...
 %%#########################################################################
 
 %% Extract RT = f(presentation time) by probe type
-RTstatsActionCongruent = getRTstats(t_trialsActionCongruent);
-RTstatsContextCongruent = getRTstats(t_trialsContextCongruent);
-RTstatsActionIncongruent = getRTstats(t_trialsActionIncongruent);
-RTstatsContextIncongruent = getRTstats(t_trialsContextIncongruent);
+RTstatsActionCompatible = getRTstats(t_trialsActionCompatible);
+RTstatsContextCompatible = getRTstats(t_trialsContextCompatible);
+RTstatsActionIncompatible = getRTstats(t_trialsActionIncompatible);
+RTstatsContextIncompatible = getRTstats(t_trialsContextIncompatible);
 
-%% Plot [CONGRUENT]
+%% Plot [COMPATIBLE]
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [RTstatsContextCongruent{:, 1}]*factor; % in ms
+x = [RTstatsContextCompatible{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [RTstatsActionCongruent{:, 2}];
-yCon = [RTstatsContextCongruent{:, 2}];
+yAct = [RTstatsActionCompatible{:, 2}];
+yCon = [RTstatsContextCompatible{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [RTstatsActionCongruent{:, 3}];
-stdCon = [RTstatsContextCongruent{:, 3}];
+stdAct = [RTstatsActionCompatible{:, 3}];
+stdCon = [RTstatsContextCompatible{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -190,23 +190,23 @@ legend('Actions','Context')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
 xlim([1.5 8.5]*factor)
-print('-dpng','-r300','plots/rt_congruent')
+print('-dpng','-r300','plots/rt_compatible')
 % plotshaded(x,[yAct+stdAct; [yAct-stdAct]],'r');
 % plotshaded(x,yAct,'r');
 
 
-%% Plot [INCONGRUENT]
+%% Plot [INCOMPATIBLE]
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [RTstatsActionIncongruent{:, 1}]*factor; % in ms
+x = [RTstatsActionIncompatible{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [RTstatsActionIncongruent{:, 2}];
-yCon = [RTstatsContextIncongruent{:, 2}];
+yAct = [RTstatsActionIncompatible{:, 2}];
+yCon = [RTstatsContextIncompatible{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [RTstatsActionIncongruent{:, 3}];
-stdCon = [RTstatsContextIncongruent{:, 3}];
+stdAct = [RTstatsActionIncompatible{:, 3}];
+stdCon = [RTstatsContextIncompatible{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -215,25 +215,25 @@ e2 = errorbar(x,yCon,stdCon);
 e1.Marker = "x";
 e2.Marker = "o";
 
-title('RT for Action and Context Probes [INCONGRUENT]');
+title('RT for Action and Context Probes [INCOMPATIBLE]');
 legend('Actions','Context')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
 xlim([1.5 8.5]*factor)
-print('-dpng','-r300','plots/rt_incongruent')
+print('-dpng','-r300','plots/rt_incompatible')
 
-%% Plot ACTIONS : congruent vs incongruent
+%% Plot ACTIONS : compatible vs incompatible
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [RTstatsContextCongruent{:, 1}]*factor; % in ms
+x = [RTstatsContextCompatible{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [RTstatsActionCongruent{:, 2}];
-yCon = [RTstatsActionIncongruent{:, 2}];
+yAct = [RTstatsActionCompatible{:, 2}];
+yCon = [RTstatsActionIncompatible{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [RTstatsActionCongruent{:, 3}];
-stdCon = [RTstatsActionIncongruent{:, 3}];
+stdAct = [RTstatsActionCompatible{:, 3}];
+stdCon = [RTstatsActionIncompatible{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -243,24 +243,24 @@ e1.Marker = "x";
 e2.Marker = "o";
 
 title('RTs for Actions');
-legend('Congruent','Incongruent')
+legend('Compatible','Incompatible')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
 xlim([1.5 8.5]*factor)
 print('-dpng','-r300','plots/rt_actions')
 
-%% Plot CONTEXT : congruent vs incongruent
+%% Plot CONTEXT : compatible vs incompatible
 % Plot RT's as a function of presentation time
 screen_freq = (1/60);
 factor = screen_freq*1000;
-x = [statsContextCongruent{:, 1}]*factor; % in ms
+x = [statsContextCompatible{:, 1}]*factor; % in ms
 
 % Collect mean RT's for action and context probes
-yAct = [RTstatsContextCongruent{:, 2}];
-yCon = [RTstatsContextIncongruent{:, 2}];
+yAct = [RTstatsContextCompatible{:, 2}];
+yCon = [RTstatsContextIncompatible{:, 2}];
 % Collect RT's standard deviation for action and context probes
-stdAct = [RTstatsActionCongruent{:, 3}];
-stdCon = [RTstatsContextIncongruent{:, 3}];
+stdAct = [RTstatsActionCompatible{:, 3}];
+stdCon = [RTstatsContextIncompatible{:, 3}];
 
 e1 = errorbar(x,yAct,stdAct);
 hold on
@@ -270,7 +270,7 @@ e1.Marker = "x";
 e2.Marker = "o";
 
 title('RTs for Contexts');
-legend('Congruent','Incongruent')
+legend('Compatible','Incompatible')
 xlabel('Presentation time [ms]')
 ylabel('RT [ms]')
 xlim([1.5 8.5]*factor)
@@ -283,74 +283,74 @@ print('-dpng','-r300','plots/rt_contexts')
 %% ########################################################################
 
 %% Extract statistics: hits, false alarms and their rates by PROBE TYPE & CONGRUENCY
-statsActionCongruent = extractResponseStats(t_trialsActionCongruent, key_yes, key_no);
-statsContextCongruent = extractResponseStats(t_trialsContextCongruent, key_yes, key_no);
-statsActionIncongruent = extractResponseStats(t_trialsActionIncongruent, key_yes, key_no);
-statsContextIncongruent = extractResponseStats(t_trialsContextIncongruent, key_yes, key_no);
+statsActionCompatible = extractResponseStats(t_trialsActionCompatible, key_yes, key_no);
+statsContextCompatible = extractResponseStats(t_trialsContextCompatible, key_yes, key_no);
+statsActionIncompatible = extractResponseStats(t_trialsActionIncompatible, key_yes, key_no);
+statsContextIncompatible = extractResponseStats(t_trialsContextIncompatible, key_yes, key_no);
 
 
 %% Compute d-prime  
-t_statsActionCongruent = dprime(statsActionCongruent);
-t_statsContextCongruent = dprime(statsContextCongruent);
-t_statsActionIncongruent = dprime(statsActionIncongruent);
-t_statsContextIncongruent = dprime(statsContextIncongruent);
+t_statsActionCompatible = dprime(statsActionCompatible);
+t_statsContextCompatible = dprime(statsContextCompatible);
+t_statsActionIncompatible = dprime(statsActionIncompatible);
+t_statsContextIncompatible = dprime(statsContextIncompatible);
 
 
-%% [CONGRUENT] Plot d-prime
-assert(height(t_statsActionCongruent) == height(t_statsContextCongruent));
-x = [t_statsActionCongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-bar(x, [t_statsActionCongruent{:, 'd-prime'}, t_statsContextCongruent{:, 'd-prime'}]);
+%% [COMPATIBLE] Plot d-prime
+assert(height(t_statsActionCompatible) == height(t_statsContextCompatible));
+x = [t_statsActionCompatible{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsActionCompatible{:, 'd-prime'}, t_statsContextCompatible{:, 'd-prime'}]);
 
-xticks([t_statsActionCongruent{:, 'PresTime'}]/0.06)
-xticklabels(round([t_statsActionCongruent{:, 'PresTime'}]/0.06, 2)) 
-ylim([0, max(t_statsActionCongruent{:, 'd-prime'}) + 1])
-
-legend('Action','Context')
-title('Sensitivity index (S1) [CONGRUENT]');
-xlabel('Presentation time [ms]')
-ylabel('d''')
-print('-dpng','-r300','plots/dprime_congruent_nan')
-
-%% [INCONGRUENT] Plot d-prime
-assert(height(t_statsActionIncongruent) == height(t_statsContextIncongruent));
-x = [t_statsActionIncongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-bar(x, [t_statsActionIncongruent{:, 'd-prime'}, t_statsContextIncongruent{:, 'd-prime'}]);
-
-xticks([t_statsActionIncongruent{:, 'PresTime'}]/0.06)
-xticklabels(round([t_statsActionIncongruent{:, 'PresTime'}]/0.06, 2)) 
-ylim([0, max(t_statsActionIncongruent{:, 'd-prime'}) + 1])
+xticks([t_statsActionCompatible{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsActionCompatible{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsActionCompatible{:, 'd-prime'}) + 1])
 
 legend('Action','Context')
-title('Sensitivity index (S1) [INCONGRUENT]');
+title('Sensitivity index (S1) [COMPATIBLE]');
 xlabel('Presentation time [ms]')
 ylabel('d''')
-print('-dpng','-r300','plots/dprime_incongruent_nan')
+print('-dpng','-r300','plots/dprime_compatible_nan')
+
+%% [INCOMPATIBLE] Plot d-prime
+assert(height(t_statsActionIncompatible) == height(t_statsContextIncompatible));
+x = [t_statsActionIncompatible{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsActionIncompatible{:, 'd-prime'}, t_statsContextIncompatible{:, 'd-prime'}]);
+
+xticks([t_statsActionIncompatible{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsActionIncompatible{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsActionIncompatible{:, 'd-prime'}) + 1])
+
+legend('Action','Context')
+title('Sensitivity index (S1) [INCOMPATIBLE]');
+xlabel('Presentation time [ms]')
+ylabel('d''')
+print('-dpng','-r300','plots/dprime_incompatible_nan')
 
 %% Plot d-prime : ACTIONS
-assert(height(t_statsActionIncongruent) == height(t_statsActionCongruent));
-x = [t_statsActionIncongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-bar(x, [t_statsActionCongruent{:, 'd-prime'}, t_statsActionIncongruent{:, 'd-prime'}]);
+assert(height(t_statsActionIncompatible) == height(t_statsActionCompatible));
+x = [t_statsActionIncompatible{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsActionCompatible{:, 'd-prime'}, t_statsActionIncompatible{:, 'd-prime'}]);
 
-xticks([t_statsActionCongruent{:, 'PresTime'}]/0.06)
-xticklabels(round([t_statsActionCongruent{:, 'PresTime'}]/0.06, 2)) 
-ylim([0, max(t_statsActionCongruent{:, 'd-prime'}) + 1])
+xticks([t_statsActionCompatible{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsActionCompatible{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsActionCompatible{:, 'd-prime'}) + 1])
 
-legend('Congruent','Incongruent')
+legend('Compatible','Incompatible')
 title('Sensitivity index (S1) : ACTIONS');
 xlabel('Presentation time [ms]')
 ylabel('d''')
 print('-dpng','-r300','plots/dprime_actions')
 
 %% Plot d-prime : ACTIONS
-assert(height(t_statsContextCongruent) == height(t_statsContextIncongruent));
-x = [t_statsContextCongruent{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
-bar(x, [t_statsContextCongruent{:, 'd-prime'}, t_statsContextIncongruent{:, 'd-prime'}]);
+assert(height(t_statsContextCompatible) == height(t_statsContextIncompatible));
+x = [t_statsContextCompatible{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
+bar(x, [t_statsContextCompatible{:, 'd-prime'}, t_statsContextIncompatible{:, 'd-prime'}]);
 
-xticks([t_statsContextCongruent{:, 'PresTime'}]/0.06)
-xticklabels(round([t_statsContextCongruent{:, 'PresTime'}]/0.06, 2)) 
-ylim([0, max(t_statsContextCongruent{:, 'd-prime'}) + 1])
+xticks([t_statsContextCompatible{:, 'PresTime'}]/0.06)
+xticklabels(round([t_statsContextCompatible{:, 'PresTime'}]/0.06, 2)) 
+ylim([0, max(t_statsContextCompatible{:, 'd-prime'}) + 1])
 
-legend('Congruent','Incongruent')
+legend('Compatible','Incompatible')
 title('Sensitivity index (S1) : CONTEXT');
 xlabel('Presentation time [ms]')
 ylabel('d''')

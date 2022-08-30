@@ -31,7 +31,7 @@ def check_ctxt_congruency(fname, debug=False):
         
     Returns
     -------
-    True, if context exemplar and action's source context are congruent,
+    True, if context exemplar and action's source context are compatible,
     otherwise False.
     """
     

@@ -48,14 +48,14 @@ if make_plots
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
 
-  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
+  % PLOT 1 : COMPATIBLE (Actions vs Context) ===============================
   % PLOT : Actions vs Context =============================================
   
   % Define indices for for condition category
-  i11 = [1, 6];          % ACTION & CONGRUENT
-  i12 = [7, 12];         % ACTION & INCONGRUENT
-  i21 = [13, 18];        % CONTEXT & CONGRUENT
-  i22 = [19, 24];        % CONTEXT & INCONGRUENT
+  i11 = [1, 6];          % ACTION & COMPATIBLE
+  i12 = [7, 12];         % ACTION & INCOMPATIBLE
+  i21 = [13, 18];        % CONTEXT & COMPATIBLE
+  i22 = [19, 24];        % CONTEXT & INCOMPATIBLE
 
   data11 = [groupDprime(:,i11(1):i11(2))];
   data12 = [groupDprime(:,i12(1):i12(2))];
@@ -107,9 +107,9 @@ if make_plots
   lgd.Color = 'none';
   
   stitle = sprintf('Actions vs Context across compatibility (N=%d)', height(groupDprime));
-  title(stitle);
+  %title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('d''')
+  ylabel('Sensitivity (d'')')
   
   % Print summary results =================================================
   fprintf('\nOverall results: Actions vs Context\n')

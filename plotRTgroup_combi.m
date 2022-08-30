@@ -91,12 +91,12 @@ if make_plots
   xlimits = [1.6 8.4]*xfactor;
   x = [2:6 8]*xfactor; % in ms
 
-  % PLOT 1 (Actions vs Context : Congruent) ==================
+  % PLOT 1 (Actions vs Context : Compatible) ==================
   %subplot_tight(2,2,1, margins);
   subplot(2,2,1);
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & CONGRUENT
-  i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+  i1 = [1, 6];         % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];       % CONTEXT Probe & COMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -134,17 +134,17 @@ if make_plots
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('RT : CONGRUENT (N=%d)', height(groupRT));
+  stitle = sprintf('RT : COMPATIBLE (N=%d)', height(groupRT));
   title(stitle);
   %xlabel('Presentation Time [ms]')
   ylabel('Mean Reaction Time [ms]')
 
-  % PLOT 2 : Actions vs Context : Incongruent =============================
+  % PLOT 2 : Actions vs Context : Incompatible =============================
   %subplot_tight(2,2,2, margins);
   subplot(2,2,2);
   % Define indices for for condition category
-  i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i2 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -177,7 +177,7 @@ if make_plots
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('RT : INCONGRUENT (N=%d)', height(groupRT));
+  stitle = sprintf('RT : INCOMPATIBLE (N=%d)', height(groupRT));
   title(stitle);
 
   %xlabel('Presentation Time [ms]')
@@ -189,10 +189,10 @@ if make_plots
   ylimits = [-60 150];
   xlimits = [1.6 8.4]*xfactor;
   % Define indices for for condition category
-  i1 = [1, 6];          % ACTION Probe & CONGRUENT
-  i2 = [13, 18];        % CONTEXT Probe & CONGRUENT
-  i3 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i4 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [1, 6];          % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];        % CONTEXT Probe & COMPATIBLE
+  i3 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i4 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -200,14 +200,14 @@ if make_plots
   data4 = [groupRT(:,i4(1):i4(2))];
   
   % compute differences in RT : Action - Context
-  diff_congruent = data1 - data2;
-  diff_incongruent = data3 - data4;
+  diff_compatible = data1 - data2;
+  diff_incompatible = data3 - data4;
 
-  y1 = mean(diff_congruent);
-  y2 = mean(diff_incongruent);
+  y1 = mean(diff_compatible);
+  y2 = mean(diff_incompatible);
   
-  err1 = std(diff_congruent) / sqrt(length(diff_congruent));
-  err2 = std(diff_incongruent) / sqrt(length(diff_incongruent));
+  err1 = std(diff_compatible) / sqrt(length(diff_compatible));
+  err2 = std(diff_incompatible) / sqrt(length(diff_incompatible));
   
   e1 = errorbar(x-.25, y1, err1);
   hold on
@@ -231,7 +231,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent', 'Incongruent');
+  lgd = legend('Compatible', 'Incompatible');
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
@@ -257,14 +257,14 @@ end % if make_plots
 %% ########################################################################
 %% Extract data & average across PTs
 % for context & action
-% for congruent & incongruent
-i1 = [1, 6];         % ACTION Probe & CONGRUENT
-i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+% for compatible & incompatible
+i1 = [1, 6];         % ACTION Probe & COMPATIBLE
+i2 = [13, 18];       % CONTEXT Probe & COMPATIBLE
 data_act_c = [groupRT(:,i1(1):i1(2))];
 data_ctx_c = [groupRT(:,i2(1):i2(2))];
 
-i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+i1 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+i2 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
 data_act_i = [groupRT(:,i1(1):i1(2))];
 data_ctx_i = [groupRT(:,i2(1):i2(2))];
 

@@ -4,26 +4,26 @@ function [stats_act_con, stats_ctx_con,...
 
 
 %% Extract trials for each probe by decoding trials' ASF code
-[t_trialsActionCongruent, t_trialsContextCongruent,...
- t_trialsActionIncongruent, t_trialsContextIncongruent] = getTrialResponses(ExpInfo);
+[t_trialsActionCompatible, t_trialsContextCompatible,...
+ t_trialsActionIncompatible, t_trialsContextIncompatible] = getTrialResponses(ExpInfo);
 
 %% Investigate Sensitivity index (d')
 % Extract statistics: hits, false alarms and their rates by PROBE TYPE & CONGRUENCY
-statsActionCongruent = getResponseStats(t_trialsActionCongruent, key_yes, key_no);
-statsContextCongruent = getResponseStats(t_trialsContextCongruent, key_yes, key_no);
-statsActionIncongruent = getResponseStats(t_trialsActionIncongruent, key_yes, key_no);
-statsContextIncongruent = getResponseStats(t_trialsContextIncongruent, key_yes, key_no);
+statsActionCompatible = getResponseStats(t_trialsActionCompatible, key_yes, key_no);
+statsContextCompatible = getResponseStats(t_trialsContextCompatible, key_yes, key_no);
+statsActionIncompatible = getResponseStats(t_trialsActionIncompatible, key_yes, key_no);
+statsContextIncompatible = getResponseStats(t_trialsContextIncompatible, key_yes, key_no);
 
 
 %% Compute accuracy  
-stats_act_con = accuracy(statsActionCongruent);
-stats_ctx_con = accuracy(statsContextCongruent);
-stats_act_inc = accuracy(statsActionIncongruent);
-stats_ctx_inc = accuracy(statsContextIncongruent);
+stats_act_con = accuracy(statsActionCompatible);
+stats_ctx_con = accuracy(statsContextCompatible);
+stats_act_inc = accuracy(statsActionIncompatible);
+stats_ctx_inc = accuracy(statsContextIncompatible);
 
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 if make_plots
   figure
   assert(height(stats_act_con) == height(stats_ctx_con));
@@ -35,15 +35,15 @@ if make_plots
   %ylim([0, max(stats_act_con{:, 'accuracy'}) + 1])
   
   legend('Action','Context')
-  title('Accuracy [CONGRUENT]');
+  title('Accuracy [COMPATIBLE]');
   xlabel('Presentation time [ms]')
   ylabel('Accuracy (%)')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_accuracy_congruent'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_accuracy_compatible'])
   end
   
-  %% [INCONGRUENT] Plot accuracy
+  %% [INCOMPATIBLE] Plot accuracy
   figure
   assert(height(stats_act_inc) == height(stats_ctx_inc));
   x = [stats_act_inc{:, 'PresTime'}]/0.06; % 0.06 = 60 Hz / 1000 ms
@@ -54,12 +54,12 @@ if make_plots
   %ylim([0, max(stats_act_inc{:, 'accuracy'}) + 1])
   
   legend('Action','Context')
-  title('Accuracy [INCONGRUENT]');
+  title('Accuracy [INCOMPATIBLE]');
   xlabel('Presentation time [ms]')
   ylabel('Accuracy (%)')
 
   if save_plots
-    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_accuracy_incongruent'])
+    print('-dpng','-r300', ['plots/' ExpInfo.Cfg.name '_accuracy_incompatible'])
   end
   
   %% Plot accuracy : ACTIONS
@@ -72,7 +72,7 @@ if make_plots
   xticklabels(round([stats_act_con{:, 'PresTime'}]/0.06, 2)) 
   %ylim([0, max(stats_act_con{:, 'accuracy'}) + 1])
   
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   title('Accuracy : ACTIONS');
   xlabel('Presentation time [ms]')
   ylabel('Accuracy (%)')
@@ -91,7 +91,7 @@ if make_plots
   xticklabels(round([stats_ctx_con{:, 'PresTime'}]/0.06, 2)) 
   %ylim([0, max(stats_ctx_con{:, 'accuracy'}) + 1])
   
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   title('Accuracy : CONTEXT');
   xlabel('Presentation time [ms]')
   ylabel('Accuracy (%)')

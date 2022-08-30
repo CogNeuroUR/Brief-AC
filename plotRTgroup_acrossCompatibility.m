@@ -28,7 +28,7 @@ for iP=1:length(probes)
 end
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -54,10 +54,10 @@ if make_plots
   % PLOT : Actions vs Context =============================================
   
   % Define indices for for condition category
-  i11 = [1, 6];          % ACTION & CONGRUENT
-  i12 = [7, 12];         % ACTION & INCONGRUENT
-  i21 = [13, 18];        % CONTEXT & CONGRUENT
-  i22 = [19, 24];        % CONTEXT & INCONGRUENT
+  i11 = [1, 6];          % ACTION & COMPATIBLE
+  i12 = [7, 12];         % ACTION & INCOMPATIBLE
+  i21 = [13, 18];        % CONTEXT & COMPATIBLE
+  i22 = [19, 24];        % CONTEXT & INCOMPATIBLE
   
   data11 = [groupRT(:,i11(1):i11(2))];
   data12 = [groupRT(:,i12(1):i12(2))];

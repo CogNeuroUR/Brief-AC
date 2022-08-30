@@ -26,7 +26,7 @@ probes = ["cutting" "grating" "whisking"...
 [groupAcc, l_subjects] = extract_groupAcc_conditional(path_results, probes);
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -36,10 +36,10 @@ if make_plots
   xlimits = [0.5 length(probes)+0.5];
   x = 1:length(probes); % in ms
 
-  % PLOT : CONGRUENT VS INCONGRUENT (Actions & Context) ===============================
+  % PLOT : COMPATIBLE VS INCOMPATIBLE (Actions & Context) ===============================
   % Define indices for for condition category
-  i1 = [1, 12];         % CONGRUENT
-  i2 = [13, 24];        % INCONGRUENT
+  i1 = [1, 12];         % COMPATIBLE
+  i2 = [13, 24];        % INCOMPATIBLE
   
   data1 = [groupAcc(:,i1(1):i1(2))];
   data2 = [groupAcc(:,i2(1):i2(2))];
@@ -66,7 +66,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = 'best';
   stitle = sprintf('Accuracies per Probe (N=%d)', height(groupAcc));
   title(stitle);
@@ -158,15 +158,15 @@ function [groupAcc, l_subjects] = extract_groupAcc_conditional(...
           trialsAI = convertColumn2array(trialsAI, 'RT');
           trialsCI = convertColumn2array(trialsCI, 'RT');
   
-          % 4) Concatenate congruent & incongruent tables respectively
+          % 4) Concatenate compatible & incompatible tables respectively
           trialsC = [trialsAC; trialsCC];
           trialsI = [trialsAI; trialsCI];
   
   
           % 5) Compute accuracies for each individual action & context probe
           % by congruence
-          % for each probe [congruent] : trialsC
-          accs_congruent = [];
+          % for each probe [compatible] : trialsC
+          accs_compatible = [];
           for i = 1:length(probes)
             % 1) find all given responses & trueKeys
             ResKeys = trialsC.ResKey(trialsC.Probe == probes(i));
@@ -178,11 +178,11 @@ function [groupAcc, l_subjects] = extract_groupAcc_conditional(...
             acc = 100 * n_correct/length(ResKeys); % in percent
             
             % 3) dump
-            accs_congruent = [accs_congruent, acc];
+            accs_compatible = [accs_compatible, acc];
           end
   
-          % for each probe [incongruent] : trialsI
-          accs_incongruent = [];
+          % for each probe [incompatible] : trialsI
+          accs_incompatible = [];
           for i = 1:length(probes)
             % 1) find all given responses & trueKeys
             ResKeys = trialsI.ResKey(trialsI.Probe == probes(i));
@@ -197,11 +197,11 @@ function [groupAcc, l_subjects] = extract_groupAcc_conditional(...
             acc = 100 * n_correct/length(ResKeys); % in percent
             
             % 3) dump
-            accs_incongruent = [accs_incongruent, acc];
+            accs_incompatible = [accs_incompatible, acc];
           end
   
-          % Concatenate congruent & incongruent -> 24-long vector
-          groupAcc = [groupAcc; accs_congruent, accs_incongruent];
+          % Concatenate compatible & incompatible -> 24-long vector
+          groupAcc = [groupAcc; accs_compatible, accs_incompatible];
           
           
         end

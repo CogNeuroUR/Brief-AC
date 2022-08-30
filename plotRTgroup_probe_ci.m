@@ -93,8 +93,8 @@ if make_plots
 
   % PLOT : Main Effect : Probe type (Action vs Context) ===================
   % Define indices for for condition category
-  i1 = [1, 12];         % ACTION Probe & CONGRUENT
-  i2 = [13, 24];       % CONTEXT Probe & CONGRUENT
+  i1 = [1, 12];         % ACTION Probe & COMPATIBLE
+  i2 = [13, 24];       % CONTEXT Probe & COMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -125,7 +125,7 @@ if make_plots
   lgd.Location = 'northeast';
   lgd.Color = 'none';
 
-  stitle = sprintf('RT : CONGRUENT (N=%d)', height(groupRT));
+  stitle = sprintf('RT : COMPATIBLE (N=%d)', height(groupRT));
   title(stitle);
   %xlabel('Presentation Time [ms]')
   ylabel('Mean Reaction Time [ms]')
@@ -148,14 +148,14 @@ end % if make_plots
 %% ########################################################################
 %% Extract data & average across PTs
 % for context & action
-% for congruent & incongruent
-i1 = [1, 6];         % ACTION Probe & CONGRUENT
-i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+% for compatible & incompatible
+i1 = [1, 6];         % ACTION Probe & COMPATIBLE
+i2 = [13, 18];       % CONTEXT Probe & COMPATIBLE
 data_act_c = [groupRT(:,i1(1):i1(2))];
 data_ctx_c = [groupRT(:,i2(1):i2(2))];
 
-i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+i1 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+i2 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
 data_act_i = [groupRT(:,i1(1):i1(2))];
 data_ctx_i = [groupRT(:,i2(1):i2(2))];
 

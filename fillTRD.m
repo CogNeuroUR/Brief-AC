@@ -67,37 +67,37 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % place here the assignment (for) loop and used 'Block' in place of 'TRD'
 
-    % Collect congruent & incongruent trials
-    trialsCongruent = [];
-    trialsIncongruent = [];
+    % Collect compatible & incompatible trials
+    trialsCompatible = [];
+    trialsIncompatible = [];
     nTrials = length(Block);
     for iTrial = 1:nTrials
-      if isequal(Block(iTrial).congruency, "congruent")
-        trialsCongruent = [trialsCongruent, iTrial];
+      if isequal(Block(iTrial).congruency, "compatible")
+        trialsCompatible = [trialsCompatible, iTrial];
       else
-        trialsIncongruent = [trialsIncongruent, iTrial];
+        trialsIncompatible = [trialsIncompatible, iTrial];
       end
     end
-    subBlockCongruent = Block(trialsCongruent);
-    subBlockIncongruent = Block(trialsIncongruent);
+    subBlockCompatible = Block(trialsCompatible);
+    subBlockIncompatible = Block(trialsIncompatible);
 
-    % Asign probeType for CONGRUENT sub-blocks
-    nTrials = length(subBlockCongruent);
+    % Asign probeType for COMPATIBLE sub-blocks
+    nTrials = length(subBlockCompatible);
     for iTrial = 1:nTrials
       if iTrial > nTrials/2
-        subBlockCongruent(iTrial).probeType = 'context';
+        subBlockCompatible(iTrial).probeType = 'context';
       else
-        subBlockCongruent(iTrial).probeType = 'action';
+        subBlockCompatible(iTrial).probeType = 'action';
       end
     end
 
-    % Asign probeType for INCONGRUENT sub-blocks
-    nTrials = length(subBlockIncongruent);
+    % Asign probeType for INCOMPATIBLE sub-blocks
+    nTrials = length(subBlockIncompatible);
     for iTrial = 1:nTrials
       if iTrial > nTrials/2
-        subBlockIncongruent(iTrial).probeType = 'context';
+        subBlockIncompatible(iTrial).probeType = 'context';
       else
-        subBlockIncongruent(iTrial).probeType = 'action';
+        subBlockIncompatible(iTrial).probeType = 'action';
       end
     end
 
@@ -107,99 +107,99 @@ function [TRD, info] = fillTRD(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
     % "YES"-trials and the remaining - "NO"-trials
     % ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    % Shuffle indices of trials in congruent and incongruent sub-blocks
-    idxCongruent = randperm(length(subBlockCongruent));
-    idxIncongruent = randperm(length(subBlockIncongruent));
+    % Shuffle indices of trials in compatible and incompatible sub-blocks
+    idxCompatible = randperm(length(subBlockCompatible));
+    idxIncompatible = randperm(length(subBlockIncompatible));
     
     % Asign half of them to YES and half to NO for each sub-block
-    idxCongruentYes = idxCongruent(1:length(idxCongruent)/2);
-    idxCongruentNo = idxCongruent(length(idxCongruent)/2+1:end);
-    idxIncongruentYes = idxIncongruent(1:length(idxIncongruent)/2);
-    idxIncongruentNo = idxIncongruent(length(idxIncongruent)/2+1:end);
+    idxCompatibleYes = idxCompatible(1:length(idxCompatible)/2);
+    idxCompatibleNo = idxCompatible(length(idxCompatible)/2+1:end);
+    idxIncompatibleYes = idxIncompatible(1:length(idxIncompatible)/2);
+    idxIncompatibleNo = idxIncompatible(length(idxIncompatible)/2+1:end);
 
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    % Asign Probe for CONGRUENT YES-trials
-    for idx = 1:length(idxCongruentYes)
-      iTrial = idxCongruentYes(idx);
-      subBlockCongruent(iTrial).Response = "yes";
-      subBlockCongruent(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
+    % Asign Probe for COMPATIBLE YES-trials
+    for idx = 1:length(idxCompatibleYes)
+      iTrial = idxCompatibleYes(idx);
+      subBlockCompatible(iTrial).Response = "yes";
+      subBlockCompatible(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
       % assign specific context or action probe
-      if isequal(subBlockCongruent(iTrial).probeType, 'context')
-        subBlockCongruent(iTrial).Probe = subBlockCongruent(iTrial).context;
+      if isequal(subBlockCompatible(iTrial).probeType, 'context')
+        subBlockCompatible(iTrial).Probe = subBlockCompatible(iTrial).context;
       else % presumably "action"
-        subBlockCongruent(iTrial).Probe = subBlockCongruent(iTrial).action;
+        subBlockCompatible(iTrial).Probe = subBlockCompatible(iTrial).action;
       end
     end
 
-    % Asign Probe for INCONGRUENT YES-trials
-    for idx = 1:length(idxIncongruentYes)
-      iTrial = idxIncongruentYes(idx);
-      subBlockIncongruent(iTrial).Response = "yes";
-      subBlockIncongruent(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
+    % Asign Probe for INCOMPATIBLE YES-trials
+    for idx = 1:length(idxIncompatibleYes)
+      iTrial = idxIncompatibleYes(idx);
+      subBlockIncompatible(iTrial).Response = "yes";
+      subBlockIncompatible(iTrial).correctResponse = getCorrectResponseKey("yes", keyYes, keyNo);
       % assign specific context or action probe
-      if isequal(subBlockIncongruent(iTrial).probeType, 'context')
-        subBlockIncongruent(iTrial).Probe = subBlockIncongruent(iTrial).context;
+      if isequal(subBlockIncompatible(iTrial).probeType, 'context')
+        subBlockIncompatible(iTrial).Probe = subBlockIncompatible(iTrial).context;
       else % presumably "action"
-        subBlockIncongruent(iTrial).Probe = subBlockIncongruent(iTrial).action;
+        subBlockIncompatible(iTrial).Probe = subBlockIncompatible(iTrial).action;
       end
     end
 
 
-    % Asign Probe for CONGRUENT NO-trials
-    for idx = 1:length(idxCongruentNo)
-      iTrial = idxCongruentNo(idx);
-      subBlockCongruent(iTrial).Response = "no";
-      subBlockCongruent(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
+    % Asign Probe for COMPATIBLE NO-trials
+    for idx = 1:length(idxCompatibleNo)
+      iTrial = idxCompatibleNo(idx);
+      subBlockCompatible(iTrial).Response = "no";
+      subBlockCompatible(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
       % Context probes
-      if isequal(subBlockCongruent(iTrial).probeType, 'context')
+      if isequal(subBlockCompatible(iTrial).probeType, 'context')
         % get subset of contexts different than the current one
-        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockCongruent(iTrial).context_idx);
+        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockCompatible(iTrial).context_idx);
         
         % asign random context from the subset
-        subBlockCongruent(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
+        subBlockCompatible(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
       
       % Action probes (within context)
-      elseif isequal(subBlockCongruent(iTrial).probeType, 'action')
+      elseif isequal(subBlockCompatible(iTrial).probeType, 'action')
         % get subset of actions from the same source context different than
         % current action
-        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockCongruent(iTrial).action_idx);
+        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockCompatible(iTrial).action_idx);
 
         % assign specific action probe from the subset
-        subBlockCongruent(iTrial).Probe = info.ActionLevels(subBlockCongruent(iTrial).context_idx,...
+        subBlockCompatible(iTrial).Probe = info.ActionLevels(subBlockCompatible(iTrial).context_idx,...
                                                             datasample(inc_actn_idxs, 1));
       end
     end
 
 
-    % Asign Probe for INCONGRUENT NO-trials
-    for idx = 1:length(idxIncongruentNo)
-      iTrial = idxIncongruentNo(idx);
-      subBlockIncongruent(iTrial).Response = "no";
-      subBlockIncongruent(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
+    % Asign Probe for INCOMPATIBLE NO-trials
+    for idx = 1:length(idxIncompatibleNo)
+      iTrial = idxIncompatibleNo(idx);
+      subBlockIncompatible(iTrial).Response = "no";
+      subBlockIncompatible(iTrial).correctResponse = getCorrectResponseKey("no", keyYes, keyNo);
       % Context probes
-      if isequal(subBlockIncongruent(iTrial).probeType, 'context')
+      if isequal(subBlockIncompatible(iTrial).probeType, 'context')
         % get subset of contexts different than the current one
-        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockIncongruent(iTrial).context_idx);
+        inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= subBlockIncompatible(iTrial).context_idx);
         
         % assign random context probe from the subset
-        subBlockIncongruent(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
+        subBlockIncompatible(iTrial).Probe = info.ContextLevels(datasample(inc_ctxt_idxs, 1));
 
       % Action probes (within context)
-      elseif isequal(subBlockIncongruent(iTrial).probeType, 'action')
+      elseif isequal(subBlockIncompatible(iTrial).probeType, 'action')
         % get subset of actions from the same source context different than
         % current action
-        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockIncongruent(iTrial).action_idx);
+        inc_actn_idxs = actn_idxs(actn_idxs ~= subBlockIncompatible(iTrial).action_idx);
 
         % assign random action probe from the subset
-        subBlockIncongruent(iTrial).Probe = info.ActionLevels(subBlockIncongruent(iTrial).sourceContext_idx,...
+        subBlockIncompatible(iTrial).Probe = info.ActionLevels(subBlockIncompatible(iTrial).sourceContext_idx,...
                                                               datasample(inc_actn_idxs, 1));
       end
     end
 
 
     % Asign the updated sub-blocks
-    Block(trialsCongruent) = subBlockCongruent;
-    Block(trialsIncongruent) = subBlockIncongruent;
+    Block(trialsCompatible) = subBlockCompatible;
+    Block(trialsIncompatible) = subBlockIncompatible;
 
     %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     % In the end assign the updated block

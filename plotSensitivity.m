@@ -16,25 +16,25 @@ end
 make_plots = 1;
 
 %% Extract trials for each probe by decoding trials' ASF code
-[t_trialsActionCongruent, t_trialsContextCongruent,...
- t_trialsActionIncongruent, t_trialsContextIncongruent] = getTrialResponses(ExpInfo);
+[t_trialsActionCompatible, t_trialsContextCompatible,...
+ t_trialsActionIncompatible, t_trialsContextIncompatible] = getTrialResponses(ExpInfo);
 
 %% Investigate Sensitivity index (d')
 % Extract statistics: hits, false alarms and their rates by PROBE TYPE & CONGRUENCY
-statsActionCongruent = getResponseStats(t_trialsActionCongruent, key_yes, key_no);
-statsContextCongruent = getResponseStats(t_trialsContextCongruent, key_yes, key_no);
-statsActionIncongruent = getResponseStats(t_trialsActionIncongruent, key_yes, key_no);
-statsContextIncongruent = getResponseStats(t_trialsContextIncongruent, key_yes, key_no);
+statsActionCompatible = getResponseStats(t_trialsActionCompatible, key_yes, key_no);
+statsContextCompatible = getResponseStats(t_trialsContextCompatible, key_yes, key_no);
+statsActionIncompatible = getResponseStats(t_trialsActionIncompatible, key_yes, key_no);
+statsContextIncompatible = getResponseStats(t_trialsContextIncompatible, key_yes, key_no);
 
 %% Compute d-prime  
-stats_act_con = dprime(statsActionCongruent);
-stats_ctx_con = dprime(statsContextCongruent);
-stats_act_inc = dprime(statsActionIncongruent);
-stats_ctx_inc = dprime(statsContextIncongruent);
+stats_act_con = dprime(statsActionCompatible);
+stats_ctx_con = dprime(statsContextCompatible);
+stats_act_inc = dprime(statsActionIncompatible);
+stats_ctx_inc = dprime(statsContextIncompatible);
 
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 if make_plots
   % Plot parameters
   fh = figure;
@@ -45,7 +45,7 @@ if make_plots
   x = [stats_act_con{:, 'PresTime'}]/0.06; % in ms
 
 
-  % Plot [CONGRUENT]
+  % Plot [COMPATIBLE]
   subplot(2,2,1);
   assert(height(stats_act_con) == height(stats_ctx_con));
   bar(x, [stats_act_con{:, 'dprime'}, stats_ctx_con{:, 'dprime'}]);
@@ -56,12 +56,12 @@ if make_plots
   ylim(ylimits)
   
   legend('Action','Context')
-  title('Sensitivity index [CONGRUENT]');
+  title('Sensitivity index [COMPATIBLE]');
   xlabel('Presentation time [ms]')
   ylabel('d''')
 
   
-  % Plot [INCONGRUENT]
+  % Plot [INCOMPATIBLE]
   subplot(2,2,2);
   assert(height(stats_act_inc) == height(stats_ctx_inc));
   bar(x, [stats_act_inc{:, 'dprime'}, stats_ctx_inc{:, 'dprime'}]);
@@ -72,7 +72,7 @@ if make_plots
   ylim(ylimits)
   
   legend('Action','Context')
-  title('Sensitivity index [INCONGRUENT]');
+  title('Sensitivity index [INCOMPATIBLE]');
   xlabel('Presentation time [ms]')
   ylabel('d''')
   
@@ -86,7 +86,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   title('Sensitivity index : ACTIONS');
   xlabel('Presentation time [ms]')
   ylabel('d''')
@@ -101,7 +101,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  legend('Congruent','Incongruent')
+  legend('Compatible','Incompatible')
   title('Sensitivity index : CONTEXT');
   xlabel('Presentation time [ms]')
   ylabel('d''')

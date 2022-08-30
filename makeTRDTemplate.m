@@ -15,7 +15,7 @@ function [TrialDefinitions, info] = makeTRDTemplate(nBlocks)
 %--------------------------------------------------------------------------
 % DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
-info.CongruencyLevels = ["congruent", "incongruent"];
+info.CongruencyLevels = ["compatible", "incompatible"];
 info.nCongruencyLevels = length(info.CongruencyLevels);
 
 info.ContextLevels = ["kitchen", "office", "workshop"];
@@ -147,8 +147,8 @@ function TrialDefinitions = makeOneBlockTRD(info)
                 
                 ThisTrial.congruency = info.CongruencyLevels(iCongruency);
                 
-                % CONGRUENT TRIALS
-                if isequal(info.CongruencyLevels(iCongruency), "congruent")
+                % COMPATIBLE TRIALS
+                if isequal(info.CongruencyLevels(iCongruency), "compatible")
                   % Save "context" for further assignment of probes AND
                   % "correctResponses
                   ThisTrial.context = info.ContextLevels(iContext);
@@ -172,12 +172,12 @@ function TrialDefinitions = makeOneBlockTRD(info)
                   ThisTrial.action = info.ActionLevels(iContext, iAction);
                   ThisTrial.action_idx = iAction;
                 
-                % INCONGRUENT TRIALS
+                % INCOMPATIBLE TRIALS
                 else
-                  % get subset of incongruent contexts
+                  % get subset of incompatible contexts
                   inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= iContext);
     
-                  % choose random incongruent context
+                  % choose random incompatible context
                   iContextInc = datasample(inc_ctxt_idxs, 1);
         
                   % choose random context exemplar
@@ -265,10 +265,10 @@ function TrialDefinitions = makeOneBlockTRD(info)
 
 
 %--------------------------------------------------------------------------
-%% Sample incongruent pictures
+%% Sample incompatible pictures
 %--------------------------------------------------------------------------
-  function std_incg_files = sampleIncongruentPictures(info, picFormat)
-    % Creates a random "std" list of incongruent pictures
+  function std_incg_files = sampleIncompatiblePictures(info, picFormat)
+    % Creates a random "std" list of incompatible pictures
     std_incg_files = [];
     ctxt_idxs = 1:info.nContextLevels;
     for iContext = 1:info.nContextLevels
@@ -276,10 +276,10 @@ function TrialDefinitions = makeOneBlockTRD(info)
         for iAction = 1:info.nActionLevels
           for iView = 1:info.nViewLevels
             for iActor = 1:info.nActorLevels
-              % get subset of incongruent contexts
+              % get subset of incompatible contexts
               inc_ctxt_idxs = ctxt_idxs(ctxt_idxs ~= iContext);
 
-              % choose random incongruent context
+              % choose random incompatible context
               iContextInc = datasample(inc_ctxt_idxs, 1);
     
               % choose random context exemplar
@@ -301,7 +301,7 @@ function TrialDefinitions = makeOneBlockTRD(info)
         end % iAction
       end % iContextExemplar
     end % iContext
-  end % sampleIncongruentPictures
+  end % sampleIncompatiblePictures
 
 end % makeOneBlockTRD
 end % makeTRDTemplate

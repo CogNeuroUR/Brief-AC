@@ -28,7 +28,7 @@ for iP=1:length(probes)
 end
 
 %% ########################################################################
-% Plots [CONGRUENT]
+% Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
   fh = figure;
@@ -38,8 +38,8 @@ if make_plots
   mark_act = "o";
   color_act = "#EDB120";
   color_ctx = "#7E2F8E";
-  color_congruent = "#77AC30";
-  color_incongruent = "#D95319";
+  color_compatible = "#77AC30";
+  color_incompatible = "#D95319";
 
   lgd_location = 'northeast';
   %mark_colors = ["#0072BD", "#D95319"];
@@ -53,11 +53,11 @@ if make_plots
   %x = [1:6];
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
-  % PLOT 1 : CONGRUENT (Actions vs Context) ===============================
+  % PLOT 1 : COMPATIBLE (Actions vs Context) ===============================
   subplot(2,2,1);
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & CONGRUENT
-  i2 = [13, 18];       % CONTEXT Probe & CONGRUENT
+  i1 = [1, 6];         % ACTION Probe & COMPATIBLE
+  i2 = [13, 18];       % CONTEXT Probe & COMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -88,14 +88,14 @@ if make_plots
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_congruent;
-  e2.Color = color_congruent;
-  e3.Color = color_congruent;
-  e4.Color = color_congruent;
-  e1.MarkerFaceColor = color_congruent;
-  e2.MarkerFaceColor = color_congruent;
-  e3.MarkerFaceColor = color_congruent;
-  e4.MarkerFaceColor = color_congruent;
+  e1.Color = color_compatible;
+  e2.Color = color_compatible;
+  e3.Color = color_compatible;
+  e4.Color = color_compatible;
+  e1.MarkerFaceColor = color_compatible;
+  e2.MarkerFaceColor = color_compatible;
+  e3.MarkerFaceColor = color_compatible;
+  e4.MarkerFaceColor = color_compatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -110,16 +110,16 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
 
-  stitle = sprintf('CONGRUENT (N=%d)', height(groupRT));
+  stitle = sprintf('COMPATIBLE (N=%d)', height(groupRT));
   title(stitle);
   %xlabel('Presentation Time [ms]')
   ylabel('RT [ms]')
 
-  % PLOT 2 : INCONGRUENT (Actions vs Context) =============================
+  % PLOT 2 : INCOMPATIBLE (Actions vs Context) =============================
   subplot(2,2,2);
   % Define indices for for condition category
-  i1 = [7, 12];         % ACTION Probe & INCONGRUENT
-  i2 = [19, 24];        % CONTEXT Probe & INCONGRUENT
+  i1 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+  i2 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -155,15 +155,15 @@ if make_plots
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_incongruent;
-  e2.Color = color_incongruent;
-  e3.Color = color_incongruent;
-  e4.Color = color_incongruent;
+  e1.Color = color_incompatible;
+  e2.Color = color_incompatible;
+  e3.Color = color_incompatible;
+  e4.Color = color_incompatible;
 
-  e1.MarkerFaceColor = color_incongruent;
-  e2.MarkerFaceColor = color_incongruent;
-  e3.MarkerFaceColor = color_incongruent;
-  e4.MarkerFaceColor = color_incongruent;
+  e1.MarkerFaceColor = color_incompatible;
+  e2.MarkerFaceColor = color_incompatible;
+  e3.MarkerFaceColor = color_incompatible;
+  e4.MarkerFaceColor = color_incompatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -183,16 +183,16 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
 
-  stitle = sprintf('INCONGRUENT (N=%d)', height(groupRT));
+  stitle = sprintf('INCOMPATIBLE (N=%d)', height(groupRT));
   title(stitle);
   %xlabel('Presentation Time [ms]')
   %ylabel('RT [ms]')
 
-  % PLOT 3 : ACTIONS (Congruent vs Incongruent) ===========================
+  % PLOT 3 : ACTIONS (Compatible vs Incompatible) ===========================
   subplot(2,2,3);
   % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & Congruent
-  i2 = [7, 12];        % ACTION Probe & Incongruent
+  i1 = [1, 6];         % ACTION Probe & Compatible
+  i2 = [7, 12];        % ACTION Probe & Incompatible
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -223,14 +223,14 @@ if make_plots
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_congruent;
-  e2.Color = color_incongruent;
-  e3.Color = color_congruent;
-  e4.Color = color_incongruent;
-  e1.MarkerFaceColor = color_congruent;
-  e2.MarkerFaceColor = color_incongruent;
-  e3.MarkerFaceColor = color_congruent;
-  e4.MarkerFaceColor = color_incongruent;
+  e1.Color = color_compatible;
+  e2.Color = color_incompatible;
+  e3.Color = color_compatible;
+  e4.Color = color_incompatible;
+  e1.MarkerFaceColor = color_compatible;
+  e2.MarkerFaceColor = color_incompatible;
+  e3.MarkerFaceColor = color_compatible;
+  e4.MarkerFaceColor = color_incompatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -241,7 +241,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
@@ -250,11 +250,11 @@ if make_plots
   xlabel('Presentation Time [ms]')
   ylabel('RT [ms]')
 
-  % PLOT 4 : CONTEXT (Congruent vs Incongruent) ===========================
+  % PLOT 4 : CONTEXT (Compatible vs Incompatible) ===========================
   subplot(2,2,4);
   % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Congruent
-  i2 = [19, 24];        % CONTEXT Probe & Incongruent
+  i1 = [13, 18];         % CONTEXT Probe & Compatible
+  i2 = [19, 24];        % CONTEXT Probe & Incompatible
   
   data1 = [groupRT(:,i1(1):i1(2))];
   data2 = [groupRT(:,i2(1):i2(2))];
@@ -284,14 +284,14 @@ if make_plots
   e3.Marker = mark_act;
   e4.Marker = mark_ctx;
   
-  e1.Color = color_congruent;
-  e2.Color = color_incongruent;
-  e3.Color = color_congruent;
-  e4.Color = color_incongruent;
-  e1.MarkerFaceColor = color_congruent;
-  e2.MarkerFaceColor = color_incongruent;
-  e3.MarkerFaceColor = color_congruent;
-  e4.MarkerFaceColor = color_incongruent;
+  e1.Color = color_compatible;
+  e2.Color = color_incompatible;
+  e3.Color = color_compatible;
+  e4.Color = color_incompatible;
+  e1.MarkerFaceColor = color_compatible;
+  e2.MarkerFaceColor = color_incompatible;
+  e3.MarkerFaceColor = color_compatible;
+  e4.MarkerFaceColor = color_incompatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -302,7 +302,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Congruent','Incongruent');
+  lgd = legend('Compatible','Incompatible');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
