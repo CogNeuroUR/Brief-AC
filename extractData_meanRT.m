@@ -105,7 +105,7 @@ t_groupRT.SUB_ID = sub_ids';
 t_groupRT.YesKey = yes_key';
 
 %% write data as csv file
-path_outfile = [pwd, filesep, 'results/data_meanRT.csv'];
+path_outfile = [pwd, filesep, 'results', filesep, 'data_meanRT.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)

@@ -72,6 +72,28 @@ for i=1:length(l_files)
 
 end
 
+%% Create subject info columns (ID and key-yes)
+sub_ids = [];
+yes_key = [];
+
+for i=1:length(l_subjects)
+  split_ = split(l_subjects(i), '_');
+  [sub, key] = split_{:};
+  split_ = split(sub, '-');
+  [~, sub_id] = split_{:};
+
+  if isequal(key, 'left')
+    key = "L";
+  elseif isequal(key, 'right')
+    key = "R";
+  else
+    key = "";
+  end
+
+  sub_ids = [sub_ids, string(sub_id)];
+  yes_key = [yes_key, key];
+end
+
 %% Convert array to table
 probes = ["AC", "AI", "CC", "CI"];
 times = [2:6 8];
@@ -84,8 +106,12 @@ for iP=1:length(probes)
 end
 t_groupDprime = array2table(groupDprime, 'VariableNames',vars);
 
-% write data as csv file
-path_outfile = [pwd, filesep, 'data_meanDprime.csv'];
+%% Add subject IDs and yes-keys as columns
+t_groupDprime.SUB_ID = sub_ids';
+t_groupDprime.YesKey = yes_key';
+
+%% write data as csv file
+path_outfile = [pwd, filesep, 'results', filesep, 'data_meanDprime.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)
