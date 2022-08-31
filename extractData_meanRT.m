@@ -65,11 +65,51 @@ for i=1:length(l_files)
 
 end
 
-% write data as csv file
-path_outfile = [pwd, filesep, 'data_meanRT.csv'];
+%% Create subject info columns (ID and key-yes)
+sub_ids = [];
+yes_key = [];
+
+for i=1:length(l_subjects)
+  split_ = split(l_subjects(i), '_');
+  [sub, key] = split_{:};
+  split_ = split(sub, '-');
+  [~, sub_id] = split_{:};
+
+  if isequal(key, 'left')
+    key = "L";
+  elseif isequal(key, 'right')
+    key = "R";
+  else
+    key = "";
+  end
+
+  sub_ids = [sub_ids, string(sub_id)];
+  yes_key = [yes_key, key];
+end
+
+
+%% Convert array to table
+probes = ["AC", "AI", "CC", "CI"];
+times = [2:6 8];
+vars = {};
+
+for iP=1:length(probes)
+  for iT=1:length(times)
+    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
+  end
+end
+t_groupRT = array2table(groupRT, 'VariableNames',vars);
+
+%% Add subject IDs and yes-keys as columns
+t_groupRT.SUB_ID = sub_ids';
+t_groupRT.YesKey = yes_key';
+
+%% write data as csv file
+path_outfile = [pwd, filesep, 'results/data_meanRT.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)
 end
-writematrix(groupRT, path_outfile)
+%writematrix(groupRT, path_outfile)
+writetable(t_groupRT, path_outfile)
 end

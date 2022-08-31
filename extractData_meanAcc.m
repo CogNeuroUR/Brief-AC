@@ -71,13 +71,27 @@ for i=1:length(l_files)
 
 end
 
-% write data as csv file
+
+%% Convert array to table
+probes = ["AC", "AI", "CC", "CI"];
+times = [2:6 8];
+vars = {};
+
+for iP=1:length(probes)
+  for iT=1:length(times)
+    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
+  end
+end
+t_groupAcc = array2table(groupAcc, 'VariableNames',vars);
+
+%% write data as csv file
 path_outfile = [pwd, filesep, 'data_meanAcc.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)
 end
-writematrix(groupAcc, path_outfile)
+%writematrix(groupAcc, path_outfile)
+writetable(t_groupAcc, path_outfile)
 end
 
 %% ------------------------------------------------------------------------
