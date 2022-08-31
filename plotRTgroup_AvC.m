@@ -88,9 +88,9 @@ if make_plots
   lgd.Color = 'none';
 
   stitle = sprintf('Action - Context (N=%d)', height(groupRT));
-  title(stitle);
+  %title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('RT difference : A-C [ms]')
+  ylabel('Reaction Time difference : A-C [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots

@@ -7,7 +7,7 @@ function groupRT = plotRTgroup_acrossCompatibility(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -110,9 +110,9 @@ if make_plots
   lgd.Color = 'none';
 
   stitle = sprintf('Actions vs Context across compatibility (N=%d)', height(groupRT));
-  title(stitle);
+  %title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('RT [ms]')
+  ylabel('Reaction Time [ms]')
 
   % Print summary results =================================================
   fprintf('\nOverall results: Actions vs Context\n')
