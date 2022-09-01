@@ -11,7 +11,7 @@ make_plots = 1;
 % get list of files
 path_results = 'results/final/';
 
-[groupDprime, l_subjects] = extract_dprime(path_results);
+[groupDprime, ~] = extract_dprime(path_results);
 
 %% TABLE (auxiliary!)
 %groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
@@ -34,17 +34,15 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_act = "#EDB120";
-  color_ctx = "#7E2F8E";
+  color_act = "#ffd700"; %"#EDB120";
+  color_ctx = "#0028ff"; %"#7E2F8E";
 
   lgd_location = 'northeast';
 
   xfactor = 1000/60;
   ylimits = [-1, 3];
-  xlimits = [1.6 9.4]*xfactor;
-  %x = [2:6 8]*xfactor; % in ms
+  xlimits = [1.4 9.6]*xfactor;
   x = [2:7]*xfactor; % in ms
-  %x = [1:6];
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
 
@@ -97,6 +95,8 @@ if make_plots
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
 
+  set(gca, 'Box', 'off') % removes upper and right axis
+
   xticks([x, xe])
   xticklabels(xlabels) 
   xlim(xlimits)
@@ -118,13 +118,14 @@ if make_plots
 
   % SAVE PLOTS ============================================================
   if save_plots
-     % define resolution figure to be saved in dpi
-   res = 420;
-   % recalculate figure size to be saved
-   set(fh,'PaperPositionMode','manual')
-   fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/group_dprime_statistics_acrossCompatibility'])
+    % define resolution figure to be saved in dpi
+    res = 420;
+    % recalculate figure size to be saved
+    set(fh,'PaperPositionMode','manual')
+    fh.PaperUnits = 'inches';
+    fh.PaperPosition = [0 0 2500 1500]/res;
+    print('-dpng','-r300','plots/group_dprime_statistics_acrossCompatibility')
+    exportgraphics(fh, 'plots/group_dprime_statistics_acrossCompatibility.eps')
   end
 end % if make_plots
 end % function
@@ -142,7 +143,7 @@ function [groupDprime, l_subjects] = extract_dprime(path_results)
     path2file = [path_results, l_files(i).name];
     
     % check if of mat-extension
-    [fPath, fName, fExt] = fileparts(l_files(i).name);
+    [~, fName, fExt] = fileparts(l_files(i).name);
     
     switch fExt
       case '.mat'

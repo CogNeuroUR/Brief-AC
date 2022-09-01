@@ -31,13 +31,14 @@ end
 % Plots [COMPATIBLE]
 %% ########################################################################
 if make_plots
-  fh = figure;
+  fh = figure('visible','off');
 
   % General parameters
-  color_compatible = "#77AC30";
-  color_incompatible = "#D95319";
+  color_compatible = "#00BF95";
+  color_incompatible = "#BF002A";
   color_act = "#EDB120";
   color_ctx = "#7E2F8E";
+  color_iline = "#555555";
 
   lgd_location = 'northeast';
 
@@ -88,8 +89,8 @@ if make_plots
   data_ind_act = [mean(data1, 2), mean(data2, 2)];
   data_ind_ctx = [mean(data3, 2), mean(data4, 2)];
   x_ind = [0.92, 1.08];
-  l1 = plot(x_ind, data_ind_act, '-o', 'Color',color_act, 'Marker', 'o');
-  l2 = plot(x_ind+1, data_ind_ctx, '-o', 'Color',color_ctx, 'Marker', 's');
+  l1 = indiplot(x_ind, data_ind_act, color_iline);
+  l2 = indiplot(x_ind+1, data_ind_ctx, color_iline);
   hold off
 
   b(1).FaceColor = color_compatible;

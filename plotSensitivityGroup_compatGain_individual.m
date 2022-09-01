@@ -4,8 +4,11 @@ function groupDprime = plotSensitivityGroup_compatGain_individual(save_plots)
 % 
 % Written for BriefAC (AinC)
 % Vrabie 2022
+%set(0,'defaulttextinterpreter','latex')
+%set(0,'DefaultTextFontname', 'CMU Serif')
+%set(0,'DefaultAxesFontName', 'CMU Serif')
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -32,14 +35,15 @@ if make_plots
   fh = figure;
   
   % General parameters
-  color_compatible = "#77AC30";
-  color_incompatible = "#D95319";
+  color_compatible = "#00BF95";
+  color_incompatible = "#BF002A";
   color_act = "#EDB120";
   color_ctx = "#7E2F8E";
+  color_iline = "#555555";
 
   lgd_location = 'northeast';
 
-  ylimits = [-0.8, 3.3];
+  ylimits = [-0.8, 3.15];
   x = [1:2];
   xlabels = {'Action', 'Context'};
 
@@ -87,19 +91,20 @@ if make_plots
   data_ind_act = [mean(data1, 2), mean(data2, 2)];
   data_ind_ctx = [mean(data3, 2), mean(data4, 2)];
   x_ind = [0.92, 1.08];
-  l1 = plot(x_ind, data_ind_act, '-o', 'Color',color_act, 'Marker', 'o');
-  l2 = plot(x_ind+1, data_ind_ctx, '-o', 'Color',color_ctx, 'Marker', 's');
+  l1 = indiplot(x_ind, data_ind_act, color_iline);
+  l2 = indiplot(x_ind+1, data_ind_ctx, color_iline);
   hold off
 
   b(1).FaceColor = color_compatible;
   b(2).FaceColor = color_incompatible;
 
-  xticklabels(xlabels) 
+  xticklabels(xlabels)
   ylim(ylimits)
   
   lgd = legend('Compatible','Incompatible');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
+  %set(lgd, 'Interpreter','latex')
 
   stitle = sprintf('Compatibility gain (N=%d)', height(groupDprime));
   %title(stitle);

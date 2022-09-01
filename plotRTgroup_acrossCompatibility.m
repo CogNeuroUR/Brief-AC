@@ -13,7 +13,7 @@ make_plots = 1;
 % get list of files
 path_results = 'results/final/';
 
-[groupRT, l_subjects] = extract_groupRT(path_results);
+[groupRT, ~] = extract_groupRT(path_results);
 
 %% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
 %groupRT = array2table(groupRT); %array2table(zeros(0,24));
@@ -36,8 +36,8 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_act = "#EDB120";
-  color_ctx = "#7E2F8E";
+  color_act = "#ffd700"; %"#EDB120";
+  color_ctx = "#0028ff"; %"#7E2F8E";
 
   lgd_location = 'northeast';
   %mark_colors = ["#0072BD", "#D95319"];
@@ -45,7 +45,7 @@ if make_plots
   xfactor = 1000/60;
   ylimits = [700 1050]; % without individual lines
   %ylimits = [490 1250];
-  xlimits = [1.6 9.4]*xfactor;
+  xlimits = [1.4 9.6]*xfactor;
   %x = [2:6 8]*xfactor; % in ms
   x = [2:7]*xfactor; % in ms
   %x = [1:6];
@@ -99,7 +99,8 @@ if make_plots
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
 
-  
+  set(gca, 'Box', 'off') % removes upper and right axis
+
   xticks([x, xe])
   xticklabels(xlabels) 
   xlim(xlimits)
@@ -121,13 +122,14 @@ if make_plots
 
   % SAVE PLOTS ============================================================
   if save_plots
-     % define resolution figure to be saved in dpi
-   res = 420;
-   % recalculate figure size to be saved
-   set(fh,'PaperPositionMode','manual')
-   fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/group_RT_statistics_acrossCompatibility'])
+    % define resolution figure to be saved in dpi
+    res = 420;
+    % recalculate figure size to be saved
+    set(fh,'PaperPositionMode','manual')
+    fh.PaperUnits = 'inches';
+    fh.PaperPosition = [0 0 2500 1500]/res;
+    print('-dpng','-r300','plots/group_RT_statistics_acrossCompatibility')
+    exportgraphics(fh, 'plots/group_RT_statistics_acrossCompatibility.eps')
   end
 end % if make_plots
 end
