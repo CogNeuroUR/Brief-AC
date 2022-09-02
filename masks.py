@@ -122,7 +122,7 @@ def make_masks_across(l_files, tw, th=None, outdir='.'):
     print('Finished!')
 
 # %% Load files and create StimulusSet
-path_input = Path('stimuli_targets')
+path_input = Path('targets')
 l_files = list(path_input.glob('**/*.png'))
 
 dict_lookup = {
@@ -160,6 +160,7 @@ for i in range(1, minim+1):
 print('Common divisors:', l_divisors)
 
 #%% Make & write masks
-make_masks_across(l_files, 16, outdir='../masks_across/')
+#make_masks_across(l_files, 16, outdir='../masks_across/')
+make_masks_across(l_files, 8, outdir='masks_across/')
 
 # %%
