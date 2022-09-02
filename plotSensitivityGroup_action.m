@@ -24,8 +24,8 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_act = "#ffd700"; %"#EDB120";
-  color_ctx = "#0028ff"; %"#7E2F8E";
+  color_compatible = "#00BF95";
+  color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
 
@@ -43,8 +43,10 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = meanCIgroup(data1);
-  [y2, err2] = meanCIgroup(data2);
+  %[y1, err1] = meanCIgroup(data1); % 95% CI
+  %[y2, err2] = meanCIgroup(data2); % 95% CI
+  [y1, err1] = meanSEgroup(data1); % Standard error
+  [y2, err2] = meanSEgroup(data2); % Standard error
   
   e1 = errorbar(x-1.5, y1, err1);
   hold on

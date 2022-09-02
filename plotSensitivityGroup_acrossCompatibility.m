@@ -64,11 +64,16 @@ if make_plots
   data1 = [data11; data12];
   data2 = [data21; data22];
 
-  [y1, err1] = meanCIgroup(data1);
-  [y2, err2] = meanCIgroup(data2);
+  %[y1, err1] = meanCIgroup(data1); % 95% CI
+  %[y2, err2] = meanCIgroup(data2); % 95% CI
+  [y1, err1] = meanSEgroup(data1); % Standard error
+  [y2, err2] = meanSEgroup(data2); % Standard error
+
   % Add Overall
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
+  %[b1, ber1] = simple_ci(y1); % 95% CI
+  %[b2, ber2] = simple_ci(y2); % 95% CI
+  [b1, ber1] = meanSEgroup(y1); % Standard error
+  [b2, ber2] = meanSEgroup(y2); % Standard error
   xe = 150;
   
   e1 = errorbar(x-1.5, y1, err1);
@@ -76,6 +81,7 @@ if make_plots
   e2 = errorbar(x+1.5, y2, err2);
   e3 = errorbar(xe-1.5, b1, ber1);
   e4 = errorbar(xe+1.5, b2, ber2);
+  yline(0, '--');
   hold off
   
   e1.Marker = mark_act;
@@ -102,7 +108,7 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  lgd = legend('Actions','Context');
+  lgd = legend('Action','Scene');
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   

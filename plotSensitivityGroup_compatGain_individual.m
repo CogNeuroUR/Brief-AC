@@ -67,10 +67,16 @@ if make_plots
   [y4, ~] = meanCIgroup(data4);
   
   % Mean and 95%CI on differences across PT
-  [b1, ber1] = simple_ci(y1);
-  [b2, ber2] = simple_ci(y2);
-  [b3, ber3] = simple_ci(y3);
-  [b4, ber4] = simple_ci(y4);
+  %[b1, ber1] = simple_ci(y1);
+  %[b2, ber2] = simple_ci(y2);
+  %[b3, ber3] = simple_ci(y3);
+  %[b4, ber4] = simple_ci(y4);
+
+  % Mean and SE on differences across PT
+  [b1, ber1] = meanSEgroup(y1);
+  [b2, ber2] = meanSEgroup(y2);
+  [b3, ber3] = meanSEgroup(y3);
+  [b4, ber4] = meanSEgroup(y4);
   
   % Concatenate (1st row: compatible; 2nd row: incompatible)
   y = [b1, b2; b3, b4];

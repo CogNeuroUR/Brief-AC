@@ -43,8 +43,10 @@ if make_plots
   data1 = [groupDprime(:,i1(1):i1(2))];
   data2 = [groupDprime(:,i2(1):i2(2))];
   
-  [y1, err1] = meanCIgroup(data1);
-  [y2, err2] = meanCIgroup(data2);
+  %[y1, err1] = meanCIgroup(data1); % 95% CI
+  %[y2, err2] = meanCIgroup(data2); % 95% CI
+  [y1, err1] = meanSEgroup(data1); % Standard error
+  [y2, err2] = meanSEgroup(data2); % Standard error
   
   e1 = errorbar(x-1.5, y1, err1);
   hold on
