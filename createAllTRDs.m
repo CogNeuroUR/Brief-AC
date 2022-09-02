@@ -4,7 +4,7 @@ lBlock = 144;
 writeTRD = 1;
 lResKeys = [[0, 1]; [1, 0]];
 
-N_subjects = 26;
+N_subjects = 6;
 
 %% Run 'fillTRD' in a loop and oscillate response keys
 
