@@ -1,4 +1,4 @@
-function groupDprime = plotHitsFAlarms(save_plots)
+function groupDprime = plotYesNo(save_plots)
 % Computes sensitivity (d-prime) group statistics (mean & std) per condition for
 % each probe type and congruency.
 % 
@@ -15,8 +15,8 @@ groupDprime = [];
 l_subjects = {};
 
 % collect hit & f. alarm rates for each subject & condition
-Hmat = [];
-Fmat = [];
+RCmat = [];
+RImat = [];
 
 % iterate over files
 fprintf('Sweeping through files ...\n');
@@ -54,41 +54,13 @@ for i=1:length(l_files)
         statsCC = getResponseStats(trialsCC, key_yes, key_no);
         statsCI = getResponseStats(trialsCI, key_yes, key_no);
         
-        % 3) Compute d-prime  
-        dprimeAC = dprime(statsAC);
-        dprimeAI = dprime(statsAI);
-        dprimeCC = dprime(statsCC);
-        dprimeCI = dprime(statsCI);
-
-        % 4) Dump into matrix
-        groupDprime = [groupDprime;...
-                       dprimeAC.dprime(:)', dprimeAI.dprime(:)',...
-                       dprimeCC.dprime(:)', dprimeCI.dprime(:)'];
-
         % *) Collect (Hits + Misses) & (F.Alarms + CorrRejs)
-        Hs = [statsAC.Hits + statsAC.Misses;...
-              statsAI.Hits + statsAI.Misses;...
-              statsCC.Hits + statsCC.Misses;...
-              statsCI.Hits + statsCI.Misses];
-        Hmat = [Hmat, Hs];
-
-        Fs = [statsAC.FalseAlarms + statsAC.CorrectRejections;...
-              statsAI.FalseAlarms + statsAI.CorrectRejections;...
-              statsCC.FalseAlarms + statsCC.CorrectRejections;...
-              statsCI.FalseAlarms + statsCI.CorrectRejections];
-        Fmat = [Fmat, Fs];
-
-%         Hs = [statsAC.Hits + statsAC.FalseAlarms;...
-%               statsAI.Hits + statsAI.FalseAlarms;...
-%               statsCC.Hits + statsCC.FalseAlarms;...
-%               statsCI.Hits + statsCI.FalseAlarms];
-%         Hmat = [Hmat, Hs];
-% 
-%         Fs = [statsAC.Misses + statsAC.CorrectRejections;...
-%               statsAI.Misses + statsAI.CorrectRejections;...
-%               statsCC.Misses + statsCC.CorrectRejections;...
-%               statsCI.Misses + statsCI.CorrectRejections];
-%         Fmat = [Fmat, Fs];
+        RC = [statsAC.RateYesNo;...
+              statsCC.RateYesNo];
+        RI = [statsAI.RateYesNo;...
+              statsCI.RateYesNo];
+        RCmat = [RCmat, RC];
+        RImat = [RImat, RI];
 
       end
     otherwise
@@ -99,7 +71,7 @@ end
 
 %% TABLE (auxiliary!)
 %groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
-probes = ["AC", "AI", "CC", "CI"];
+probes = ["A", "S"];
 times = [2:6 8];
 vars = {};
 
@@ -112,39 +84,57 @@ end
 %groupDprime.Properties.VariableNames = vars;
 
 %% Plot Hmat & Fmat
-data1 = Hmat'/24;
-data2 = Fmat'/24;
+fh = figure;
 
-x = [1:length(vars)];
+color_compatible = "#00BF95";
+color_incompatible = "#BF002A";
+
+x = [1:length(vars)]';
+
+data1 = RCmat';
+data2 = RImat';
+
 y1 = mean(data1);
 y2 = mean(data2);
-
 err1 = std(data1) / sqrt(length(data1)); % standard error
 err2 = std(data2) / sqrt(length(data2)); % standard error
 
-e1 = errorbar(x-0.05, y1, err1);
+y = [y1; y2]';
+err = [err1; err2]';
+
+b = bar(x, y);
 hold on
-e2 = errorbar(x+0.05, y2, err2);
+% From https://stackoverflow.com/a/59257318
+for k = 1:size(y,2)
+  % get x positions per group
+  xpos = b(k).XData + b(k).XOffset;
+  % draw errorbar
+  errorbar(xpos, y(:,k), err(:,k), 'LineStyle', 'none', ... 
+      'Color', 'k', 'LineWidth', 0.65);
+end
+yline(1, '--', 'Same')
+%yline(mean(y, 'all'), '-', 'Mean', 'Color', 'blue')
+means = mean(y);
+yline(means(1), '-', 'Mean', 'Color', color_compatible)
+yline(means(2), '-', 'Mean', 'Color', color_incompatible)
 hold off
 
-e1.Marker = "x";
-e2.Marker = "o";
+b(1).FaceColor = color_compatible;
+b(2).FaceColor = color_incompatible;
 
 xticks(x)
 xticklabels(vars)
 
 xlabel('Conditions')
-ylabel('Percentage trials')
+ylabel('Ratio Expected answers : YES/NO')
 
-lgd = legend('Hits + Misses','F.Alarms + Corr. Rej.s');
+lgd = legend('Compatible','Incompatible');
 %lgd = legend('YES : Hits + F.Alarms','NO: Misses + Corr. Rej.s');
 lgd.Location = 'northeast';
 lgd.Color = 'none';
 
-stitle = sprintf('(N=%d)', height(groupDprime));
-%stitle = sprintf('Correct: Yes vs No  (N=%d)', height(groupDprime));
+stitle = sprintf('Expected answers: YES vs NO (N=%d)', length(l_subjects));
 title(stitle);
-%some_confusing_comparison
 
 %% SAVE PLOTS ============================================================
 if save_plots
@@ -154,7 +144,7 @@ if save_plots
  set(fh,'PaperPositionMode','manual')
  fh.PaperUnits = 'inches';
  fh.PaperPosition = [0 0 5000 2500]/res;
- print('-dpng','-r300',['plots/group_hits-falarms'])
+ print('-dpng','-r300',['plots/group_yes-vs-no'])
 end
   
 end %function 
