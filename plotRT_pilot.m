@@ -1,4 +1,4 @@
-function plotRT_single(path_expinfo, save_plots)
+function plotRT_pilot(save_plots)
 %function [dataAC, dataCC, dataAI, dataCI] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -7,32 +7,22 @@ function plotRT_single(path_expinfo, save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
-path_expinfo = 'results/post-pilot/SUB-02_right.mat';
+%save_plots = 1;
 
 %% Load results from file : ExpInfo
-% get list of files
-clear ExpInfo;
-load(path_expinfo, 'ExpInfo');
+path_results = 'results/post-pilot/';
+[groupRT, ~] = extract_groupRT(path_results);
 
-% perform analysis
-% 1) Extract trials for each probe by decoding trials' ASF code
-[trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
+% Define indices for for condition category
+i1 = [1, 6];          % ACTION Probe & COMPATIBLE
+i2 = [13, 18];        % CONTEXT Probe & COMPATIBLE
+i3 = [7, 12];         % ACTION Probe & INCOMPATIBLE
+i4 = [19, 24];        % CONTEXT Probe & INCOMPATIBLE
 
-% 2) Extract statistics: hits, false alarms and their rates
-% by PROBE TYPE & CONGRUENCY
-if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-  key_yes = 37;
-  key_no = 39;
-else
-  key_yes = 39;
-  key_no = 37;
-end
-
-dataAC = getRTstats(trialsAC);
-dataCC = getRTstats(trialsCC);
-dataAI = getRTstats(trialsAI);
-dataCI = getRTstats(trialsCI);
+dataAC = [groupRT(:,i1(1):i1(2))];
+dataAI = [groupRT(:,i2(1):i2(2))];
+dataCC = [groupRT(:,i3(1):i3(2))];
+dataCI = [groupRT(:,i4(1):i4(2))];
 
 %% ########################################################################
 % Plots [COMPATIBLE]
@@ -54,23 +44,20 @@ if make_plots
   x = [2:6 8]*xfactor; % in ms
   %xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
-  % PLOT : CONTEXT (Compatible vs Incompatible) =============================
+  % PLOT : ACTIONS (Compatible vs Incompatible) =============================
   subplot(1,2,1);
   % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Compatible
-  i2 = [19, 24];        % CONTEXT Probe & Incompatible
-  
-  y1 = [dataAC{:, 2}];
-  y2 = [dataAI{:, 2}];
-  
-  err1 = [dataAC{:, 3}];
-  err2 = [dataAI{:, 3}];
+  data1 = dataAC;
+  data2 = dataAI;
 
   %[y1, err1] = meanCIgroup(data1); % 95% CI
   %[y2, err2] = meanCIgroup(data2); % 95% CI
-%   [y1, err1] = meanSEgroup(data1); % Standard error
-%   [y2, err2] = meanSEgroup(data2); % Standard error
+  [y1, err1] = meanSEgroup(data1); % Standard error
+  [y2, err2] = meanSEgroup(data2); % Standard error
   
+  %disp(data1)
+  %disp(err1)
+
   e1 = errorbar(x-1.5, y1, err1);
   %e1 = plot(x-1.5, data1, '-o', 'Color', color_compatible);
   hold on
@@ -79,13 +66,13 @@ if make_plots
   yline(0, '--');
   hold off
 
-   e1.Marker = mark_act;
-   e2.Marker = mark_ctx;
-
-   e1.Color = color_compatible;
-   e2.Color = color_incompatible;
-   e1.MarkerFaceColor = color_compatible;
-   e2.MarkerFaceColor = color_incompatible;
+  e1.Marker = mark_act;
+  e2.Marker = mark_ctx;
+  
+  e1.Color = color_compatible;
+  e2.Color = color_incompatible;
+  e1.MarkerFaceColor = color_compatible;
+  e2.MarkerFaceColor = color_incompatible;
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
@@ -101,29 +88,23 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
-  stitle = sprintf('Action (N=%d)', 1);%height(data1));
+  stitle = sprintf('Action (N=%d)', height(data1));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('RT [ms]')
+  ylabel('Reaction Time [ms]')
 
 
-  % PLOT : CONTEXT (Compatible vs Incompatible) =============================
+  % PLOT : SCENE (Compatible vs Incompatible) =============================
   subplot(1,2,2);
-  % Define indices for for condition category
-  i1 = [13, 18];         % CONTEXT Probe & Compatible
-  i2 = [19, 24];        % CONTEXT Probe & Incompatible
   
-  y1 = [dataCC{:, 2}];
-  y2 = [dataCI{:, 2}];
-  
-  err1 = [dataCC{:, 3}];
-  err2 = [dataCI{:, 3}];
+  data1 = dataCC;
+  data2 = dataCI;
 
   %[y1, err1] = meanCIgroup(data1); % 95% CI
   %[y2, err2] = meanCIgroup(data2); % 95% CI
-%   [y1, err1] = meanSEgroup(data1); % Standard error
-%   [y2, err2] = meanSEgroup(data2); % Standard error
-  
+  [y1, err1] = meanSEgroup(data1); % Standard error
+  [y2, err2] = meanSEgroup(data2); % Standard error
+
   e1 = errorbar(x-1.5, y1, err1);
   %e1 = plot(x-1.5, data1, '-o', 'Color', color_compatible);
   hold on
@@ -154,10 +135,10 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
-  stitle = sprintf('Scene (N=%d)', 1); %height(data1));
+  stitle = sprintf('Scene (N=%d)', height(data1));
   title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('RT [ms]')
+  %ylabel('RT [ms]')
 
   % SAVE PLOTS ============================================================
   if save_plots
@@ -167,7 +148,7 @@ if make_plots
     set(fh,'PaperPositionMode','manual')
     fh.PaperUnits = 'inches';
     fh.PaperPosition = [0 0 5000 2500]/res;
-    print('-dpng','-r300','plots/ppilotRT_single-2')
+    print('-dpng','-r300','plots/ppilotRT_group')
     %exportgraphics(fh, 'plots/ppilotDprime_context.eps')
   end
 end % if make_plots
