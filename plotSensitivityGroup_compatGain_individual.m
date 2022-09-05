@@ -45,7 +45,7 @@ if make_plots
 
   ylimits = [-0.8, 3.15];
   x = [1:2];
-  xlabels = {'Action', 'Context'};
+  xlabels = {'Action', 'Scene'};
 
   % PLOT : Actions vs Context =============================================
   

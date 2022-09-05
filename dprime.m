@@ -21,5 +21,12 @@ function t_stats = dprime(t_stats)
 
     % Compute d-prime
     t_stats.dprime(i) = norminv(t_stats.H(i)) - norminv(t_stats.F(i));
+
+    % Compute perfect score (max d-prime) w/ assumptions:
+    % = Hits: 1 - 1/(2N) = 1 - 1/[2*(Hits + Misses)];
+    % = FalseAlarms: 1/2N = 1/2*(FalseAlarms + CorrectRejections)
+    H_perfect = 1 - 1/(2*(t_stats.Hits(i) + t_stats.Misses(i)));
+    F_perfect = 1/(2*(t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
+    t_stats.perfectDprime(i) = norminv(H_perfect) - norminv(F_perfect);
   end
 end
