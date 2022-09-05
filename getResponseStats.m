@@ -25,15 +25,27 @@ function t_stats = getResponseStats(tTrials, key_yes, key_no)
     TrueKeys = tTrials.TrueKey(tTrials.PresTime==uniqTimes(i));
     % check if there are the same nr. of responses as expected ones
     assert(length(ResKeys) == length(TrueKeys));
-    
+
+    % Look for empty cells in responses and replace with zeros:
+    if iscell(ResKeys)
+      emptyCells = cellfun(@isempty,ResKeys);
+      if ismember(1, emptyCells)
+        ResKeys(emptyCells) = {0};
+      end
+    end
+
     % convert to matrix, if cell
-    if isequal(class(ResKeys), 'cell')
+    if iscell(ResKeys)
       ResKeys = cell2mat(ResKeys);
     end
-    if isequal(class(TrueKeys), 'cell')
+    if iscell(TrueKeys)
       TrueKeys = cell2mat(TrueKeys);
     end
-    
+
+    % check AGAIN if of equal size, since cell2mat-ing might shrink an
+    % array, if there were empty cell
+    assert(length(ResKeys) == length(TrueKeys));
+
     % extract hits and false alarms
     n_samples = 0;
     hits = 0;
