@@ -1,4 +1,4 @@
-function groupDprime = plotSensitivityGroup_action(save_plots)
+function plotSensitivityGroup_action(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -10,10 +10,11 @@ make_plots = 1;
 %save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
-% get list of files
-path_results = 'results/final/';
+%path_results = 'results/final/'; % MAIN EXPERIMENT
+path_results = 'results/post-pilot/'; % POST-PILOT EXPERIMENT
 
-[groupDprime, ~] = extractData_meanDprime(path_results);
+[dataAC, dataAI, ~, ~] = extractData_meanDprime(path_results);
+%[groupDprime, ~] = extractData_meanDprime(path_results);
 
 %% ########################################################################
 % Plots [COMPATIBLE]
@@ -25,23 +26,19 @@ if make_plots
   mark_ctx = "s";
   mark_act = "o";
   color_compatible = "#00BF95";
-  color_incompatible = "#BF002A";
+  color_incompatible = "#FF0066";
 
   lgd_location = 'northeast';
 
   xfactor = 1000/60;
-  ylimits = [-1, 3];
+  ylimits = [-.7, 3.3];
   xlimits = [1.3 8.8]*xfactor;
   x = [2:6 8]*xfactor; % in ms
   %xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % PLOT : ACTIONS (Compatible vs Incompatible) =============================
-  % Define indices for for condition category
-  i1 = [1, 6];         % ACTION Probe & Compatible
-  i2 = [7, 12];        % ACTION Probe & Incompatible
-  
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
+  data1 = dataAC;
+  data2 = dataAI;
   
   %[y1, err1] = meanCIgroup(data1); % 95% CI
   %[y2, err2] = meanCIgroup(data2); % 95% CI
@@ -72,25 +69,29 @@ if make_plots
   xlim(xlimits)
   ylim(ylimits)
   
-  %lgd = legend('Compatible','Incompatible');
-  %lgd.Location = lgd_location;
-  %lgd.Color = 'none';
+  lgd = legend('Compatible','Incompatible');
+  lgd.Location = lgd_location;
+  lgd.Color = 'none';
   
-  stitle = sprintf('ACTIONS (N=%d)', height(groupDprime));
+  %stitle = sprintf('ACTIONS (N=%d)', height(data1));
   %title(stitle);
   xlabel('Presentation Time [ms]')
   ylabel('Sensitivity (d'')')
 
   % SAVE PLOTS ============================================================
   if save_plots
-     % define resolution figure to be saved in dpi
-   res = 420;
-   % recalculate figure size to be saved
-   set(fh,'PaperPositionMode','manual')
-   fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300','plots/groupDprime_actions')
-   exportgraphics(fh, 'plots/groupDprime_actions.eps')
+    % define resolution figure to be saved in dpi
+    res = 420;
+    % recalculate figure size to be saved
+    set(fh,'PaperPositionMode','manual')
+    fh.PaperUnits = 'inches';
+    fh.PaperPosition = [0 0 2500 1500]/res;
+    % Save
+    prefix = split(path_results, filesep);
+    prefix = prefix{end-1};
+    path_outfile = [pwd, filesep, 'plots', filesep, 'groupDprime_actions_', prefix];
+    print('-dpng','-r300', path_outfile)
+    %exportgraphics(fh, 'plots/groupDprime_actions.eps')
   end
 end % if make_plots
 end

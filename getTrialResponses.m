@@ -81,7 +81,7 @@ for i=1:length(ExpInfo.TrialInfo)
     end
 
   % incompatible
-  else
+  elseif isequal(congruency, 'incompatible')
     % check if from action probes
     if isequal(probeType, "action")
       trials_action_incompatible(end+1, :) = {...

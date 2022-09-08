@@ -7,13 +7,13 @@ function groupRT = plotRTgroup_compatGain_individual(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
 path_results = 'results/final/';
 
-[groupRT, l_subjects] = extract_groupRT(path_results);
+[dataAC, dataAI, dataCC, dataCI] = extractData_meanRT(path_results);
 
 %% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
 %groupRT = array2table(groupRT); %array2table(zeros(0,24));
@@ -35,34 +35,21 @@ if make_plots
 
   % General parameters
   color_compatible = "#00BF95";
-  color_incompatible = "#BF002A";
-  color_act = "#EDB120";
-  color_ctx = "#7E2F8E";
+  color_incompatible = "#FF0066";
   color_iline = "#555555";
 
   lgd_location = 'northeast';
 
-  ylimits = [350 1350]; % without individual lines
+  ylimits = [450 1300]; % without individual lines
   x = [1:2];
   xlabels = {'Action', 'Scene'};
 
-  % PLOT : Actions vs Context =============================================
-  
-  % Define indices for for condition category
-  i1 = [1, 6];          % ACTION & COMPATIBLE
-  i2 = [7, 12];         % ACTION & INCOMPATIBLE
-  i3 = [13, 18];        % CONTEXT & COMPATIBLE
-  i4 = [19, 24];        % CONTEXT & INCOMPATIBLE
-  
-  data1 = [groupRT(:,i1(1):i1(2))];
-  data2 = [groupRT(:,i2(1):i2(2))];
-  data3 = [groupRT(:,i3(1):i3(2))];
-  data4 = [groupRT(:,i4(1):i4(2))];
-  
-  [y1, ~] = meanCIgroup(data1);
-  [y2, ~] = meanCIgroup(data2);
-  [y3, ~] = meanCIgroup(data3);
-  [y4, ~] = meanCIgroup(data4);
+  % PLOT : Actions vs Context =============================================  
+  % Extract mean data
+  [y1, ~] = meanSEgroup(dataAC);
+  [y2, ~] = meanSEgroup(dataAI);
+  [y3, ~] = meanSEgroup(dataCC);
+  [y4, ~] = meanSEgroup(dataCI);
   
   % Mean and 95%CI on differences across PT
   %[b1, ber1] = simple_ci(y1);
@@ -92,8 +79,8 @@ if make_plots
   end
   
   % data from individual subjects
-  data_ind_act = [mean(data1, 2), mean(data2, 2)];
-  data_ind_ctx = [mean(data3, 2), mean(data4, 2)];
+  data_ind_act = [mean(dataAC, 2), mean(dataAI, 2)];
+  data_ind_ctx = [mean(dataCC, 2), mean(dataCI, 2)];
   x_ind = [0.92, 1.08];
   l1 = indiplot(x_ind, data_ind_act, color_iline);
   l2 = indiplot(x_ind+1, data_ind_ctx, color_iline);
@@ -109,7 +96,7 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
 
-  stitle = sprintf('Compatibility gain (N=%d)', height(groupRT));
+  stitle = sprintf('Compatibility gain (N=%d)', height(dataAC));
   %title(stitle);
   xlabel('Probe Type')
   ylabel('Reaction Time [ms]')
@@ -128,8 +115,8 @@ if make_plots
    % recalculate figure size to be saved
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/group_RT_statistics_compatGain_individual'])
+   fh.PaperPosition = [0 0 2300 1700]/res;
+   print('-dpng','-r400',['plots/group_RT_statistics_compatGain_individual'])
   end
 end % if make_plots
 end

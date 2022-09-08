@@ -1,4 +1,4 @@
-function [groupAcc, l_subjects] = extractData_meanAcc(path_results)
+function groupAcc = extractData_meanAcc(path_results)
 % Extracts mean accuracy from each subject's data for each
 % factorial combination.
 % 
@@ -33,12 +33,12 @@ for i=1:length(l_files)
         clear ExpInfo;
         load(path2file, 'ExpInfo');
 
-        % perform analysis
+        l_subjects = [l_subjects, fName];
+
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
-        % 2) Extract statistics: hits, false alarms and their rates
-        % by PROBE TYPE & CONGRUENCY
+        % 2) Get YesKey for this participant (either left or right % arrow)
         if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
           key_yes = 37;
           key_no = 39;
@@ -46,9 +46,9 @@ for i=1:length(l_files)
           key_yes = 39;
           key_no = 37;
         end
-        l_subjects = [l_subjects, fName];
 
-        % Extract hits = f(presentation time) by probe type
+        % 3) Extract statistics: hits, false alarms and their rates
+        % by PROBE TYPE & CONGRUENCY
         statsAC = getResponseStats(trialsAC, key_yes, key_no);
         statsAI = getResponseStats(trialsAI, key_yes, key_no);
         statsCC = getResponseStats(trialsCC, key_yes, key_no);
@@ -61,7 +61,7 @@ for i=1:length(l_files)
         acc_CI = accuracy(statsCI);
 
 
-        % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
+        % 4) Dump all in ONE matrix (ONE PER SUBJECT)
         groupAcc = [groupAcc; acc_AC, acc_AI, acc_CC, acc_CI];
 
       end
@@ -110,7 +110,9 @@ t_groupAcc.SUB_ID = sub_ids';
 t_groupAcc.YesKey = yes_key';
 
 %% write data as csv file
-path_outfile = [pwd, filesep, 'results', filesep, 'data_meanAcc.csv'];
+prefix = split(path_results, filesep);
+prefix = prefix{end-1};
+path_outfile = [pwd, filesep, 'results', filesep, 'data_', prefix, '_meanAcc.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)

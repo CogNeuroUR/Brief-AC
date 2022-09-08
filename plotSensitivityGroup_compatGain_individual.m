@@ -14,7 +14,7 @@ make_plots = 1;
 % get list of files
 path_results = 'results/final/';
 
-[groupDprime, ~] = extract_dprime(path_results);
+[dataAC, dataAI, dataCC, dataCI] = extractData_meanDprime(path_results);
 
 %% TABLE (auxiliary!)
 %groupDprime = array2table(groupDprime); %array2table(zeros(0,24));
@@ -36,9 +36,7 @@ if make_plots
   
   % General parameters
   color_compatible = "#00BF95";
-  color_incompatible = "#BF002A";
-  color_act = "#EDB120";
-  color_ctx = "#7E2F8E";
+  color_incompatible = "#FF0066";
   color_iline = "#555555";
 
   lgd_location = 'northeast';
@@ -48,23 +46,11 @@ if make_plots
   xlabels = {'Action', 'Scene'};
 
   % PLOT : Actions vs Context =============================================
-  
-  % Define indices for for condition category
-  i1 = [1, 6];          % ACTION & COMPATIBLE
-  i2 = [7, 12];         % ACTION & INCOMPATIBLE
-  i3 = [13, 18];        % CONTEXT & COMPATIBLE
-  i4 = [19, 24];        % CONTEXT & INCOMPATIBLE
-  
-
-  data1 = [groupDprime(:,i1(1):i1(2))];
-  data2 = [groupDprime(:,i2(1):i2(2))];
-  data3 = [groupDprime(:,i3(1):i3(2))];
-  data4 = [groupDprime(:,i4(1):i4(2))];
-  
-  [y1, ~] = meanCIgroup(data1);
-  [y2, ~] = meanCIgroup(data2);
-  [y3, ~] = meanCIgroup(data3);
-  [y4, ~] = meanCIgroup(data4);
+  % Extract mean data
+  [y1, ~] = meanSEgroup(dataAC);
+  [y2, ~] = meanSEgroup(dataAI);
+  [y3, ~] = meanSEgroup(dataCC);
+  [y4, ~] = meanSEgroup(dataCI);
   
   % Mean and 95%CI on differences across PT
   %[b1, ber1] = simple_ci(y1);
@@ -94,8 +80,8 @@ if make_plots
   end
 
   % data from individual subjects
-  data_ind_act = [mean(data1, 2), mean(data2, 2)];
-  data_ind_ctx = [mean(data3, 2), mean(data4, 2)];
+  data_ind_act = [mean(dataAC, 2), mean(dataAI, 2)];
+  data_ind_ctx = [mean(dataCC, 2), mean(dataCI, 2)];
   x_ind = [0.92, 1.08];
   l1 = indiplot(x_ind, data_ind_act, color_iline);
   l2 = indiplot(x_ind+1, data_ind_ctx, color_iline);
@@ -112,7 +98,7 @@ if make_plots
   lgd.Color = 'none';
   %set(lgd, 'Interpreter','latex')
 
-  stitle = sprintf('Compatibility gain (N=%d)', height(groupDprime));
+  stitle = sprintf('Compatibility gain (N=%d)', height(dataAC));
   %title(stitle);
   xlabel('Probe Type')
   ylabel('Sensitivity (d'')')
@@ -131,70 +117,8 @@ if make_plots
    % recalculate figure size to be saved
    set(fh,'PaperPositionMode','manual')
    fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/group_dprime_statistics_compatGain_individual'])
+   fh.PaperPosition = [0 0 2300 1700]/res;
+   print('-dpng','-r400',['plots/group_dprime_statistics_compatGain_individual'])
   end
 end % if make_plots
 end % function
-
-%% ------------------------------------------------------------------------
-function [groupDprime, l_subjects] = extract_dprime(path_results)
-  l_files = dir(path_results);
-  
-  groupDprime = [];
-  l_subjects = {};
-  
-  % iterate over files
-  fprintf('Sweeping through files ...\n');
-  for i=1:length(l_files)
-    path2file = [path_results, l_files(i).name];
-    
-    % check if of mat-extension
-    [fPath, fName, fExt] = fileparts(l_files(i).name);
-    
-    switch fExt
-      case '.mat'
-        % ignore demo-results
-        if ~contains(l_files(i).name, 'demo')
-          fprintf('\tLoading : %s\n', l_files(i).name);
-          clear ExpInfo;
-          load(path2file, 'ExpInfo');
-  
-          % perform analysis
-          % 1) Extract trials for each probe by decoding trials' ASF code
-          [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
-  
-          % 2) Extract statistics: hits, false alarms and their rates
-          % by PROBE TYPE & CONGRUENCY
-          if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-            key_yes = 37;
-            key_no = 39;
-          else
-            key_yes = 39;
-            key_no = 37;
-          end
-          l_subjects = [l_subjects, fName];
-  
-          statsAC = getResponseStats(trialsAC, key_yes, key_no);
-          statsAI = getResponseStats(trialsAI, key_yes, key_no);
-          statsCC = getResponseStats(trialsCC, key_yes, key_no);
-          statsCI = getResponseStats(trialsCI, key_yes, key_no);
-          
-          % 3) Compute d-prime  
-          dprimeAC = dprime(statsAC);
-          dprimeAI = dprime(statsAI);
-          dprimeCC = dprime(statsCC);
-          dprimeCI = dprime(statsCI);
-  
-          % 4) Dump into matrix
-          groupDprime = [groupDprime;...
-                         dprimeAC.dprime(:)', dprimeAI.dprime(:)',...
-                         dprimeCC.dprime(:)', dprimeCI.dprime(:)'];
-  
-        end
-      otherwise
-        continue
-    end % switch
-  
-  end
-end

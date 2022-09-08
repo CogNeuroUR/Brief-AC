@@ -44,7 +44,7 @@ if make_plots
   mark_ctx = "o";
   mark_act = "o";
   color_compatible = "#00BF95";
-  color_incompatible = "#BF002A";
+  color_incompatible = "#FF0066";
 
   lgd_location = 'northeast';
 

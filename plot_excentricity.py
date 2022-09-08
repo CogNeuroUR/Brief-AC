@@ -70,10 +70,15 @@ plt.axis('off')
 ax.imshow(img)
 plt.xlim(-450, x + 450)
 
-circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$20.4^\circ$")
-circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$15.3^\circ$")
-circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$10.2^\circ$")
-circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$5.1^\circ$")
+#circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$20.4^\circ$")
+#circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$15.3^\circ$")
+#circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$10.2^\circ$")
+#circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$5.1^\circ$")
+
+circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$10.2^\circ$")
+circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$7.6^\circ$")
+circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$5.1^\circ$")
+circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$2.5\circ$")
 
 ax.add_patch(circ20)
 ax.add_patch(circ15)
@@ -94,10 +99,16 @@ def overlay_excentricity(img):
     ax.imshow(img)
     plt.xlim(-450, x + 450)
 
-    circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$20.4^\circ$")
-    circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$15.3^\circ$")
-    circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$10.2^\circ$")
-    circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$5.1^\circ$")
+    #circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$20.4^\circ$")
+    #circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$15.3^\circ$")
+    #circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$10.2^\circ$")
+    #circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$5.1^\circ$")
+    
+    circ20 = Circle(center,x//2, fill=False, edgecolor='red', linestyle='--', label=r"$10.2^\circ$")
+    circ15 = Circle(center,3*x//8, fill=False, edgecolor='orange', linestyle='--', label=r"$7.6^\circ$")
+    circ10 = Circle(center,x//4, fill=False, edgecolor='green', linestyle='--', label=r"$5.1^\circ$")
+    circ5 = Circle(center,x//8, fill=False, edgecolor='purple', linestyle='--', label=r"$2.5\circ$")
+
 
     ax.add_patch(circ20)
     ax.add_patch(circ15)
@@ -108,10 +119,11 @@ def overlay_excentricity(img):
     return fig
 
 #%% plot random picture
-path_out = Path('plots/excentricity/')
+path_out = Path('plots/excentricity_pilot/')
 utils.check_mkdir(path_out)
 
-files = random.sample(l_files, 10)
+#files = random.sample(l_files, 10)
+files = l_files
 
 for file in files:
     img = cv2.imread(str(file))

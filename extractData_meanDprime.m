@@ -1,4 +1,4 @@
-function [groupDprime, l_subjects] = extractData_meanDprime(path_results)
+function [dprimeAC, dprimeAI, dprimeCC, dprimeCI] = extractData_meanDprime(path_results)
 % Extracts mean sensitivity (d-prime) from each subject's data for each
 % factorial combination.
 % 
@@ -14,6 +14,10 @@ function [groupDprime, l_subjects] = extractData_meanDprime(path_results)
 %% Sweep through files
 l_files = dir(path_results);
 
+dprimeAC = [];
+dprimeAI = [];
+dprimeCC = [];
+dprimeCI = [];
 groupDprime = [];
 l_subjects = {};
 
@@ -33,12 +37,12 @@ for i=1:length(l_files)
         clear ExpInfo;
         load(path2file, 'ExpInfo');
 
-        % perform analysis
+        l_subjects = [l_subjects, fName];
+
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
-        % 2) Extract statistics: hits, false alarms and their rates
-        % by PROBE TYPE & CONGRUENCY
+        % 2) Get YesKey for this participant (either left or right % arrow)
         if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
           key_yes = 37;
           key_no = 39;
@@ -46,25 +50,28 @@ for i=1:length(l_files)
           key_yes = 39;
           key_no = 37;
         end
-        l_subjects = [l_subjects, fName];
 
+        % 3) Extract statistics: hits, false alarms and their rates
+        % by PROBE TYPE & CONGRUENCY
         statsAC = getResponseStats(trialsAC, key_yes, key_no);
         statsAI = getResponseStats(trialsAI, key_yes, key_no);
         statsCC = getResponseStats(trialsCC, key_yes, key_no);
         statsCI = getResponseStats(trialsCI, key_yes, key_no);
         
-        % 3) Compute d-prime  
-        dprimeAC = dprime(statsAC);
-        dprimeAI = dprime(statsAI);
-        dprimeCC = dprime(statsCC);
-        dprimeCI = dprime(statsCI);
+        % 4) Compute d-prime  
+        dpAC = dprime(statsAC);
+        dpAI = dprime(statsAI);
+        dpCC = dprime(statsCC);
+        dpCI = dprime(statsCI);
 
-        % 4) Dump into matrix
-        groupDprime = [groupDprime;...
-                       dprimeAC.dprime(:)', dprimeAI.dprime(:)',...
-                       dprimeCC.dprime(:)', dprimeCI.dprime(:)'];
+        % 5.1) Dump all into FULL matrix
+        groupDprime = [groupDprime; dpAC', dpAI', dpCC', dpCI'];
 
-
+        % 5.2) and separately by probe type & compatibility
+        dprimeAC = [dprimeAC; dpAC'];
+        dprimeAI = [dprimeAI; dpAI'];
+        dprimeCC = [dprimeCC; dpCC'];
+        dprimeCI = [dprimeCI; dpCI'];
       end
     otherwise
       continue
@@ -111,7 +118,9 @@ t_groupDprime.SUB_ID = sub_ids';
 t_groupDprime.YesKey = yes_key';
 
 %% write data as csv file
-path_outfile = [pwd, filesep, 'results', filesep, 'data_meanDprime.csv'];
+prefix = split(path_results, filesep);
+prefix = prefix{end-1};
+path_outfile = [pwd, filesep, 'results', filesep, 'data_', prefix, '_meanDprime.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)

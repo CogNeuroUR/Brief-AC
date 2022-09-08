@@ -1,4 +1,4 @@
-function groupRT = plotRTgroup_acrossCompatibility(save_plots)
+function plotRTgroup_acrossCompatibility(save_plots)
 %function [rt_act_con, rt_ctx_con, rt_act_inc, rt_ctx_inc] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -7,25 +7,13 @@ function groupRT = plotRTgroup_acrossCompatibility(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-%save_plots = 1;
+%save_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
 path_results = 'results/final/';
 
-[groupRT, ~] = extract_groupRT(path_results);
-
-%% Define CONDITION NAMES for plotting (+ TABLE (auxiliary!))
-%groupRT = array2table(groupRT); %array2table(zeros(0,24));
-probes = ["AC", "AI", "CC", "CI"];
-times = [2:6 8];
-vars = {};
-
-for iP=1:length(probes)
-  for iT=1:length(times)
-    vars = [vars; sprintf('%s_%d', probes(iP), times(iT))];
-  end
-end
+[dataAC, dataAI, dataCC, dataCI] = extractData_meanRT(path_results);
 
 %% ########################################################################
 % Plots [COMPATIBLE]
@@ -36,8 +24,11 @@ if make_plots
   % General parameters
   mark_ctx = "s";
   mark_act = "o";
-  color_act = "#ffd700"; %"#EDB120";
-  color_ctx = "#0028ff"; %"#7E2F8E";
+%   color_act = "#ffd700"; %"#EDB120";
+%   color_ctx = "#0028ff"; %"#7E2F8E";
+  color_ctx = "black"; %"#EDB120";
+  color_act = "#999999"; %"#7E2F8E";
+  color_face = "white";
 
   lgd_location = 'northeast';
   %mark_colors = ["#0072BD", "#D95319"];
@@ -52,21 +43,10 @@ if make_plots
   xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % PLOT : Actions vs Context =============================================
-  
-  % Define indices for for condition category
-  i11 = [1, 6];          % ACTION & COMPATIBLE
-  i12 = [7, 12];         % ACTION & INCOMPATIBLE
-  i21 = [13, 18];        % CONTEXT & COMPATIBLE
-  i22 = [19, 24];        % CONTEXT & INCOMPATIBLE
-  
-  data11 = [groupRT(:,i11(1):i11(2))];
-  data12 = [groupRT(:,i12(1):i12(2))];
-  data21 = [groupRT(:,i21(1):i21(2))];
-  data22 = [groupRT(:,i22(1):i22(2))];
 
   % Average within the subject across compatibility
-  data1 = [data11; data12];
-  data2 = [data21; data22];
+  data1 = [dataAC; dataAI];
+  data2 = [dataCC; dataCI];
   
   %[y1, err1] = meanCIgroup(data1); % 95% CI
   %[y2, err2] = meanCIgroup(data2); % 95% CI
@@ -85,6 +65,7 @@ if make_plots
   e2 = errorbar(x+1.5, y2, err2);
   e3 = errorbar(xe-1.5, b1, ber1);
   e4 = errorbar(xe+1.5, b2, ber2);
+  %text(27,980,'A','Color','black','FontSize',24)
   hold off
   
   e1.Marker = mark_act;
@@ -96,13 +77,15 @@ if make_plots
   e2.Color = color_ctx;
   e3.Color = color_act;
   e4.Color = color_ctx;
-  e1.MarkerFaceColor = color_act;
-  e2.MarkerFaceColor = color_ctx;
-  e3.MarkerFaceColor = color_act;
-  e4.MarkerFaceColor = color_ctx;
+  e1.MarkerFaceColor = color_face;
+  e2.MarkerFaceColor = color_face;
+  e3.MarkerFaceColor = color_face;
+  e4.MarkerFaceColor = color_face;
 
-  set(e1, 'LineWidth', 0.8)
-  set(e2, 'LineWidth', 0.8)
+  set(e1, 'LineWidth', 0.9)
+  set(e2, 'LineWidth', 0.9)
+  set(e3, 'LineWidth', 0.9)
+  set(e4, 'LineWidth', 0.9)
 
   set(gca, 'Box', 'off') % removes upper and right axis
 
@@ -117,7 +100,7 @@ if make_plots
   %lgd.Box = 'off';
   lgd.Color = 'none';
 
-  stitle = sprintf('Actions vs Context across compatibility (N=%d)', height(groupRT));
+  stitle = sprintf('Actions vs Context across compatibility (N=%d)', height(dataAC));
   %title(stitle);
   xlabel('Presentation Time [ms]')
   ylabel('Reaction Time [ms]')
@@ -134,9 +117,9 @@ if make_plots
     % recalculate figure size to be saved
     set(fh,'PaperPositionMode','manual')
     fh.PaperUnits = 'inches';
-    fh.PaperPosition = [0 0 2500 1500]/res;
+    fh.PaperPosition = [0 0 2500 1700]/res;
     print('-dpng','-r300','plots/group_RT_statistics_acrossCompatibility')
-    exportgraphics(fh, 'plots/group_RT_statistics_acrossCompatibility.eps')
+    %exportgraphics(fh, 'plots/group_RT_statistics_acrossCompatibility.eps')
   end
 end % if make_plots
 end

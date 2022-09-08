@@ -1,4 +1,4 @@
-function [groupRT, l_subjects] = extractData_meanRT(path_results)
+function [rtAC, rtAI, rtCC, rtCI] = extractData_meanRT(path_results)
 % Extracts mean reaction time (RT) from each subject's data for each
 % factorial combination.
 % 
@@ -16,6 +16,10 @@ l_files = dir(path_results);
 
 groupRT = [];
 l_subjects = {};
+rtAC = [];
+rtAI = [];
+rtCC = [];
+rtCI = [];
 
 % iterate over files
 fprintf('Sweeping through files ...\n');
@@ -33,12 +37,12 @@ for i=1:length(l_files)
         clear ExpInfo;
         load(path2file, 'ExpInfo');
 
-        % perform analysis
+        l_subjects = [l_subjects, fName];
+
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
-        % 2) Extract statistics: hits, false alarms and their rates
-        % by PROBE TYPE & CONGRUENCY
+        % 2) Get YesKey for this participant (either left or right % arrow)
         if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
           key_yes = 37;
           key_no = 39;
@@ -46,18 +50,28 @@ for i=1:length(l_files)
           key_yes = 39;
           key_no = 37;
         end
-        l_subjects = [l_subjects, fName];
 
-        % Extract RT = f(presentation time) by probe type
+        % 3.1) Extract RT = f(presentation time) by probe type
         statsAC = getRTstats(trialsAC);
-        statsCC = getRTstats(trialsCC);
         statsAI = getRTstats(trialsAI);
+        statsCC = getRTstats(trialsCC);
         statsCI = getRTstats(trialsCI);
-        
-        % 3) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
-        groupRT = [groupRT;...
-                   [statsAC{:,2}], [statsAI{:,2}],...
-                   [statsCC{:,2}], [statsCI{:,2}]];
+
+        % 3.2) Take only means
+        meanAC = [statsAC{:,2}];
+        meanAI = [statsAI{:,2}];
+        meanCC = [statsCC{:,2}];
+        meanCI = [statsCI{:,2}];
+
+        % 4) Dump RTs ONLY in the matrix as rows (ONE PER SUBJECT)
+        groupRT = [groupRT; meanAC, meanAI, meanCC, meanCI];
+
+        % 5.2) and separately by probe type & compatibility
+        rtAC = [rtAC; meanAC];
+        rtAI = [rtAI; meanAI];
+        rtCC = [rtCC; meanCC];
+        rtCI = [rtCI; meanCI];
+
       end
     otherwise
       continue
@@ -105,7 +119,9 @@ t_groupRT.SUB_ID = sub_ids';
 t_groupRT.YesKey = yes_key';
 
 %% write data as csv file
-path_outfile = [pwd, filesep, 'results', filesep, 'data_meanRT.csv'];
+prefix = split(path_results, filesep);
+prefix = prefix{end-1};
+path_outfile = [pwd, filesep, 'results', filesep, 'data_', prefix, '_meanRT.csv'];
 % check if file exists
 if isfile(path_outfile)
   warning('Overwriting already existing file at "%s".', path_outfile)

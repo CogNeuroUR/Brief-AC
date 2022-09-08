@@ -1,4 +1,4 @@
-function t_stats = dprime(t_stats)
+function dPrime = dprime(t_stats)
   % 1) Extract rates
   % 2) Replace zeros and ones (to prevent infinities)
   %   Zeros -> 1/(2N); N : max nr. of observation in a group
@@ -29,4 +29,5 @@ function t_stats = dprime(t_stats)
     F_perfect = 1/(2*(t_stats.FalseAlarms(i) + t_stats.CorrectRejections(i)));
     t_stats.perfectDprime(i) = norminv(H_perfect) - norminv(F_perfect);
   end
+  dPrime = t_stats.dprime(:);
 end

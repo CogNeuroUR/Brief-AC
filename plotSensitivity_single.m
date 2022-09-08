@@ -8,7 +8,7 @@ function groupDprime = plotSensitivity_context(path_expinfo, save_plots)
 % Vrabie 2022
 make_plots = 1;
 save_plots = 1;
-path_expinfo = 'results/post-pilot/SUB-01_left.mat';
+path_expinfo = 'results/post-pilot/SUB-03_left.mat';
 
 %% Load results from file : ExpInfo
 % get list of files
@@ -50,7 +50,7 @@ if make_plots
   mark_ctx = "s";
   mark_act = "o";
   color_compatible = "#00BF95";
-  color_incompatible = "#BF002A";
+  color_incompatible = "#FF0066";
 
   lgd_location = 'northeast';
 

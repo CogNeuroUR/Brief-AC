@@ -49,8 +49,8 @@ if make_plots
   e2 = errorbar(x+1.5, y2, err2);
   yline(0, '--');
   % Individual data
-  %l1 = plot(x, data1', 'Color', color_compatible);
-  %l2 = plot(x, data2', 'Color', color_incompatible);
+  l1 = plot(x, data1', 'Color', color_compatible);
+  l2 = plot(x, data2', 'Color', color_incompatible);
   hold off
 
   e1.Marker = mark_act;
@@ -61,8 +61,16 @@ if make_plots
   e1.MarkerFaceColor = color_compatible;
   e2.MarkerFaceColor = color_incompatible;
 
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   set(gca, 'Box', 'off') % removes upper and right axis
 
@@ -75,8 +83,8 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
-  %stitle = sprintf('Action (N=%d)', height(data1));
-  %title(stitle);
+  stitle = sprintf('Action (N=%d)', height(data1));
+  title(stitle);
   xlabel('Presentation Time [ms]')
   ylabel('Sensitivity (d'')')
 
