@@ -7,7 +7,7 @@ function plotRT_pilot(save_plots)
 % Written for BriefAC (AinC)
 % Vrabie 2022
 make_plots = 1;
-save_plots = 1;
+%save_plots = 1;
 
 %% Load results from file : ExpInfo
 path_results = 'results/post-pilot/';
@@ -23,7 +23,7 @@ if make_plots
   mark_act = "o";
   mark_ctx = "s";
   color_compatible = "#00BF95";
-  color_incompatible = "#FF0066";
+  color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
 
@@ -157,7 +157,7 @@ if make_plots
     set(fh,'PaperPositionMode','manual')
     fh.PaperUnits = 'inches';
     fh.PaperPosition = [0 0 4500 1500]/res;
-    print('-dpng','-r300','plots/ppilotRT_group')
+    print('-dpng','-r300','plots/groupdRT_post-pilot')
     %exportgraphics(fh, 'plots/ppilotDprime_context.eps')
   end
 end % if make_plots

@@ -1,4 +1,4 @@
-function plotSensitivity_pilot(save_plots)
+function plotAccuracy_pilot(save_plots)
 %function [dataAC, dataCC, dataAI, dataCI] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -11,7 +11,7 @@ make_plots = 1;
 
 %% Load results
 path_results = 'results/post-pilot/';
-[dataAC, dataAI, dataCC, dataCI] = extractData_meanDprime(path_results);
+[dataAC, dataAI, dataCC, dataCI] = extractData_meanAcc(path_results);
 
 %% ########################################################################
 % Plots [COMPATIBLE]
@@ -22,7 +22,7 @@ if make_plots
   % General parameters
   mark_act = "o";
   mark_ctx = "s";
-  color_compatible = "#00BF95";
+  color_compatible = "#00ff99";
   color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
@@ -49,8 +49,8 @@ if make_plots
   e2 = errorbar(x+1.5, y2, err2);
   yline(0, '--');
   % Individual data
-  %l1 = plot(x, data1', 'Color', color_compatible);
-  %l2 = plot(x, data2', 'Color', color_incompatible);
+  l1 = plot(x, data1', 'Color', color_compatible);
+  l2 = plot(x, data2', 'Color', color_incompatible);
   hold off
 
   e1.Marker = mark_act;
@@ -61,8 +61,16 @@ if make_plots
   e1.MarkerFaceColor = color_compatible;
   e2.MarkerFaceColor = color_incompatible;
 
+  % Transparency for individual lines
+  for i=1:length(l1)
+    l1(i).Color(4) = 0.4;
+    l2(i).Color(4) = 0.4;
+  end
+
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
+  set(l1, 'LineStyle', '--')
+  set(l2, 'LineStyle', '--')
 
   set(gca, 'Box', 'off') % removes upper and right axis
 
@@ -75,10 +83,10 @@ if make_plots
   lgd.Location = lgd_location;
   lgd.Color = 'none';
   
-  %stitle = sprintf('Action (N=%d)', height(data1));
-  %title(stitle);
+  stitle = sprintf('Action (N=%d)', height(data1));
+  title(stitle);
   xlabel('Presentation Time [ms]')
-  ylabel('Sensitivity (d'')')
+  ylabel('Accuracy (%)')
 
 
   % PLOT : SCENE (Compatible vs Incompatible) =============================
@@ -144,8 +152,8 @@ if make_plots
     set(fh,'PaperPositionMode','manual')
     fh.PaperUnits = 'inches';
     fh.PaperPosition = [0 0 4500 1500]/res;
-    print('-dpng','-r300','plots/ppilotDprime_group')
-    %exportgraphics(fh, 'plots/ppilotDprime_context.eps')
+    print('-dpng','-r300','plots/ppilotAcc_group')
+    %exportgraphics(fh, 'plots/ppilotAcc_context.eps')
   end
 end % if make_plots
 end

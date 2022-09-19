@@ -36,7 +36,7 @@ if make_plots
   
   % General parameters
   color_compatible = "#00BF95";
-  color_incompatible = "#FF0066";
+  color_incompatible = "#BF002A";
   color_iline = "#555555";
 
   lgd_location = 'northeast';

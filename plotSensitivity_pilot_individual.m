@@ -1,4 +1,4 @@
-function plotSensitivity_pilot(save_plots)
+function plotSensitivity_pilot_individual(save_plots)
 %function [dataAC, dataCC, dataAI, dataCI] =...
 %          computeRTstatistics(ExpInfo, key_yes, key_no, make_plots, save_plots)
 % Computes RT group statistics (mean & std) per condition for each probe type and
@@ -23,7 +23,7 @@ if make_plots
   mark_act = "o";
   mark_ctx = "s";
   color_compatible = "#00BF95";
-  color_incompatible = "#FF0066";
+  color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
 
@@ -44,13 +44,13 @@ if make_plots
   [y1, err1] = meanSEgroup(data1); % Standard error
   [y2, err2] = meanSEgroup(data2); % Standard error
   
-  e1 = errorbar(x-1.5, y1, err1);
+  % Individual data first
+  l1 = plot(x, data1', 'Color', color_compatible);
   hold on
+  l2 = plot(x, data2', 'Color', color_incompatible);
+  e1 = errorbar(x-1.5, y1, err1);
   e2 = errorbar(x+1.5, y2, err2);
   yline(0, '--');
-  % Individual data
-  l1 = plot(x, data1', 'Color', color_compatible);
-  l2 = plot(x, data2', 'Color', color_incompatible);
   hold off
 
   e1.Marker = mark_act;
@@ -63,14 +63,14 @@ if make_plots
 
   % Transparency for individual lines
   for i=1:length(l1)
-    l1(i).Color(4) = 0.4;
-    l2(i).Color(4) = 0.4;
+    l1(i).Color(4) = 0.2;
+    l2(i).Color(4) = 0.2;
   end
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'LineStyle', '--')
-  set(l2, 'LineStyle', '--')
+  %set(l1, 'LineStyle', '--')
+  %set(l2, 'LineStyle', '--')
 
   set(gca, 'Box', 'off') % removes upper and right axis
 
@@ -100,13 +100,13 @@ if make_plots
   [y1, err1] = meanSEgroup(data1); % Standard error
   [y2, err2] = meanSEgroup(data2); % Standard error
   
-  e1 = errorbar(x-1.5, y1, err1);
+  % Individual data first
+  l1 = plot(x, data1', 'Color', color_compatible);
   hold on
+  l2 = plot(x, data2', 'Color', color_incompatible);
+  e1 = errorbar(x-1.5, y1, err1);
   e2 = errorbar(x+1.5, y2, err2);
   yline(0, '--');
-  % Individual data
-  l1 = plot(x, data1', 'Color', color_compatible);
-  l2 = plot(x, data2', 'Color', color_incompatible);
   hold off
 
   e1.Marker = mark_ctx;
@@ -119,14 +119,14 @@ if make_plots
   
   % Transparency for individual lines
   for i=1:length(l1)
-    l1(i).Color(4) = 0.4;
-    l2(i).Color(4) = 0.4;
+    l1(i).Color(4) = 0.2;
+    l2(i).Color(4) = 0.2;
   end
 
   set(e1, 'LineWidth', 0.8)
   set(e2, 'LineWidth', 0.8)
-  set(l1, 'LineStyle', '--')
-  set(l2, 'LineStyle', '--')
+  %set(l1, 'LineStyle', '--')
+  %set(l2, 'LineStyle', '--')
 
   set(gca, 'Box', 'off') % removes upper and right axis
 

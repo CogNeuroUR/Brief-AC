@@ -26,12 +26,13 @@ if make_plots
   mark_ctx = "s";
   mark_act = "o";
   color_compatible = "#00BF95";
-  color_incompatible = "#FF0066";
+  color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
 
   xfactor = 1000/60;
-  ylimits = [-.7, 3.3];
+  ylimits = [-.5, 3.3]; % pilot
+  %ylimits = [-.5, 3]; % pilot
   xlimits = [1.3 8.8]*xfactor;
   x = [2:6 8]*xfactor; % in ms
   %xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
@@ -91,7 +92,7 @@ if make_plots
     prefix = prefix{end-1};
     path_outfile = [pwd, filesep, 'plots', filesep, 'groupDprime_actions_', prefix];
     print('-dpng','-r300', path_outfile)
-    %exportgraphics(fh, 'plots/groupDprime_actions.eps')
+    exportgraphics(fh, [path_outfile '.eps'])
   end
 end % if make_plots
 end

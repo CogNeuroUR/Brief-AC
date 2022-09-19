@@ -10,10 +10,10 @@ make_plots = 1;
 %save_plots = 1;
 
 %% Collect results from files : ExpInfo-s
-% get list of files
-path_results = 'results/final/';
+path_results = 'results/final/'; % MAIN EXPERIMENT
+%path_results = 'results/post-pilot/'; % POST-PILOT EXPERIMENT
 
-[groupRT, l_subjects] = extract_groupRT(path_results);
+[groupRT, ~] = extract_groupRT(path_results);
 
 %% ########################################################################
 % Plots [COMPATIBLE]
@@ -25,13 +25,13 @@ if make_plots
   mark_ctx = "s";
   mark_act = "o";
   color_compatible = "#00BF95";
-  color_incompatible = "#FF0066";
+  color_incompatible = "#BF002A";
 
   lgd_location = 'northeast';
 
   xfactor = 1000/60;
-  ylimits = [670 1000]; % without individual lines
-  %ylimits = [490 1250];
+  ylimits = [670 1000]; % main
+  %ylimits = [750 1100]; % pilot
   xlimits = [1.3 8.8]*xfactor;
   x = [2:6 8]*xfactor; % in ms
   %x = [2:7]*xfactor; % in ms
@@ -85,13 +85,18 @@ if make_plots
 
   % SAVE PLOTS ============================================================
   if save_plots
-     % define resolution figure to be saved in dpi
-   res = 420;
-   % recalculate figure size to be saved
-   set(fh,'PaperPositionMode','manual')
-   fh.PaperUnits = 'inches';
-   fh.PaperPosition = [0 0 2500 1500]/res;
-   print('-dpng','-r300',['plots/groupRT_actions'])
+    % define resolution figure to be saved in dpi
+    res = 420;
+    % recalculate figure size to be saved
+    set(fh,'PaperPositionMode','manual')
+    fh.PaperUnits = 'inches';
+    fh.PaperPosition = [0 0 2500 1500]/res;
+    % Save
+    prefix = split(path_results, filesep);
+    prefix = prefix{end-1};
+    path_outfile = [pwd, filesep, 'plots', filesep, 'groupRT_action_', prefix];
+    print('-dpng','-r300', path_outfile)
+    %exportgraphics(fh, [path_outfile '.eps'])
   end
 end % if make_plots
 end
