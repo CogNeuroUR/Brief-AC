@@ -108,6 +108,36 @@ for i=1:length(l_subjects)
   yes_key = [yes_key, key];
 end
 
+
+%% ------------------------------------------------------------------------
+% Separately for compatibility
+%% Append compatibility to probes
+probes_compat = probes(:) + '_C';
+probes_incompat = probes(:) + '_I';
+probes_full = [probes_compat; probes_incompat];
+
+% Convert array to table
+t_groupDprimefull= array2table([groupDprimeCompat, groupDprimeIncompat],...
+                           'VariableNames',probes_full);
+
+% Add subject IDs and yes-keys as columns
+t_groupDprimefull.SUB_ID = sub_ids';
+t_groupDprimefull.YesKey = yes_key';
+
+% write data as csv file
+suffix = split(path_results, filesep);
+suffix = suffix{end-1};
+prefix = [pwd, filesep, 'results', filesep, 'data_'];
+path_outfile = [prefix, suffix, '_probeDprime_C&I.csv'];
+
+if isfile(path_outfile)
+  warning('Overwriting already existing file at "%s".', path_outfile)
+end
+
+writetable(t_groupDprimefull, path_outfile)
+
+%% ------------------------------------------------------------------------
+% Averaged across compatibility
 %% Colapse over compatibility (i.e. average)
 groupProbeDprime = groupDprimeCompat + groupDprimeIncompat;
 groupProbeDprime = groupProbeDprime ./ 2;
@@ -120,7 +150,7 @@ t_groupProbeDprime = array2table(groupProbeDprime, 'VariableNames',probes);
 
 %% Add subject IDs and yes-keys as columns
 t_groupDprimeCompat.SUB_ID = sub_ids';
-t_groupDprimeCompat.SUB_ID = sub_ids';
+t_groupDprimeIncompat.SUB_ID = sub_ids';
 t_groupProbeDprime.SUB_ID = sub_ids';
 
 t_groupDprimeCompat.YesKey = yes_key';

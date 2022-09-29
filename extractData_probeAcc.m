@@ -108,6 +108,36 @@ for i=1:length(l_subjects)
   yes_key = [yes_key, key];
 end
 
+
+%% ------------------------------------------------------------------------
+% Separately for compatibility
+%% Append compatibility to probes
+probes_compat = probes(:) + '_C';
+probes_incompat = probes(:) + '_I';
+probes_full = [probes_compat; probes_incompat];
+
+% Convert array to table
+t_groupAccfull= array2table([groupAccCompat, groupAccCompat],...
+                           'VariableNames',probes_full);
+
+% Add subject IDs and yes-keys as columns
+t_groupAccfull.SUB_ID = sub_ids';
+t_groupAccfull.YesKey = yes_key';
+
+% write data as csv file
+suffix = split(path_results, filesep);
+suffix = suffix{end-1};
+prefix = [pwd, filesep, 'results', filesep, 'data_'];
+path_outfile = [prefix, suffix, '_probeAcc_C&I.csv'];
+
+if isfile(path_outfile)
+  warning('Overwriting already existing file at "%s".', path_outfile)
+end
+
+writetable(t_groupAccfull, path_outfile)
+
+%% ------------------------------------------------------------------------
+% Averaged across compatibility
 %% Colapse over compatibility (i.e. average)
 groupProbeAcc = groupAccCompat + groupAccIncompat;
 groupProbeAcc = groupProbeAcc ./ 2;

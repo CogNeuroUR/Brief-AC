@@ -108,27 +108,55 @@ for i=1:length(l_subjects)
   yes_key = [yes_key, key];
 end
 
+
+%% ------------------------------------------------------------------------
+% Separately for compatibility
+%% Append compatibility to probes
+probes_compat = probes(:) + '_C';
+probes_incompat = probes(:) + '_I';
+probes_full = [probes_compat; probes_incompat];
+
+% Convert array to table
+t_groupRTfull= array2table([groupRTCompat, groupRTIncompat],...
+                           'VariableNames',probes_full);
+
+% Add subject IDs and yes-keys as columns
+t_groupRTfull.SUB_ID = sub_ids';
+t_groupRTfull.YesKey = yes_key';
+
+% write data as csv file
+suffix = split(path_results, filesep);
+suffix = suffix{end-1};
+prefix = [pwd, filesep, 'results', filesep, 'data_'];
+path_outfile = [prefix, suffix, '_probeRT_C&I.csv'];
+
+if isfile(path_outfile)
+  warning('Overwriting already existing file at "%s".', path_outfile)
+end
+
+writetable(t_groupRTfull, path_outfile)
+
+%% ------------------------------------------------------------------------
+% Averaged across compatibility
 %% Colapse over compatibility (i.e. average)
 groupProbeRT = groupRTCompat + groupRTIncompat;
 groupProbeRT = groupProbeRT ./ 2;
 
-%% Convert array to table
+% Convert array to table
 t_groupRTCompat = array2table(groupRTCompat, 'VariableNames',probes);
 t_groupRTIncompat = array2table(groupRTIncompat, 'VariableNames',probes);
 t_groupProbeRT = array2table(groupProbeRT, 'VariableNames',probes);
 
-
-%% Add subject IDs and yes-keys as columns
+% Add subject IDs and yes-keys as columns
 t_groupRTCompat.SUB_ID = sub_ids';
-t_groupRTCompat.SUB_ID = sub_ids';
+t_groupRTIncompat.SUB_ID = sub_ids';
 t_groupProbeRT.SUB_ID = sub_ids';
 
 t_groupRTCompat.YesKey = yes_key';
 t_groupRTIncompat.YesKey = yes_key';
 t_groupProbeRT.YesKey = yes_key';
 
-
-%% write data as csv file
+% write data as csv file
 suffix = split(path_results, filesep);
 suffix = suffix{end-1};
 prefix = [pwd, filesep, 'results', filesep, 'data_'];
