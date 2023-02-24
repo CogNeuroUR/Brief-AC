@@ -3,14 +3,28 @@
 % Check if the trial corrResp in the TRD-file are equal to those from the
 % ExpInfo
 
-%% Load TRD file
+%% Read YES-NO answers [SINGLE SUBJECT]
 % path_trd = 'SUB-96_right.trd';
 path_trd = 'results/final/SUB-04_right.trd';
 trialdefs = read_correctResponse(path_trd)';
 % Remove first line (which contains the first and last factor)
 trialdefs = trialdefs(2:end);
 
-%% Load trials from all TRD files in a folder
+% Get Yes-key from filename
+parts = split(path_trd, '_');
+parts = split(parts(2), '.');
+if isequal(parts{1}, "left")
+    yesKey = 37;
+    noKey = 39;
+elseif isequal(parts{1}, "right")
+    yesKey = 39;
+    noKey = 37;
+end
+[trialdefs(:).YES] = deal(yesKey);
+[trialdefs(:).NO] = deal(noKey);
+N_subjects = 1;
+
+%% Read YES-NO answers [ALL SUBJECTS]
 % path_trd = 'SUB-96_right.trd';
 path_results = 'results/final/';
 l_files = dir(path_results);
@@ -31,8 +45,22 @@ for i=1:length(l_files)
       % ignore demo-results
       if ~contains(l_files(i).name, 'demo')
         fprintf('\tLoading : %s\n', l_files(i).name);
+        % Get Yes-key from filename
+        parts = split(l_files(i).name, '_');
+        parts = split(parts(2), '.');
+        if isequal(parts{1}, "left")
+            yesKey = 37;
+            noKey = 39;
+        elseif isequal(parts{1}, "right")
+            yesKey = 39;
+            noKey = 37;
+        else
+            break
+        end
         temp = read_correctResponse(path2file)';
         temp = temp(2:end);
+        [temp(:).YES] = deal(yesKey);
+        [temp(:).NO] = deal(noKey);
         trialdefs = [trialdefs; temp];
         N_subjects = N_subjects + 1;
       end
@@ -63,8 +91,6 @@ end
 %% Count correct-YES trials for each condition
 counts = [];
 
-keyYes = 39;
-keyNo = 37;
 countYes = [];
 countNo = [];
 
@@ -73,17 +99,13 @@ for iCongruency=1:length(info.CongruencyLevels)
   for iProbeType=1:length(info.ProbeTypeLevels)
     for iDuration=1:length(info.DurationLevels)
       % Get indices to the subset corresponding to the current condition
-%       idx1 = [trialdefs(:).congruency] == info.CongruencyLevels(iCongruency);
-%       idx2 = [trialdefs(:).probeType] == info.ProbeTypeLevels(iProbeType);
-%       idx3 = [trialdefs(:).duration] == info.DurationLevels(iDuration);
-
       subset = trialdefs(...
           [trialdefs(:).congruency] == info.CongruencyLevels(iCongruency) &...
           [trialdefs(:).probeType] == info.ProbeTypeLevels(iProbeType) & ...
           [trialdefs(:).duration] == info.DurationLevels(iDuration));
-
-      idxsYes = [subset(:).corrResp] == keyYes;
-      idxsNo = [subset(:).corrResp] == keyNo;
+      % Get correct responses (YES & NO)
+      idxsYes = [subset(:).corrResp] == [subset(:).YES];
+      idxsNo = [subset(:).corrResp] == [subset(:).NO];
       
       % Verbose
       fprintf('%d) %s | %s | %d | Yes/No: %d/%d\n',ix,...
@@ -93,8 +115,6 @@ for iCongruency=1:length(info.CongruencyLevels)
         height(subset(idxsYes)),...
         height(subset(idxsNo)))
       
-      %disp([ix height(trialdefs(idxsYes)) height(trialdefs(idxsNo))])
-
       counts(end+1) = height(subset);
       countYes(end+1) = height(subset(idxsYes));
       countNo(end+1) = height(subset(idxsNo));
@@ -106,7 +126,7 @@ end
 %% Plot
 fh = figure;
 
-probes = ["AC", "AI", "CC", "CI"];
+probes = ["CC", "AC", "CI", "AI"];
 times = [2:6 8];
 vars = {};
 
@@ -138,7 +158,7 @@ xticklabels(vars)
 ylim([0, 2])
 
 xlabel('Conditions')
-ylabel('Percentage trials')
+ylabel('Ratio trials')
 
 lgd = legend('YES/NO');
 lgd.Location = 'northeast';
