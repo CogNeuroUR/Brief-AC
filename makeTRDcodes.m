@@ -151,9 +151,43 @@ bar(value_counts(:, 1), value_counts(:, 2))
 % * Action
 % * Actor
 % * View
+% 
+% contents = [info.ContextLevels, info.ContextExemplarLevels, info.ActionLevels,...
+%             info.ActorLevels, info.ViewLevels];
 
-contents = [info.ContextLevels, info.ContextExemplarLevels, info.ActionLevels,...
-            info.ActorLevels, info.ViewLevels];
+nContents = info.nContextLevels * info.nContextExemplarLevels * info.nActionLevels * info.nActorLevels * info.nViewLevels;
+
+nContentCompat = info.nContextLevels * info.nContextExemplarLevels * info.nActionLevels * info.nActorLevels * info.nViewLevels;
+nContentIncompat = nContentCompat;
+nContentTotal = nContentCompat + nContentIncompat;
+
+% Collapseble content factors: [ContextExemplars, Actors, Views]
+
+
+%% ------------------------------------------------------------------------
+% Iterate over trials containing trial codes and corresponding factor levels and
+% attribute content (stimulus), according to the levels.
+
+% FACTORS:
+% * Compatibility : "compatible", "incompatible"
+% * Probe : ... (N=12)
+% * CorrectResponse: "yes", "no"
+
+% YES trials
+for iTrial=1:length(TrialDefinitions)
+  % Correct Response
+  if isequal(TrialDefinitions(iTrial).CorrectResponse, "yes")
+    % Probe
+    if isequal(TrialDefinitions(iTrial).ProbeType, "action")
+      TrialDefinitions(iTrial).tAction = TrialDefinitions(iTrial).Probe;
+    else
+      TrialDefinitions(iTrial).tContext = TrialDefinitions(iTrial).Probe;
+    end
+  end
+end
+
+% HOW TO FIX AN INCOMPATIBLE SUBSET THAT IS BALANCED ACROSS SUBJECTS?
+
 
 
 %-------------------------------------------------------------------------------
@@ -275,7 +309,15 @@ function verdict = checkCodes(TrialDefinitions, info)
 end
 
 
+function TrialDefinitions = fillContentsTRD(TrialDefinitions, info)
+% Iterate over trials containing trial codes and corresponding factor levels and
+% attribute content (stimulus), according to the levels.
 
+% FACTORS:
+% * Compatibility : "compatible", "incompatible"
+% * Probe : ... (N=12)
+% * CorrectResponse: "yes", "no"
+end
 
 
 %--------------------------------------------------------------------------
