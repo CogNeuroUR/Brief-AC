@@ -309,15 +309,7 @@ function verdict = checkCodes(TrialDefinitions, info)
 end
 
 
-function TrialDefinitions = fillContentsTRD(TrialDefinitions, info)
-% Iterate over trials containing trial codes and corresponding factor levels and
-% attribute content (stimulus), according to the levels.
 
-% FACTORS:
-% * Compatibility : "compatible", "incompatible"
-% * Probe : ... (N=12)
-% * CorrectResponse: "yes", "no"
-end
 
 
 %--------------------------------------------------------------------------
