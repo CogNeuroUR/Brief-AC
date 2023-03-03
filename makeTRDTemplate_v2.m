@@ -45,9 +45,13 @@ info.nCorrectResponses = length(info.CorrectResponses);
 info.factorialStructure = [info.nCongruenceLevels, info.nProbeTypeLevels, ...
                            info.nPresTimeLevels, info.nCorrectResponses];
 info.factorialStructureFull = [...
-    info.nCongruenceLevels, info.nProbeTypeLevels, info.nPresTimeLevels,...
+    info.nCongruenceLevels, info.nPresTimeLevels,...
     info.nCorrectResponses, info.nProbeLevels, ...
     info.nContextLevels, info.nActionLevels];
+
+info.factorialStructureProbe = [...
+    info.nCongruenceLevels, info.nPresTimeLevels,...
+    info.nCorrectResponses, info.nProbeLevels];
 
 %HOW MANY TRIALS PER DESIGN CELL DO YOU WANT TO RUN?
 %IF YOU ARE INTERESTED IN RT ONLY, >25 IS RECOMMENDED PER PARTICIPANT
@@ -63,7 +67,7 @@ info.emptyPicture = 1;
 info.fixationPicture = 1;
 
 %--------------------------------------------------------------------------
-%% TIMING & HARDWARE RELATED
+% TIMING & HARDWARE RELATED
 %--------------------------------------------------------------------------
 info.screenFrameRate = 60;
 % pages
@@ -76,16 +80,22 @@ info.pauseIntervalSecs = 300; % IN SECONDS!
 info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
 
 %--------------------------------------------------------------------------
-%% RESPONSES
+% RESPONSES
 %--------------------------------------------------------------------------
 % Record RT only at probe screen
 info.startRTonPage = 5;
 info.endRTonPage = 5;
 
-%--------------------------------------------------------------------------
+%% ------------------------------------------------------------------------
 TrialDefinitions = makeOneBlockTRD(info);
 
-%% --------------------------------------------------------------------------
+%% Check code balancing
+[C,ia,ic] = unique([TrialDefinitions.code]);
+a_counts = accumarray(ic,1);
+value_counts = [C', a_counts];
+%disp(value_counts)
+
+%% ------------------------------------------------------------------------
 TrialDefinitions = repmat(TrialDefinitions, 1, nBlocks);
 
 %--------------------------------------------------------------------------
@@ -207,9 +217,15 @@ for iCongruence = 1:info.nCongruenceLevels
                             info.factorialStructure);
                         % For inspection purposes
                         ThisTrial.codeFull = ASF_encode(...
-                            [iCongruence-1, iProbeType-1, iPresTime-1, iResponse-1,...
+                            [iCongruence-1, iPresTime-1, iResponse-1,...
                              find(info.ProbeLevels == ThisTrial.Probe),...
-                             iContext-1, iAction-1]);
+                             iContext-1, iAction-1],...
+                             info.factorialStructureFull);
+
+                        ThisTrial.codeProbe = ASF_encode(...
+                             [iCongruence-1, iPresTime-1, iResponse-1,...
+                              find(info.ProbeLevels == ThisTrial.Probe),],...
+                              info.factorialStructureProbe);
 
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         %WE START MEASURING THE RT AS SOON AS THE PICTURE IS PRESENTED,
