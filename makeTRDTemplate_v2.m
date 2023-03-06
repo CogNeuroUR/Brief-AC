@@ -87,6 +87,57 @@ info.startRTonPage = 5;
 info.endRTonPage = 5;
 
 %% ------------------------------------------------------------------------
+% Testing probes for NO correctanswers
+idxs_ctxt = 1:info.nContextLevels;
+idxs_actn = 1:info.nActionLevels;
+
+lProbes = {};
+for iProbeType = 1:info.nProbeTypeLevels
+    for iContext=1:info.nContextLevels
+        for iAction = 1:info.nActionLevels
+            % CONTEXT
+            if iProbeType == 1
+                for tarContext = 1:info.nContextLevels 
+                    temp = idxs_ctxt(idxs_ctxt ~= tarContext);
+                    for probContext = 1:length(temp)
+                        probe = temp(probContext);
+                        lProbes{end+1} = char(info.ContextLevels(probe));
+                    end
+                end
+            % ACTION
+            else
+                % get subset of actions different than the
+                % current one (within context)
+                for tarAction = 1:info.nActionLevels
+                    temp = idxs_actn(idxs_actn ~= tarAction);
+                    for probAction= 1:length(temp)
+                        probe = info.ActionLevels(iContext, temp(probAction));
+                        lProbes{end+1} = char(probe);
+                    end
+                end
+            end
+        end
+    end
+end
+
+[C,ia,ic] = unique(lProbes);
+a_counts = accumarray(ic,1);
+%value_counts = [C' a_counts];
+
+for i=1:length(a_counts)
+    disp([C(i), a_counts(i)])
+end
+
+% IDEA / QUESTION
+% In order to have lProbes (N=108) presented equally, we would have to 
+% repeat them for each level of:
+%   = compatibility
+%   = presentation time
+%   = correct response
+% N_trials to reach that: 2592 trials 
+%   (?) Split across 4 subjects => 648 trials / subject
+
+%% ------------------------------------------------------------------------
 TrialDefinitions = makeOneBlockTRD(info);
 
 %% Check code balancing
