@@ -174,29 +174,32 @@ for iCongruence = 1:info.nCongruenceLevels
         for iPresTime = 1:info.nPresTimeLevels
             for iResponse = 1:info.nCorrectResponses      
                 for iContext = 1:info.nContextLevels
-                    for iAction = 1:info.nActionLevels
-                        ThisTrial.tOnset = 0;
-                        ThisTrial.Compatibility = info.CongruenceLevels(iCongruence);
-                        
+                    for iAction = 1:info.nActionLevels                        
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         % COMPATIBILITY
+                        ThisTrial.Compatibility = info.CongruenceLevels(iCongruence);
+
                         % 1) COMPATIBLE TRIALS
-                        if isequal(info.CongruenceLevels(iCongruence), "compatible")
+                        %   Context := source context
+                        %   Action  := context-compatible action
+                        if isequal(ThisTrial.Compatibility, "compatible")
                             % Save "context" for further assignment of probes AND
                             % "correctResponses
                             ThisTrial.Context = info.ContextLevels(iContext);
                             ThisTrial.idxContext = iContext;
-                            ThisTrial.srcContext = info.ContextLevels(iContext);
+                            ThisTrial.srcContext = ThisTrial.Context;
                             ThisTrial.Action = info.ActionLevels(iContext,...
                                                                  iAction);
                             ThisTrial.idxAction = iAction; 
                             
                         % 2) INCOMPATIBLE TRIALS
+                        %   Context := action-incompatible context
+                        %   Action  := action
+
                         % TODO: possible to make it (context) not random?
                         else
                             % get subset of incompatible contexts
                             inc_ctxt_idxs = idxs_ctxt(idxs_ctxt ~= iContext);
-
                             % choose random incompatible context
                             iContextInc = datasample(inc_ctxt_idxs, 1);
 
@@ -215,7 +218,7 @@ for iCongruence = 1:info.nCongruenceLevels
                         ThisTrial.probeType = info.ProbeTypeLevels(iProbeType);
                         ThisTrial.correctResponse = info.CorrectResponses(iResponse);
                         
-                        % YES
+                        % Correct response: YES
                         if iResponse == 1
                             % CONTEXT
                             if iProbeType == 1
@@ -224,7 +227,7 @@ for iCongruence = 1:info.nCongruenceLevels
                             else
                                 ThisTrial.Probe = ThisTrial.Action;
                             end
-                        % NO
+                        % Correct response: NO
                         else
                             % CONTEXT
                             if iProbeType == 1
@@ -243,6 +246,7 @@ for iCongruence = 1:info.nCongruenceLevels
                                     ThisTrial.idxContext, datasample(temp, 1));
                             end
                         end
+
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         % PICTURES: Placeholders
                         ThisTrial.targetPicture = 0;
@@ -259,8 +263,8 @@ for iCongruence = 1:info.nCongruenceLevels
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         % DURATIONS:
                         % FOR HOW LONG WILL EACH PICTURE BE PRESENTED?
+                        ThisTrial.tOnset = 0;
                         ThisTrial.picDuration = info.PresTimeLevels(iPresTime);
-                        
                         ThisTrial.durations = [...
                             info.fixDuration,...
                             info.emptyDuration,...
@@ -278,8 +282,7 @@ for iCongruence = 1:info.nCongruenceLevels
                         % For inspection purposes
                         ThisTrial.codeFull = ASF_encode(...
                             [iCongruence-1, iPresTime-1, iResponse-1,...
-                             codeProbe-1,...
-                             iContext-1, iAction-1],...
+                             codeProbe-1, Context-1, iAction-1],...
                              info.factorialStructureFull);
                         % Final
                         ThisTrial.code = ASF_encode(...
