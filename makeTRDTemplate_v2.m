@@ -29,10 +29,7 @@ info.nActionLevels = length(info.ActionLevels);
 info.ProbeTypeLevels = ["context", "action"]';
 info.nProbeTypeLevels = length(info.ProbeTypeLevels);
 
-info.ProbeLevels = [info.ContextLevels;...
-                    info.ActionLevels];
-
-info.ProbeLevels = reshape(info.ProbeLevels, 1, []);
+info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
 info.nProbeLevels = length(info.ProbeLevels);
 
 info.PresTimeLevels = [2:1:6 8]; % nr x 16.6ms
@@ -42,16 +39,26 @@ info.CorrectResponses = ["yes", "no"];
 info.nCorrectResponses = length(info.CorrectResponses);
 
 % FACTORIAL STRUCTURE : IVs (probeTypes, Probes, Durations)
-info.factorialStructure = [info.nCongruenceLevels, info.nProbeTypeLevels, ...
+info.factorialStructureSlim = [info.nCongruenceLevels, info.nProbeTypeLevels, ...
                            info.nPresTimeLevels, info.nCorrectResponses];
 info.factorialStructureFull = [...
     info.nCongruenceLevels, info.nPresTimeLevels,...
     info.nCorrectResponses, info.nProbeLevels, ...
     info.nContextLevels, info.nActionLevels];
 
-info.factorialStructureProbe = [...
+info.factorialStructure = [...
     info.nCongruenceLevels, info.nPresTimeLevels,...
-    info.nCorrectResponses, info.nProbeLevels];
+    info.nProbeLevels, info.nCorrectResponses];
+
+% STIMULUS LEVEL FACTORS
+info.ViewLevels = ["frontal", "lateral"];
+info.nViewLevels = length(info.ViewLevels);
+
+info.ActorLevels = ["a1", "a2"];
+info.nActorLevels = length(info.ActorLevels);
+
+info.ContextExemplarLevels = ["1", "2"];
+info.nContextExemplarLevels = length(info.ContextExemplarLevels);
 
 %HOW MANY TRIALS PER DESIGN CELL DO YOU WANT TO RUN?
 %IF YOU ARE INTERESTED IN RT ONLY, >25 IS RECOMMENDED PER PARTICIPANT
@@ -124,9 +131,9 @@ end
 a_counts = accumarray(ic,1);
 %value_counts = [C' a_counts];
 
-for i=1:length(a_counts)
-    disp([C(i), a_counts(i)])
-end
+% for i=1:length(a_counts)
+%     disp([C(i), a_counts(i)])
+% end
 
 % IDEA / QUESTION
 % In order to have lProbes (N=108) presented equally, we would have to 
@@ -178,8 +185,8 @@ for iCongruence = 1:info.nCongruenceLevels
                             % Save "context" for further assignment of probes AND
                             % "correctResponses
                             ThisTrial.Context = info.ContextLevels(iContext);
-                            ThisTrial.idxSourceContext = iContext;
                             ThisTrial.idxContext = iContext;
+                            ThisTrial.srcContext = info.ContextLevels(iContext);
                             ThisTrial.Action = info.ActionLevels(iContext,...
                                                                  iAction);
                             ThisTrial.idxAction = iAction; 
@@ -196,8 +203,8 @@ for iCongruence = 1:info.nCongruenceLevels
                             % Save "context" for further assignment of probes AND
                             % "correctResponses
                             ThisTrial.Context = info.ContextLevels(iContextInc);
-                            ThisTrial.idxSourceContext = iContext;
                             ThisTrial.idxContext = iContextInc;
+                            ThisTrial.srcContext = info.ContextLevels(iContext);
                             ThisTrial.Action = info.ActionLevels(iContext,...
                                                                  iAction);
                             ThisTrial.idxAction = iAction;
@@ -263,20 +270,22 @@ for iCongruence = 1:info.nCongruenceLevels
 
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         %ENCODING OF FACTOR LEVELS (FACTOR LEVELS MUST START AT 0)
-                        ThisTrial.code = ASF_encode(...
+                        codeProbe = find(info.ProbeLevels == ThisTrial.Probe);
+                        % For balancing visualization
+                        ThisTrial.codeSlim = ASF_encode(...
                             [iCongruence-1, iProbeType-1, iPresTime-1, iResponse-1],...
-                            info.factorialStructure);
+                            info.factorialStructureSlim);
                         % For inspection purposes
                         ThisTrial.codeFull = ASF_encode(...
                             [iCongruence-1, iPresTime-1, iResponse-1,...
-                             find(info.ProbeLevels == ThisTrial.Probe),...
+                             codeProbe-1,...
                              iContext-1, iAction-1],...
                              info.factorialStructureFull);
-
-                        ThisTrial.codeProbe = ASF_encode(...
-                             [iCongruence-1, iPresTime-1, iResponse-1,...
-                              find(info.ProbeLevels == ThisTrial.Probe),],...
-                              info.factorialStructureProbe);
+                        % Final
+                        ThisTrial.code = ASF_encode(...
+                             [iCongruence-1, iPresTime-1, ...
+                              codeProbe-1, iResponse-1], ...
+                             info.factorialStructure);
 
                         %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                         %WE START MEASURING THE RT AS SOON AS THE PICTURE IS PRESENTED,
