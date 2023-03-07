@@ -175,8 +175,7 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         % there is no text visible on screen.
         % Draw probe text
         if (i == 5)
-          [~, Probe] = decodeProbe(atrial.code, Cfg.factorialStructure, ...
-                                   Cfg.factorProbeTypes, Cfg.factorProbes);
+          Probe = decodeProbe(atrial.code, Cfg.factorialStructure, Cfg.factorProbes);
           tstring = upper(Probe);
           
           drawProbeText(windowPtr, Cfg, convertStringsToChars(tstring));
@@ -391,24 +390,22 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Probe decoding function
-function [probeType, Probe] = decodeProbe(trialCode, factorialStructure, ...
-                                          ProbeTypeLevels, ProbeLevels)
-  % (ASF_)Decodes the probe type and the probe, given the trial code and the
-  % factorial structure with its underlying factors.
-  % Custom to "BriefAC" behavioral experiment (ActionsInContext).
-  % OV 11.05.22
-  %
-  % Designed to be used in "ASF_showTrial" function.
-  
-  % Decode factors from code
-  factors = ASF_decode(trialCode,factorialStructure);
-  c = factors(1);   % congruency
-  t = factors(2);   % probe type
-  p = factors(3);   % probe
-  d = factors(4);   % duration
-  
-  probeType = ProbeTypeLevels(t+1);
-  Probe = ProbeLevels(p+1);
+function Probe = decodeProbe(trialCode, factorialStructure, ProbeLevels)
+% (ASF_)Decodes the probe type and the probe, given the trial code and the
+% factorial structure with its underlying factors.
+% Custom to "BriefAC" behavioral experiment (ActionsInContext).
+% OV 11.05.22
+%
+% Designed to be used in "ASF_showTrial" function.
+
+% Decode factors from code
+factors = ASF_decode(trialCode,factorialStructure);
+c = factors(1);   % congruence
+d = factors(2);   % duration
+p = factors(3);   % probe
+r = factors(4);   % correct response
+
+Probe = ProbeLevels(p+1);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
