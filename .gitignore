@@ -3,6 +3,8 @@
 # Matlab variables
 *.mat
 !Brief-AC/results/SUB-01_pilot-2_right.mat
+!TRD_yin.mat
+!TRD_yang.mat
 
 # Ignore Matlab's autosave files
 *.asv

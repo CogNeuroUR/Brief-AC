@@ -1,4 +1,4 @@
-function [TRD, info] = fillTRD_v2(subjectID, nBlocks, lBlock, RespKeys, writeTRD)
+function [TRD, info] = fillTRD_v2(subjectID, yin, nBlocks, RespKeys, writeTRD)
 % FILLS A TEMPLATE 'TrialDefinitions' STRUCT WITH NECESSARY ENTRIES,
 % GIVES A STRUCTURE TO THE TRIALS.
 % 
@@ -37,27 +37,111 @@ dstOS = "Windows"; %Windows"; % OR "Linux"
 % get OS-specific YES/NO key assignment and "getCorrectResponseKey" function
 [keyYes, keyNo, getCorrectResponseKey] = assignRespKeysOS(dstOS, RespKeys);
 
-%% 0.5) Stimuli parameters
+%% 0.5) Stimuli files
 % Read std-file
 fid = fopen('stimdef.std');
 
 tline = fgetl(fid);
 std_files = [];
 while ischar(tline)
-  std_files = [std_files; convertCharsToStrings(tline)];
-  tline = fgetl(fid);
+    std_files = [std_files; convertCharsToStrings(tline)];
+    tline = fgetl(fid);
 end
 fclose(fid);
 
 prefix = ['.' '\' 'stimuli' '\']; % for stimdef created on Windows
 picFormat = 'png';
 
+
 %% 1) Get template TRD with a given number of blocks
-[TRD, info] = makeTRDTemplate_v2(nBlocks);
-% These contain minimal info about the stimuli (targets & masks).
+%[TRD, info] = makeTRDTemplate_v2();
+if yin == 1
+    TRD = load('TRD_yin.mat', 'TRD_yin');
+    TRD = TRD.TRD_yin;
+else
+    TRD = load('TRD_yang.mat', 'TRD_yang');
+    TRD = TRD.TRD_yang;
+end
+lBlock = length(TRD);
+% Replicate by the wanted amount of blocks
+TRD = repmat(TRD, 1, nBlocks);
+% Get info (with factorial structure)
+info = getFactorialStructure();
+
+%--------------------------------------------------------------------------
+%% STIMULI PARAMETERS
+%--------------------------------------------------------------------------
+info.emptyPicture = 1;
+info.fixationPicture = 1;
+
+%--------------------------------------------------------------------------
+% TIMING & HARDWARE RELATED
+%--------------------------------------------------------------------------
+info.screenFrameRate = 60;
+% pages
+info.fixDuration = 30; % 500ms : page 1
+info.emptyDuration = 12; %200ms : page 2
+info.maskDuration = 15; % 240 ms : page 4
+info.probeDuration = 150; % 2500ms : page 5
+info.postProbeDuration = 30; % 2500ms : page 6
+% pauses
+info.pauseIntervalSecs = 300; % IN SECONDS!
+info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
+
+%--------------------------------------------------------------------------
+% RESPONSES
+%--------------------------------------------------------------------------
+% Record RT only at probe screen
+info.startRTonPage = 5;
+info.endRTonPage = 5;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 2) Add target images
+% 2) Add probes (random)
+idxs_ctxt = 1:info.nContextLevels;
+idxs_actn = 1:info.nActionLevels;
+
+for iTrial=1:length(TRD)
+    % Correct response: YES
+    if isequal(TRD(iTrial).correctResponse, "yes")
+        % CONTEXT
+        if isequal(TRD(iTrial).probeType, "context")
+            TRD(iTrial).Probe = TRD(iTrial).Context;
+        % ACTION
+        else
+            TRD(iTrial).Probe = TRD(iTrial).Action;
+        end
+    % Correct response: NO
+    else
+        % CONTEXT
+        if isequal(TRD(iTrial).probeType, "context")
+            % get subset of contexts different than the current one
+            temp = idxs_ctxt(idxs_ctxt ~= TRD(iTrial).idxContext);
+            % asign random context from the subset
+            TRD(iTrial).Probe = info.ContextLevels(...
+                datasample(temp, 1));
+        % ACTION
+        else
+            % get subset of actions different than the
+            % current one (within context)
+            temp = idxs_actn(idxs_actn ~= TRD(iTrial).idxAction);
+            % assign specific action probe from the subset
+            TRD(iTrial).Probe = info.ActionLevels(...
+                TRD(iTrial).idxContext, datasample(temp, 1));
+        end
+    end
+
+    %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    %ENCODING OF FACTOR LEVELS (FACTOR LEVELS MUST START AT 0)
+    TRD(iTrial).code = ASF_encode([...
+        find(info.CongruenceLevels==TRD(iTrial).Compatibility)-1,...
+        find(info.PresTimeLevels==TRD(iTrial).picDuration)-1,...
+        find(info.ProbeLevels==TRD(iTrial).Probe)-1,...
+        find(info.CorrectResponses==TRD(iTrial).correctResponse)-1],...
+        info.factorialStructure);
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 3) Add target images
 % Sample stimulus level factors (Context exemplar, Actor and View)
 
 % Iterate over trials in TRD
@@ -102,11 +186,11 @@ for iTrial=1:length(TRD)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 3) Shuffle all trials together (blockwise)
+%% 4) Shuffle all trials together (blockwise)
 TRD = shuffleBlockWise(TRD, lBlock, 'all');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 4) Add jitter (300-600ms) to blank screen (betw. fixation & target)
+%% 5) Add jitter (300-600ms) to blank screen (betw. fixation & target)
 jitt_shortest = 18; % in frames (300ms, 60Hz)
 jitt_longest = 36; % in in frames (600ms, 60Hz)
 step = 2; % in frames
@@ -116,12 +200,12 @@ pageNumber = 2; % page 2 : blank screen
 TRD = addBlankJitter(TRD, type, jitt_shortest, jitt_longest, step, pageNumber);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 5) Final shuffling
+%% 6) Final shuffling
 % Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
 TRD = shuffleConditionalBlockWise(TRD, lBlock); % [DOESN'T DO WHAT'S EXPECTED]
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 6) Trim down unnecessary columns
+%% 7) Trim down unnecessary columns
 % Necessary fields for TRD writing:
 fieldsFinal = {'pictures', 'durations', 'code', 'tOnset', 'startRTonPage',...
                'endRTonPage', 'correctResponse'};
@@ -131,7 +215,7 @@ fieldsRest = setdiff(fields(TRD),fieldsFinal);
 TRD = rmfield(TRD, fieldsRest);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 7) Add special trials : start, preparation, pauses and end trials.
+%% 8) Add special trials : start, preparation, pauses and end trials.
 % Add Pause trials
 interval = 108; % trials between a break
 info.pauseTrial = TRD(1);
@@ -169,7 +253,7 @@ info.endTrial.code = 1002;
 TRD = addEndTrial(TRD, info.endTrial);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 8) Write TrialDefinitions to trd-file.
+%% 9) Write TrialDefinitions to trd-file.
 if writeTRD
     if RespKeys(1)
         fname = sprintf('SUB-%02d_left.trd', subjectID);
@@ -187,7 +271,7 @@ duration_frames = sum(durations);
 t_trial_estimate = 2.32; % in seconds (based on one pilot)
 duration_min = duration_frames / 3600; % in minutes (60fps * 60s)
 fprintf('\nN_trials : %d; Total MAX duration : %4.2fmin.\n', length(TRD), duration_min);
-fprintf('Estimated duration: %4.2fmin (%4.2fs per trial)',...
+fprintf('Estimated duration: %4.2fmin (%4.2fs per trial)\n\n',...
       length(TRD)*t_trial_estimate/60, t_trial_estimate);
 
 end % fillTRD function
