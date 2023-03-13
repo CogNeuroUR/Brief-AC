@@ -1,13 +1,25 @@
 function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
-% Creates a template of TrialDefinitions made out of 72 trials, each
-% corresponding to a unique target picture in the stimulus set.
-% Additionally to pictures it will contain presentation times and other
-% default TRD columns.
-% It is designed to be kept constant and make changes (for individual subjects)
-% further by filling in: trial codes, probes, etc. and for subsequent trial
-% shuffling (and not only).
+% Creates two template blocks (yin, yang) of trials that has the following
+% factors balanced within subject:
+%   = Compatibility: {compatible, incompatible}
+%   = Probe Type: {context, action}
+%   = Presentation Time: {33, 50, 66, 83, 100, 133ms}
+%   = Correct response: {yes, no}
+%   = Context: {kitchen, office, workshop}
+%   = Action: {one of three : within source context}
+% but with INCOMPATIBLE CONTEXT counter-balanced across subjects:
+%   = GROUP 1: yin (random sample of incompatible contexts)
+%   = GROUP 2: yang (incompatible context different that that of yin)
+%
+% The Probes (question exemplars) as well as the stimulus level factors are
+% assigned in the next step with fillTRD():
+%   = Probe: {9 x actions + 3 contexts)}
+%   = Context exemplar: {1, 2}
+%   = Actor: {a1, a2}
+%   = Viewpoint: {frontal, lateral}
 % 
-% OV 11.05.22 BriefAC (ActionsInContext)
+% BriefAC_v2 (ActionsInContext)
+% Vrabie 2023 
 
 %% CREATES A BLOCK-OF-TRIALS TEMPLATE FOR THE BRIEF-AC EXPERIMENT
 % IDEA: given all design conditions, creates A block with each condition.
@@ -15,87 +27,7 @@ function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
 %--------------------------------------------------------------------------
 % DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
-%{
-info.CongruenceLevels = ["compatible", "incompatible"];
-info.nCongruenceLevels = length(info.CongruenceLevels);
-
-info.ContextLevels = ["kitchen", "office", "workshop"];
-info.nContextLevels = length(info.ContextLevels);
-
-info.ActionLevels = ["cutting", "grating", "whisking";...
-                     "hole-punching", "stamping", "stapling";...
-                     "hammering", "painting", "sawing"];
-info.nActionLevels = length(info.ActionLevels);
-
-info.ProbeTypeLevels = ["context", "action"]';
-info.nProbeTypeLevels = length(info.ProbeTypeLevels);
-
-info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
-info.nProbeLevels = length(info.ProbeLevels);
-
-info.PresTimeLevels = [2:1:6 8]; % nr x 16.6ms
-info.nPresTimeLevels = length(info.PresTimeLevels);
-
-info.CorrectResponses = ["yes", "no"];
-info.nCorrectResponses = length(info.CorrectResponses);
-
-% FACTORIAL STRUCTURE : IVs (probeTypes, Probes, Durations)
-info.factorialStructureSlim = [info.nCongruenceLevels, info.nProbeTypeLevels, ...
-                           info.nPresTimeLevels, info.nCorrectResponses];
-info.factorialStructureFull = [...
-    info.nCongruenceLevels, info.nPresTimeLevels,...
-    info.nCorrectResponses, info.nProbeLevels, ...
-    info.nContextLevels, info.nActionLevels];
-
-info.factorialStructure = [...
-    info.nCongruenceLevels, info.nPresTimeLevels,...
-    info.nProbeLevels, info.nCorrectResponses];
-
-% STIMULUS LEVEL FACTORS
-info.ViewLevels = ["frontal", "lateral"];
-info.nViewLevels = length(info.ViewLevels);
-
-info.ActorLevels = ["a1", "a2"];
-info.nActorLevels = length(info.ActorLevels);
-
-info.ContextExemplarLevels = ["1", "2"];
-info.nContextExemplarLevels = length(info.ContextExemplarLevels);
-%}
-info = getFactorialStructure();
-
-%HOW MANY TRIALS PER DESIGN CELL DO YOU WANT TO RUN?
-%IF YOU ARE INTERESTED IN RT ONLY, >25 IS RECOMMENDED PER PARTICIPANT
-%AND CONDITIONS OF INTEREST
-%IF YOU ARE INTERESTED IN ERROR RATES, 100 IS RECOMMENDED PER PARTICIPANT
-%YOU MAY WANT TO SPAWN THIS NUMBER OVER DIFFERENT SESSIONS IF YOU HAVE A
-%BIG DESIGN
-
-%--------------------------------------------------------------------------
-% STIMULI PARAMETERS
-%--------------------------------------------------------------------------
-info.emptyPicture = 1;
-info.fixationPicture = 1;
-
-%--------------------------------------------------------------------------
-% TIMING & HARDWARE RELATED
-%--------------------------------------------------------------------------
-info.screenFrameRate = 60;
-% pages
-info.fixDuration = 30; % 500ms : page 1
-info.emptyDuration = 12; %200ms : page 2
-info.maskDuration = 15; % 240 ms : page 4
-info.probeDuration = 150; % 2500ms : page 5
-info.postProbeDuration = 30; % 2500ms : page 6
-% pauses
-info.pauseIntervalSecs = 300; % IN SECONDS!
-info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
-
-%--------------------------------------------------------------------------
-% RESPONSES
-%--------------------------------------------------------------------------
-% Record RT only at probe screen
-info.startRTonPage = 5;
-info.endRTonPage = 5;
+info = getDesignParams();
 
 %% ------------------------------------------------------------------------
 TrialDefinitions = makeTRDblock(info);
