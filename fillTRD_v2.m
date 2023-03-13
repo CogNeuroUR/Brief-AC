@@ -30,6 +30,7 @@ clear info;
 % lBlock = 432;
 % RespKeys = [0,1];
 % writeTRD = 0;
+% yin = 1;
 
 %% 0.0) Asign response key mapping
 % Destination OS
@@ -65,35 +66,9 @@ end
 lBlock = length(TRD);
 % Replicate by the wanted amount of blocks
 TRD = repmat(TRD, 1, nBlocks);
+
 % Get info (with factorial structure)
-info = getFactorialStructure();
-
-%--------------------------------------------------------------------------
-%% STIMULI PARAMETERS
-%--------------------------------------------------------------------------
-info.emptyPicture = 1;
-info.fixationPicture = 1;
-
-%--------------------------------------------------------------------------
-% TIMING & HARDWARE RELATED
-%--------------------------------------------------------------------------
-info.screenFrameRate = 60;
-% pages
-info.fixDuration = 30; % 500ms : page 1
-info.emptyDuration = 12; %200ms : page 2
-info.maskDuration = 15; % 240 ms : page 4
-info.probeDuration = 150; % 2500ms : page 5
-info.postProbeDuration = 30; % 2500ms : page 6
-% pauses
-info.pauseIntervalSecs = 300; % IN SECONDS!
-info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
-
-%--------------------------------------------------------------------------
-% RESPONSES
-%--------------------------------------------------------------------------
-% Record RT only at probe screen
-info.startRTonPage = 5;
-info.endRTonPage = 5;
+info = getDesignParams();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 2) Add probes (random)
