@@ -5,12 +5,12 @@ function info = getDesignParams()
 info.CongruenceLevels = ["compatible", "incompatible"];
 info.nCongruenceLevels = length(info.CongruenceLevels);
 
-info.ContextLevels = ["kitchen", "office", "workshop"];
+info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
 info.nContextLevels = length(info.ContextLevels);
 
-info.ActionLevels = ["cutting", "grating", "whisking";...
-                     "hole-punching", "stamping", "stapling";...
-                     "hammering", "painting", "sawing"];
+info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
+                "LOCHEN", "STEMPELN", "HEFTEN";...
+                "HÄMMERN", "STREICHEN", "SÄGEN"];
 info.nActionLevels = length(info.ActionLevels);
 
 info.ProbeTypeLevels = ["context", "action"]';

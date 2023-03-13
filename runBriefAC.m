@@ -19,33 +19,7 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 %==========================================================================
 % FACTORIAL DESIGN
 %==========================================================================
-info.CongruenceLevels = ["compatible", "incompatible"];
-info.nCongruenceLevels = length(info.CongruenceLevels);
-
-info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
-info.nContextLevels = length(info.ContextLevels);
-
-info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
-                "LOCHEN", "STEMPELN", "HEFTEN";...
-                "HÄMMERN", "STREICHEN", "SÄGEN"];
-info.nActionLevels = length(info.ActionLevels);
-
-info.ProbeTypeLevels = ["context", "action"]';
-info.nProbeTypeLevels = length(info.ProbeTypeLevels);
-
-info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
-info.nProbeLevels = length(info.ProbeLevels);
-
-info.PresTimeLevels = [2:1:6 8]; % nr x 16.6ms
-info.nPresTimeLevels = length(info.PresTimeLevels);
-
-info.CorrectResponses = ["yes", "no"];
-info.nCorrectResponses = length(info.CorrectResponses);
-
-info.factorialStructure = [...
-    info.nCongruenceLevels, info.nPresTimeLevels,...
-    info.nProbeLevels, info.nCorrectResponses];
-
+info = getDesignParams();
 Cfg.DurationLevels = info.PresTimeLevels;
 Cfg.factorProbeTypes = info.ProbeTypeLevels;
 Cfg.factorProbes = info.ProbeLevels;
