@@ -1,6 +1,14 @@
-%% Create TRD for 10 subjects: yes-right
-%[TRD_right, info] = fillTRD_v2(0, 20, 432, [0,1], 0);
-[TRD, info] = fillTRD_v2(0, 1, 20, [0,1], 0);
+%% Create TRD for N-subjects: yes-right
+nSubjects = 20;
+TRD = [];
+for iSub=1:nSubjects
+    if iSub < 11
+        [TRD_, ~] = fillTRD_v2(0, 1, 1, [0,1], 0);
+    else
+        [TRD_, ~] = fillTRD_v2(0, 0, 1, [0,1], 0);
+    end
+    TRD = [TRD, TRD_];
+end
 
 %% Extract codes & count
 %TRD = TRD_right;
@@ -8,7 +16,7 @@
 codes = [TRD.code];
 codes = codes(codes < 999);
 
-info = getFactorialStructure();
+info = getDesignParams();
 
 %% Get unique codes
 [C,ia,ic] = unique(codes);
@@ -79,28 +87,48 @@ for iCongruence = 1:info.nCongruenceLevels
     end
 end
 
+%% PLOT main factor balancing
+label_main = [];
+counts_main_yes = [];
+counts_main_no = [];
+for iCongruence = 1:info.nCongruenceLevels
+    for iProbeType = 1:info.nProbeTypeLevels
+        for iPresTime = 1:info.nPresTimeLevels
+            label_main = [label_main,...
+                sprintf("%s : %s : %.1f", ...
+                    info.CongruenceLevels(iCongruence), ...
+                    info.ProbeTypeLevels(iProbeType), ...
+                    info.PresTimeLevels(iPresTime) * 1/60 * 1000)];
+            counts_y = [countsAll(...
+                [countsAll.Congruence] == info.CongruenceLevels(iCongruence) &...
+                [countsAll.ProbeType] == info.ProbeTypeLevels(iProbeType) &...
+                [countsAll.PT] == info.PresTimeLevels(iPresTime) &...
+                [countsAll.CorrectResponse] == 'yes').count];
 
-%% PLOT?
-countsYESall = [];
-countsNOall = [];
-
-for iProbeType=1:info.nProbeTypeLevels
-    counts_yes = [countsAll([countsAll.Congruence] == 'compatible' &...
-                         [countsAll.CorrectResponse] == 'yes' & ...
-                         [countsAll(i).ProbeType] == info.ProbeTypeLevels(iProbeType)).count];
-    counts_no = [countsAll([countsAll.Congruence] == 'compatible' &...
-                         [countsAll.CorrectResponse] == 'no' & ...
-                         [countsAll(i).ProbeType] == info.ProbeTypeLevels(iProbeType)).count];
-    disp(iProbeType)
-    countsYESall = [countsYESall; counts_yes];
+            counts_n = [countsAll(...
+                [countsAll.Congruence] == info.CongruenceLevels(iCongruence) &...
+                [countsAll.ProbeType] == info.ProbeTypeLevels(iProbeType) &...
+                [countsAll.PT] == info.PresTimeLevels(iPresTime) &...
+                [countsAll.CorrectResponse] == 'no').count];
+            counts_main_yes = [counts_main_yes, sum(counts_y)];
+            counts_main_no = [counts_main_no, sum(counts_n)];
+        end
+    end
 end
 
-counts_yes_comp = [countsAll([countsAll.Congruence] == 'compatible' &...
-                             [countsAll.CorrectResponse] == 'yes').count];
-counts_no_comp = [countsAll([countsAll.Congruence] == 'compatible' &...
-                             [countsAll.CorrectResponse] == 'no').count];
-%bar([facLevels([facLevels.Congruence] == 'compatible').count])
-%bar([counts_yes_comp; counts_no_comp]')
+
+figure
+bar([counts_main_yes; counts_main_no]')
+hold on
+xticks(1:length(label_main))
+xticklabels(label_main)
+xtickangle(70)
+
+lgd = legend('YES','NO');
+lgd.Location = 'best';
+lgd.Title.String = 'Correct Response';
+title('Main factors')
+hold off
 
 %% Compatible: YES vs NO
 s_yes_comp = [countsAll([countsAll.Congruence] == 'compatible' &...
