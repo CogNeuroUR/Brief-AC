@@ -20,6 +20,12 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 % FACTORIAL DESIGN
 %==========================================================================
 info = getDesignParams();
+% Switch labels to German for probes
+info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
+info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
+                "LOCHEN", "STEMPELN", "HEFTEN";...
+                "HÄMMERN", "STREICHEN", "SÄGEN"];
+
 Cfg.DurationLevels = info.PresTimeLevels;
 Cfg.factorProbeTypes = info.ProbeTypeLevels;
 Cfg.factorProbes = info.ProbeLevels;
