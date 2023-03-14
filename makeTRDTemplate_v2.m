@@ -1,4 +1,5 @@
-function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
+function [TRD, info] = makeTRDTemplate_v2()
+%function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
 % Creates two template blocks (yin, yang) of trials that has the following
 % factors balanced within subject:
 %   = Compatibility: {compatible, incompatible}
@@ -50,6 +51,10 @@ for iTrial=1:length(TRD_yang)
     TRD_yang(iTrial).Context = other;
     TRD_yang(iTrial).idxContext = find(info.ContextLevels==other);
 end
+
+%% ------------------------------------------------------------------------
+%% Merge yin & yang together
+TRD = [TRD_yin, TRD_yang];
 
 %% ------------------------------------------------------------------------
 %% Write to files

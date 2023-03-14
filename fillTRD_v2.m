@@ -55,17 +55,19 @@ picFormat = 'png';
 
 
 %% 1) Get template TRD with a given number of blocks
-%[TRD, info] = makeTRDTemplate_v2();
-if yin == 1
-    TRD = load('TRD_yin.mat', 'TRD_yin');
-    TRD = TRD.TRD_yin;
-else
-    TRD = load('TRD_yang.mat', 'TRD_yang');
-    TRD = TRD.TRD_yang;
-end
-lBlock = length(TRD);
-% Replicate by the wanted amount of blocks
-TRD = repmat(TRD, 1, nBlocks);
+[TRD, info] = makeTRDTemplate_v2();
+lBlock = length(TRD) / 2;
+
+% if yin == 1
+%     TRD = load('TRD_yin.mat', 'TRD_yin');
+%     TRD = TRD.TRD_yin;
+% else
+%     TRD = load('TRD_yang.mat', 'TRD_yang');
+%     TRD = TRD.TRD_yang;
+% end
+% lBlock = length(TRD);
+% % Replicate by the wanted amount of blocks
+% TRD = repmat(TRD, 1, nBlocks);
 
 % Get info (with factorial structure)
 info = getDesignParams();
