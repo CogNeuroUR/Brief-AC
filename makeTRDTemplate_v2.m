@@ -48,6 +48,7 @@ for iTrial=1:length(TRD_yang)
     other = info.ContextLevels(info.ContextLevels ~= TRD_yang(iTrial).Context & ...
                                info.ContextLevels ~= TRD_yang(iTrial).srcContext);
     TRD_yang(iTrial).Context = other;
+    TRD_yang(iTrial).idxContext = find(info.ContextLevels==other);
 end
 
 %% ------------------------------------------------------------------------
