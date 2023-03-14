@@ -243,7 +243,7 @@ end
 % Compute duration
 durations = [TRD(:).durations];
 duration_frames = sum(durations);
-t_trial_estimate = 2.32; % in seconds (based on one pilot)
+t_trial_estimate = 3.3; % in seconds (based on one pilot)
 duration_min = duration_frames / 3600; % in minutes (60fps * 60s)
 fprintf('\nN_trials : %d; Total MAX duration : %4.2fmin.\n', length(TRD), duration_min);
 fprintf('Estimated duration: %4.2fmin (%4.2fs per trial)\n\n',...
