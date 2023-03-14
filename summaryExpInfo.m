@@ -52,7 +52,7 @@ end
 function t_trial_info = getExpSummary(ExpInfo)
 
 %% Load "info" about factorial structure
-info = getFactorialStructure();
+info = getDesignParams();
 
 %% Collect trial info
 trials = {};
@@ -64,9 +64,7 @@ for i=1:length(ExpInfo.TrialInfo)
   code = ExpInfo.TrialInfo(i).trial.code;
   % Exclude special trials:
   if code > 999; continue; end
-  [congruency, probeType, Probe] = decodeProbe(code, info.factorialStructure,...
-                                               info.CongruencyLevels,...
-                                               info.ProbeTypeLevels, info.ProbeLevels);
+  [congruence, probeType, Probe] = decodeProbe(code, info);
 
 
 
@@ -74,7 +72,7 @@ for i=1:length(ExpInfo.TrialInfo)
                       ExpInfo.TrialInfo(i).Response.key,...
                       ExpInfo.TrialInfo(i).trial.correctResponse,...
                       ExpInfo.TrialInfo(i).Response.RT,...
-                      congruency, probeType, Probe};   
+                      congruence, probeType, Probe};   
 
 end
 
