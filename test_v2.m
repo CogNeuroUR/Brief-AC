@@ -1,5 +1,5 @@
 %% Create TRD for N-subjects: yes-right
-nSubjects = 20;
+nSubjects = 100;
 TRD = [];
 for iSub=1:nSubjects
     if iSub < 11
@@ -25,7 +25,7 @@ value_counts = [C' a_counts];
 
 %facLevels = {};
 for i=1:length(a_counts)
-    disp([C(i), a_counts(i)])
+    %disp([C(i), a_counts(i)])
 
     % Decode factors from code
     factors = ASF_decode(C(i), info.factorialStructure);
@@ -172,6 +172,54 @@ labels = [];
 for i=1:length(s_yes_comp)
     labels = [labels, sprintf("%s : %s : %.1f", s_yes_comp(i).ProbeType, ...
                              s_yes_comp(i).Probe, s_yes_comp(i).PT * 1/60 * 1000)];
+end
+
+bar([counts_yes_comp; counts_no_comp]')
+hold on
+xticks(1:length(labels))
+xticklabels(labels)
+xtickangle(70)
+
+lgd = legend('YES','NO');
+lgd.Location = 'best';
+lgd.Title.String = 'Correct Response';
+
+title('Incompatible trials')
+
+hold off
+
+%% Incompatible: per context: YES vs NO
+s_yes_comp = [countsAll([countsAll.Congruence] == 'incompatible' &...
+                             [countsAll.CorrectResponse] == 'yes')];
+s_no_comp = [countsAll([countsAll.Congruence] == 'incompatible' &...
+                             [countsAll.CorrectResponse] == 'no')];
+counts_yes_comp = [s_yes_comp.count];
+counts_no_comp = [s_no_comp.count];
+
+% Sum action probes within their source context
+counts_yes_comp = [sum(counts_yes_comp(1:6*3)), ...         % action
+                   sum(counts_yes_comp(6*3+1:2*6*3)),...    % action
+                   sum(counts_yes_comp(2*6*3+1:3*6*3)),...  % action
+                   sum(counts_yes_comp(3*6*3+1:3*6*3+6)),...
+                   sum(counts_yes_comp(3*6*3+6+1:3*6*3+6*2)),...
+                   sum(counts_yes_comp(3*6*3+6*2+1:3*6*3+6*3))];
+counts_no_comp = [sum(counts_no_comp(1:6*3)), ...
+                  sum(counts_no_comp(6*3+1:2*6*3)),...
+                  sum(counts_no_comp(2*6*3+1:3*6*3)),...
+                  sum(counts_no_comp(3*6*3+1:3*6*3+6)),...
+                  sum(counts_no_comp(3*6*3+6+1:3*6*3+6*2)),...
+                  sum(counts_no_comp(3*6*3+6*2+1:3*6*3+6*3))];
+figure
+labels = [];
+for i=1:6
+    if i < 4
+        probe = "action";
+        context = info.ContextLevels(i);
+    else
+        probe = "context";
+        context = info.ContextLevels(i-3);
+    end
+    labels = [labels, sprintf("%s : %s", probe, context)];
 end
 
 bar([counts_yes_comp; counts_no_comp]')
