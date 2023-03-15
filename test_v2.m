@@ -2,10 +2,10 @@
 nSubjects = 100;
 TRD = [];
 for iSub=1:nSubjects
-    if iSub < 11
-        [TRD_, ~] = fillTRD_v2(0, 1, 1, [0,1], 0);
+    if iSub < nSubjects/2 + 1
+        [TRD_, ~] = fillTRD_v2(iSub, [0,1], 0);
     else
-        [TRD_, ~] = fillTRD_v2(0, 0, 1, [0,1], 0);
+        [TRD_, ~] = fillTRD_v2(iSub, [1,0], 0);
     end
     TRD = [TRD, TRD_];
 end
@@ -18,7 +18,7 @@ codes = codes(codes < 999);
 
 info = getDesignParams();
 
-%% Get unique codes
+%% Get unique codes from the simulation & decode
 [C,ia,ic] = unique(codes);
 a_counts = accumarray(ic,1);
 value_counts = [C' a_counts];
@@ -48,8 +48,10 @@ for i=1:length(a_counts)
     facLevels(i).count = a_counts(i);
 end
 
-
 %% Collect all possible outcomes & squeeze counts in there
+% Because there might be missing codes in the simulation, get a
+% full-structured overview of the distribution, including missing codes (if
+% any).
 i = 1;
 for iCongruence = 1:info.nCongruenceLevels
     for iProbe = 1:info.nProbeLevels
