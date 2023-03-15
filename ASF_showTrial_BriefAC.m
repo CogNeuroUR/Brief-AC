@@ -108,7 +108,6 @@ for i = 1:atrial.startRTonPage-1
         if i == 2 % cross only on second page
           drawFixDisk(windowPtr, Cfg)
         end
-
         
         %PRESERVE BACK BUFFER IF THIS TEXTURE IS TO BE SHOWN
         %AGAIN AT THE NEXT FLIP
@@ -182,7 +181,6 @@ for i = atrial.startRTonPage:atrial.endRTonPage
           %drawProbeTextLong(windowPtr, Cfg, convertStringsToChars(tstring));
         end
 
-
         %DO NOT PUT THIS PAGE AGAIN ON THE BACKBUFFER, WE WILL WAIT IT OUT
         %USING THE TIMER NOT FLIPPING
         bPreserveBackBuffer = 0;
@@ -236,8 +234,8 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         else % normal trials (code : 0-999)
-          [x, y, buttons, t0, t1] =...
-            ASF_waitForResponse(Cfg, pageDuration_in_sec - toleranceSec);
+            [x, y, buttons, t0, t1] =...
+                ASF_waitForResponse(Cfg, pageDuration_in_sec - toleranceSec);
         
           if any(buttons)
             % ShowCursor
@@ -300,6 +298,13 @@ for i = atrial.endRTonPage+1:nPages
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
+        % Draw feedback: yes or no
+        if i == 6
+            % draw Yes or No
+            drawYesNo(windowPtr, Cfg.Screen.xCenter, Cfg.Screen.yCenter,...
+                      this_response.key, Cfg.CatchTrials.keyYes, Cfg.CatchTrials.keyNo)
+        end
+
         %PRESERVE BACK BUFFER IF THIS TEXTURE IS TO BE SHOWN
         %AGAIN AT THE NEXT FLIP
         bPreserveBackBuffer = atrial.pageDuration(i) > 1;
@@ -346,7 +351,6 @@ end
 if Cfg.waitUntilResponseAfterTrial && ~responseGiven
     [x, y, buttons, t0, t1] = ASF_waitForResponse(Cfg, 10);
 
-    
     if any(buttons)
         %A BUTTON HAS BEEN PRESSED BEFORE TIMEOUT
         %responseGiven = 1; %#ok<NASGU>
