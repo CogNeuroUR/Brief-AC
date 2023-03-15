@@ -154,13 +154,13 @@ TRD = shuffleBlockWise(TRD, lBlock, 'all');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 5) Add jitter (300-600ms) to blank screen (betw. fixation & target)
-jitt_shortest = 18; % in frames (300ms, 60Hz)
-jitt_longest = 36; % in in frames (600ms, 60Hz)
+%jitt_shortest = 24; % in frames (300ms, 60Hz)
+%jitt_longest = 54; % in in frames (600ms, 60Hz)
 step = 2; % in frames
 type = 'geometric'; % distribution from which to sample (or 'normal')
 pageNumber = 2; % page 2 : blank screen
 
-TRD = addBlankJitter(TRD, type, jitt_shortest, jitt_longest, step, pageNumber);
+TRD = addBlankJitter(TRD, type, info.fixDurationMin, info.fixDurationMax, step, pageNumber);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 6) Final shuffling

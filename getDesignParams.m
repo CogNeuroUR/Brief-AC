@@ -52,9 +52,11 @@ info.fixationPicture = 1;
 %-------------------------------------------------------------------------------
 info.screenFrameRate = 60;
 % pages
-info.fixDuration = 42; % 500ms : page 1
-info.emptyDuration = 12; %200ms : page 2
-info.maskDuration = 15; % 240 ms : page 4
+info.emptyDuration = 24; %400ms : page 1
+info.fixDurationMin = 30; % 500ms : page 2
+info.fixDurationMax = 48; % 800ms : page 2
+info.fixDuration = mean([info.fixDurationMin, info.fixDurationMax]); % placeholder
+info.maskDuration = 30; % 500 ms : page 4
 info.probeDuration = 150; % 2500ms : page 5
 info.postProbeDuration = 12; % 200ms : page 6
 % pauses
