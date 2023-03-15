@@ -168,17 +168,12 @@ for i = atrial.startRTonPage:atrial.endRTonPage
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
-
-        % Draw probe text (only on the last page)
-        % TODO : drawProbeText() doesn't seem to work (at least visibly
-        % there is no text visible on screen.
         % Draw probe text
         if (i == 5)
-          Probe = decodeProbe(atrial.code, Cfg.factorialStructure, Cfg.factorProbes);
+          [~, ~, Probe] = decodeProbe(atrial.code, Cfg.info);
           tstring = upper(Probe);
           
           drawProbeText(windowPtr, Cfg, convertStringsToChars(tstring));
-          %drawProbeTextLong(windowPtr, Cfg, convertStringsToChars(tstring));
         end
 
         %DO NOT PUT THIS PAGE AGAIN ON THE BACKBUFFER, WE WILL WAIT IT OUT
@@ -391,25 +386,3 @@ TrialInfo.timing = timing; %TIMING OF PAGES
 TrialInfo.StartRTMeasurement = StartRTMeasurement; %TIMESTAMP START RT
 TrialInfo.EndRTMeasurement = EndRTMeasurement; %TIMESTAMP END RT
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Probe decoding function
-function Probe = decodeProbe(trialCode, factorialStructure, ProbeLevels)
-% (ASF_)Decodes the probe type and the probe, given the trial code and the
-% factorial structure with its underlying factors.
-% Custom to "BriefAC" behavioral experiment (ActionsInContext).
-% OV 11.05.22
-%
-% Designed to be used in "ASF_showTrial" function.
-
-% Decode factors from code
-factors = ASF_decode(trialCode,factorialStructure);
-c = factors(1);   % congruence
-d = factors(2);   % duration
-p = factors(3);   % probe
-r = factors(4);   % correct response
-
-Probe = ProbeLevels(p+1);
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
