@@ -1,16 +1,16 @@
 function createStimDefs(system)
 
-stim_folder = 'stimuli_v2';
+stim_folder = 'stimuli';
 
 pathToStim = [pwd filesep stim_folder filesep];
 
 fNameList = dir([pathToStim '*.png']);
 nStim = length(fNameList);
 
-sName = ['stimdef_v2.std'];
+sName = ['stimdef.std'];
 
 if isequal(system, 'windows')
-  separator = '\\';
+  separator = "\";
 else
   separator = '/';
 end
