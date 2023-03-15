@@ -85,6 +85,8 @@ if Cfg.Eyetracking.doDriftCorrection
     EyelinkDoDriftCorrect(Cfg.el);
 end
 
+resetTextSizeFont(windowPtr, Cfg)
+
 %--------------------------------------------------------------------------
 %END OF PHASE 1
 %--------------------------------------------------------------------------
@@ -104,7 +106,7 @@ for i = 1:atrial.startRTonPage-1
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
-        % Draw fixation disk
+        % Draw fixation cross
         if i == 2 % cross only on second page
           drawFixDisk(windowPtr, Cfg)
         end
@@ -159,8 +161,6 @@ end
 %SPECIAL TREATMENT FOR THE DISPLAY PAGES ON WHICH WE ALLOW REACTIONS
 
 for i = atrial.startRTonPage:atrial.endRTonPage
-    %string = '';
-    %terminatorChar = 0;
     
     if (i > atrial.nPages)
         break;
@@ -253,28 +253,6 @@ for i = atrial.startRTonPage:atrial.endRTonPage
           end
 
         end
-        
-
-%         if any(buttons)
-%             % ShowCursor
-%             responseGiven = 1;
-%             %A BUTTON HAS BEEN PRESSED BEFORE TIMEOUT
-%             if Cfg.responseTerminatesTrial
-%                 %ANY CODE THAT YOU FEEL APPROPRIATE FOR SIGNALING THAT
-%                 %PARTICIPANT HAS PRESSED A BUTTON BEFORE THE TRIAL ENDED
-%                 %Snd('Play','Quack')
-%             else
-%                 %WAIT OUT THE REMAINDER OF THE STIMULUS DURATION WITH 
-%                 %MARGIN OF toleranceSec
-%                 wakeupTime = WaitSecs('UntilTime',...
-%                     StimulusOnsetTime + pageDuration_in_sec - toleranceSec);
-%             end
-%             %FIND WHICH BUTTON IT WAS
-%             this_response.key = find(buttons);
-%             %this_response.msg = string;
-%             %COMPUTE RESPONSE TIME
-%             this_response.RT = (t1 - StartRTMeasurement)*1000; 
-%        end
     end
 end
 %--------------------------------------------------------------------------
@@ -351,16 +329,9 @@ if Cfg.waitUntilResponseAfterTrial && ~responseGiven
         %responseGiven = 1; %#ok<NASGU>
         %FIND OUT WHICH BUTTON IT WAS
         this_response.key = find(buttons);
-        this_response.msg = string;
         %COMPUTE RESPONSE TIME
         this_response.RT = (t1 - StartRTMeasurement)*1000;
     end
-end
-
-%TRIAL BY TRIAL FEEDBACK
-if Cfg.feedbackTrialCorrect || Cfg.feedbackTrialError
-    ASF_trialFeeback(...
-        this_response.key == atrial.CorrectResponse, Cfg, windowPtr);
 end
 
 %--------------------------------------------------------------------------
@@ -385,4 +356,21 @@ TrialInfo.Response = this_response; %KEY AND RT
 TrialInfo.timing = timing; %TIMING OF PAGES
 TrialInfo.StartRTMeasurement = StartRTMeasurement; %TIMESTAMP START RT
 TrialInfo.EndRTMeasurement = EndRTMeasurement; %TIMESTAMP END RT
+end
+
+%--------------------------------------------------------------------------
+% AUXILIARY FUNCTIONS
+%--------------------------------------------------------------------------
+function resetTextSizeFont(window, Cfg)
+    %  MOVED OUT of drawProbeText 
+    % Default parameters:
+    % 1) Size
+    %Screen('TextSize', window, Cfg.Messages.SizeTxtBig);
+    Screen('TextSize', window, Cfg.Messages.SizeTxtMid);
+
+    % 2) Font
+    Screen('TextFont', window, Cfg.Messages.TextFont);
+
+    % Set up alpha-blending for smooth (anti-aliased) lines (seems necessary!)
+    %Screen('BlendFunction', window, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA');
 end
