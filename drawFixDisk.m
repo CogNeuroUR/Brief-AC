@@ -11,9 +11,6 @@ function drawFixDisk(window, Cfg)
   %Cfg.fixCrossDimPix = 30; % size of the cross arms
   %Cfg.fixLineWidthPix = 7.37; % width of cross arms (>7.37 crashes on Ubuntu)
   %Cfg.fixDiskRadius = 35; % radius of disk
-  
-  % Get the centre coordinate of the window
-  [xCenter, yCenter] = RectCenter(Cfg.Screen.rect);
 
   % Now we set the coordinates (these are all relative to zero we will let
   % the drawing routine center the cross in the center of our monitor for us)
@@ -30,5 +27,5 @@ function drawFixDisk(window, Cfg)
   % Draw the fixation cross in white, set it to the center of our screen and
   % set good quality antialiasing
   Screen('DrawLines', window, allCoords,...
-    Cfg.fixLineWidthPix, Cfg.crossColor, [xCenter yCenter], 2);
+    Cfg.fixLineWidthPix, Cfg.crossColor, [Cfg.Screen.xCenter Cfg.Screen.yCenter], 2);
 end
