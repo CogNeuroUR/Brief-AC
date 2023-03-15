@@ -13,7 +13,7 @@ info.ActionLevels = ["cutting", "grating", "whisking";...
                      "hammering", "painting", "sawing"];
 info.nActionLevels = length(info.ActionLevels);
 
-info.ProbeTypeLevels = ["context", "action"]';
+info.ProbeTypeLevels = ["action", "context"]';
 info.nProbeTypeLevels = length(info.ProbeTypeLevels);
 
 info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
@@ -52,11 +52,11 @@ info.fixationPicture = 1;
 %-------------------------------------------------------------------------------
 info.screenFrameRate = 60;
 % pages
-info.fixDuration = 30; % 500ms : page 1
+info.fixDuration = 42; % 500ms : page 1
 info.emptyDuration = 12; %200ms : page 2
 info.maskDuration = 15; % 240 ms : page 4
 info.probeDuration = 150; % 2500ms : page 5
-info.postProbeDuration = 30; % 2500ms : page 6
+info.postProbeDuration = 12; % 200ms : page 6
 % pauses
 info.pauseIntervalSecs = 300; % IN SECONDS!
 info.pauseInterval = info.pauseIntervalSecs * info.screenFrameRate;
