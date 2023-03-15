@@ -97,8 +97,8 @@ switch Cfg.environment
     Cfg.useTrialOnsetTimes = 0;
     %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
     %Cfg.Screen.rect = [1, 1, 640, 400]; % part
-    %Cfg.Screen.rect = [1, 1, 1280, 800]; % part
-    Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
+    Cfg.Screen.rect = [0, 0, 1280, 800]; % part
+    %Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
     %Cfg.Screen.rect = [0, 0, 2560, 1440]; % second screen
     Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
@@ -122,6 +122,14 @@ switch Cfg.environment
 
 end
 
+if contains(expName, 'right')
+    Cfg.Probe.keyYes = KbName('RightArrow');
+    Cfg.Probe.keyNo = KbName('LeftArrow');
+elseif contains(expName, 'left')
+    Cfg.Probe.keyYes = KbName('LeftArrow');
+    Cfg.Probe.keyNo = KbName('RightArrow');
+end
+
 %==========================================================================
 % Rest of REPORT SCREEN PARAMETERS
 %==========================================================================
@@ -130,6 +138,8 @@ widthRect = RectWidth(Cfg.Screen.rect);
 heightRect = RectHeight(Cfg.Screen.rect);
 Cfg.probe.x = widthRect/3.5;
 Cfg.probe.y = heightRect/3.5;
+% Get the centre coordinate of the window
+[Cfg.Screen.xCenter, Cfg.Screen.yCenter] = RectCenter(Cfg.Screen.rect);
 %==========================================================================
 % OTHER APPEARANCE PARAMETERS
 %==========================================================================

@@ -302,7 +302,7 @@ for i = atrial.endRTonPage+1:nPages
         if i == 6
             % draw Yes or No
             drawYesNo(windowPtr, Cfg.Screen.xCenter, Cfg.Screen.yCenter,...
-                      this_response.key, Cfg.CatchTrials.keyYes, Cfg.CatchTrials.keyNo)
+                      this_response.key, Cfg.Probe.keyYes, Cfg.Probe.keyNo)
         end
 
         %PRESERVE BACK BUFFER IF THIS TEXTURE IS TO BE SHOWN
