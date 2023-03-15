@@ -1,4 +1,4 @@
-function [TRD, info] = fillTRD_v2(subjectID, yin, nBlocks, RespKeys, writeTRD)
+function [TRD, info] = fillTRD_v2(subjectID, RespKeys, writeTRD)
 % FILLS A TEMPLATE 'TrialDefinitions' STRUCT WITH NECESSARY ENTRIES,
 % GIVES A STRUCTURE TO THE TRIALS.
 % 
@@ -11,13 +11,13 @@ function [TRD, info] = fillTRD_v2(subjectID, yin, nBlocks, RespKeys, writeTRD)
 % 3) Target picture : [33ms, 50ms, 66ms, 83ms, 100ms, 133ms]
 % 4) Mask : 240ms
 % 5) Probe screen : until response (max 2500ms).
+% 6) Post-probe screen : until response : 300ms.
 % 
 % VARIABLES:
-%   nBlocks : number of blocks to build (int)
-%   lBlock : block length (int)
+%   subjectID : subject ID (int)
 %   RespKeys : (list of bool)
-%     (1, 0) for "Yes" : left key, "No" : right key
-%     (0, 1) for "No" : left key, "Yes" : right key"
+%     [1, 0] for "Yes" : left key, "No" : right key
+%     [0, 1] for "No" : left key, "Yes" : right key"
 %   writeTRD : whether to write the TRD to file (bool)
 %
 % oleg.vrabie@ur.de (2023)
@@ -26,11 +26,8 @@ clear TRD;
 clear info;
 
 %% TEMPORARY Variable defintion
-% nBlocks = 1;
-% lBlock = 432;
 % RespKeys = [0,1];
 % writeTRD = 0;
-% yin = 1;
 
 %% 0.0) Asign response key mapping
 % Destination OS
@@ -58,17 +55,6 @@ picFormat = 'png';
 [TRD, info] = makeTRDTemplate_v2();
 lBlock = length(TRD) / 2;
 
-% if yin == 1
-%     TRD = load('TRD_yin.mat', 'TRD_yin');
-%     TRD = TRD.TRD_yin;
-% else
-%     TRD = load('TRD_yang.mat', 'TRD_yang');
-%     TRD = TRD.TRD_yang;
-% end
-% lBlock = length(TRD);
-% % Replicate by the wanted amount of blocks
-% TRD = repmat(TRD, 1, nBlocks);
-
 % Get info (with factorial structure)
 info = getDesignParams();
 
@@ -84,11 +70,11 @@ for iTrial=1:length(TRD)
         if isequal(TRD(iTrial).probeType, "context")
             TRD(iTrial).Probe = TRD(iTrial).Context;
         % ACTION
-        else
+        elseif isequal(TRD(iTrial).probeType, "action")
             TRD(iTrial).Probe = TRD(iTrial).Action;
         end
     % Correct response: NO
-    else
+    elseif isequal(TRD(iTrial).correctResponse, "no")
         % CONTEXT
         if isequal(TRD(iTrial).probeType, "context")
             % get subset of contexts different than the current one
@@ -97,7 +83,7 @@ for iTrial=1:length(TRD)
             TRD(iTrial).Probe = info.ContextLevels(...
                 datasample(temp, 1));
         % ACTION
-        else
+        elseif isequal(TRD(iTrial).probeType, "action")
             % get subset of actions different than the
             % current one (within context)
             temp = idxs_actn(idxs_actn ~= TRD(iTrial).idxAction);
