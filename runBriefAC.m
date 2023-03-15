@@ -2,9 +2,6 @@ function ExpInfo = runBriefAC(subjectID, expName)
 %example call:
 %runFastAC(1, 1, 'FastAC')
 
-%clear all;
-addpath(genpath('/usr/share/psychtoolbox-3/'))
-addpath(genpath('/home/ov/asf/code'));
 
 %setenv('PSYCH_EXPERIMENTAL_NETWMTS', '1')
 
@@ -21,16 +18,13 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 %==========================================================================
 info = getDesignParams();
 % Switch labels to German for probes
-info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
 info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
-                "LOCHEN", "STEMPELN", "HEFTEN";...
-                "HÄMMERN", "STREICHEN", "SÄGEN"];
+                     "LOCHEN", "STEMPELN", "HEFTEN";...
+                     "HÄMMERN", "STREICHEN", "SÄGEN"];
+info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
 
-Cfg.DurationLevels = info.PresTimeLevels;
-Cfg.factorProbeTypes = info.ProbeTypeLevels;
-Cfg.factorProbes = info.ProbeLevels;
-Cfg.factorialStructure = info.factorialStructure;
-%Cfg.factorialStructure = [length(CongruenceLevels), length(Cfg.factorProbeTypes) length(Cfg.factorProbes) length(Cfg.DurationLevels)];
+info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
+Cfg.info = info;
 
 %==========================================================================
 % FIXATION CROSS PARAMETERS
@@ -54,21 +48,14 @@ Cfg.pauseDurationMax = 30; % IN SECONDS!
 %==========================================================================
 % REPORT SCREEN PARAMETERS
 %==========================================================================
-params_exp = split(expName, '_');
-keyYes = params_exp(end);
-disp(keyYes);
-if ~ismember(keyYes, {'left', 'right'})
-  error('Given key name (last element in "expName") is neither "left" or "right"!')
-end
-
-%Cfg.probe.message = 'Type your description:';
 Cfg.probe.textColor = [175 175 175]; % light gray [255 255 255];
 Cfg.probe.bgColor = [0 0 0]; % black
 Cfg.probe.useKbCheck=0;
 Cfg.probe.maxNumChar=52; % ~2 x albhabet
 Cfg.probe.vLineSpacing = 2;
-Cfg.probe.keyYes = keyYes;
-% NOTE: rest of parameters are defined after "switch Cfg.environment"
+
+%==========================================================================
+% ENVIRONMENT PARAMETERS
 %==========================================================================
 
 switch Cfg.environment
@@ -89,7 +76,9 @@ switch Cfg.environment
     Cfg.Fixation.fixType = 1;
   
   case 'OV_TP'
-    % Tested on Ubuntu 20.04
+    % Tested on Ubuntu 22.04
+    addpath(genpath('/usr/share/psychtoolbox-3/'))
+    addpath(genpath('/home/ov/asf/code'));
     Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
     Cfg.responseDevice = 'KEYBOARD';
     Cfg.enabledKeys = [KbName('LeftArrow'), KbName('RightArrow'),...
@@ -97,8 +86,8 @@ switch Cfg.environment
     Cfg.useTrialOnsetTimes = 0;
     %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
     %Cfg.Screen.rect = [1, 1, 640, 400]; % part
-    Cfg.Screen.rect = [0, 0, 1280, 800]; % part
-    %Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
+    %Cfg.Screen.rect = [0, 0, 1280, 800]; % part
+    Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
     %Cfg.Screen.rect = [0, 0, 2560, 1440]; % second screen
     Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
@@ -122,12 +111,17 @@ switch Cfg.environment
 
 end
 
+%==========================================================================
+% Response keys
+%==========================================================================
 if contains(expName, 'right')
     Cfg.Probe.keyYes = KbName('RightArrow');
     Cfg.Probe.keyNo = KbName('LeftArrow');
 elseif contains(expName, 'left')
     Cfg.Probe.keyYes = KbName('LeftArrow');
     Cfg.Probe.keyNo = KbName('RightArrow');
+else
+    error('Given key name (last element in "expName") is neither "left" or "right"!')
 end
 
 %==========================================================================
@@ -148,8 +142,8 @@ Cfg.Messages.SizeTxtBig = round(60 * Hratio2fhd); % 70 for full screen (FHD)
 Cfg.Messages.SizeTxtMid = round(45 * Hratio2fhd); % 50 for full screen (FHD)
 Cfg.Messages.TextFont = 'Verdana';
 
-%==========================================================================
-
+%###############################################################################
+% RUN EXPERIMENT
 ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB-%02d_%s.trd', subjectID, expName), sprintf('SUB-%02d_%s', subjectID, expName), Cfg)
 
 %==========================================================================
