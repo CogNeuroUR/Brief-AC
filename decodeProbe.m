@@ -7,9 +7,9 @@ function [congruence, probeType, Probe] = decodeProbe(code, info)
     r = factors(4);   % correct response
     % probe type
     if p > 8
-        t = 0;
-    else
         t = 1;
+    else
+        t = 0;
     end
 
     congruence = info.CongruenceLevels(c+1);
