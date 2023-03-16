@@ -21,7 +21,7 @@ function ScreenEnd(window, Cfg)
   %text_end = sprintf('Experiment has ended!\n'); % EN
   text_end = sprintf('Das Experiment ist beendet!\n'); % DE 
   %text_thank = sprintf('\n\nThanks for your participation!'); % EN
-  text_thank = sprintf('\n\n\nVielen Dank fï¿½r Ihre Teilnahme!'); % DE
+  text_thank = sprintf('\n\n\nVielen Dank für Ihre Teilnahme!'); % DE
   
 
   % Countdown : Wait t_left
