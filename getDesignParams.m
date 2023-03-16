@@ -19,7 +19,7 @@ info.nProbeTypeLevels = length(info.ProbeTypeLevels);
 info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
 info.nProbeLevels = length(info.ProbeLevels);
 
-info.PresTimeLevels = [2:1:6 8]; % nr x 16.6ms
+info.PresTimeLevels = [2:1:5 7 9]; % nr x 16.6ms
 info.nPresTimeLevels = length(info.PresTimeLevels);
 
 info.CorrectResponses = ["yes", "no"];
