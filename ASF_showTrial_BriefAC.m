@@ -218,7 +218,7 @@ for i = atrial.startRTonPage:atrial.endRTonPage
   
           % Pause screen
           if atrial.code == Cfg.pauseTrialCode
-            ScreenPause(windowPtr, Cfg, Cfg.pauseDurationMax);
+            ScreenPause(windowPtr, Cfg, round(pageDuration_in_sec));
             WaitSecs(1); % wait 1s to give time to participant
           end
           
