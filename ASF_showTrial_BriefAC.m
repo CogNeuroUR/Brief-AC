@@ -224,7 +224,7 @@ for i = atrial.startRTonPage:atrial.endRTonPage
           
           % End screen
           if atrial.code == Cfg.endTrialCode
-            ScreenEnd(windowPtr, Cfg, Cfg.pauseDurationMax);
+            ScreenEnd(windowPtr, Cfg);
           end
         %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
