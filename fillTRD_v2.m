@@ -192,6 +192,11 @@ info.pauseTrial.correctResponse = 0;
 TRD = addPauseTrials(TRD, info.pauseTrial, interval);
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Change middle break to a longer break:
+idxPauses = find([TRD.code] == 1001);
+TRD(idxPauses(ceil((end/2)))).durations = info.pauseMid.durations;
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Add StartTrial (w/ instructions)
 info.startTrial = info.pauseTrial;
 info.startTrial.code = 1000;

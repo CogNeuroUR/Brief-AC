@@ -81,7 +81,7 @@ info.startTrial.startRTonPage = 1;
 info.startTrial.endRTonPage = 1;
 info.startTrial.correctResponse = 0;
 
-% TODO Add (10s) preparation (after StartTrial)
+% Add (10s) preparation (after StartTrial)
 info.prepTrial = info.startTrial;
 info.prepTrial.code = 1003;
 info.prepTrial.durations = 10*60; % in frames
@@ -95,6 +95,9 @@ info.pauseTrial.durations = 30*60; % 30s in frames
 info.pauseTrial.startRTonPage = 1;
 info.pauseTrial.endRTonPage = 1;
 info.pauseTrial.correctResponse = 0;
+
+% Longer mid-break
+info.pauseMid.durations = 60 * 60; % 60s in frames
 
 % Add Finish trial
 info.endTrial = info.pauseTrial;
