@@ -271,12 +271,12 @@ for i = atrial.endRTonPage+1:nPages
         %PUT THE APPROPRIATE TEXTURE ON THE BACK BUFFER
         Screen('DrawTexture', windowPtr, Stimuli.tex(atrial.pageNumber(i)));
         
-        % Draw feedback: yes or no
-        if i == 6
-            % draw Yes or No
-            drawYesNo(windowPtr, Cfg.Screen.xCenter, Cfg.Screen.yCenter,...
-                      this_response.key, Cfg.Probe.keyYes, Cfg.Probe.keyNo)
-        end
+%         % Draw feedback: yes or no
+%         if i == 6
+%             % draw Yes or No
+%             drawYesNo(windowPtr, Cfg.Screen.xCenter, Cfg.Screen.yCenter,...
+%                       this_response.key, Cfg.Probe.keyYes, Cfg.Probe.keyNo)
+%         end
 
         %PRESERVE BACK BUFFER IF THIS TEXTURE IS TO BE SHOWN
         %AGAIN AT THE NEXT FLIP
