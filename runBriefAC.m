@@ -115,9 +115,11 @@ end
 % Response keys
 %==========================================================================
 if contains(expName, 'right')
+    Cfg.probe.Yes = 'right';
     Cfg.Probe.keyYes = KbName('RightArrow');
     Cfg.Probe.keyNo = KbName('LeftArrow');
 elseif contains(expName, 'left')
+    Cfg.probe.Yes = 'left';
     Cfg.Probe.keyYes = KbName('LeftArrow');
     Cfg.Probe.keyNo = KbName('RightArrow');
 else
