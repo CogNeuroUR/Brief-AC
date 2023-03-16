@@ -1,4 +1,4 @@
-function ScreenEnd(window, Cfg, tmax)
+function ScreenEnd(window, Cfg)
   % Shows a pause screen and waits for either "Space" key press
   % or for the time to exceed tmax.
   vLineSpacing = 2;
@@ -21,7 +21,7 @@ function ScreenEnd(window, Cfg, tmax)
   %text_end = sprintf('Experiment has ended!\n'); % EN
   text_end = sprintf('Das Experiment ist beendet!\n'); % DE 
   %text_thank = sprintf('\n\nThanks for your participation!'); % EN
-  text_thank = sprintf('\n\n\nVielen Dank für Ihre Teilnahme!'); % DE
+  text_thank = sprintf('\n\n\nVielen Dank fï¿½r Ihre Teilnahme!'); % DE
   
 
   % Countdown : Wait t_left
