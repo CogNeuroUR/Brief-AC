@@ -11,7 +11,7 @@ function [trials_act_con, trials_ctx_con,...
 % Vrabie 2022
 
 %% Load "info" about factorial structure
-info = getFactorialStructure();
+info = getDesignParams();
 
 %% Load stimulus definitions
 std_fids = read_std();
@@ -46,7 +46,7 @@ for i=1:length(ExpInfo.TrialInfo)
 
   % Decode congruency and probe
   [congruency, probeType, Probe] = decodeProbe(code, info.factorialStructure,...
-                                               info.CongruencyLevels,...
+                                               info.CongruenceLevels,...
                                                info.ProbeTypeLevels, info.ProbeLevels);
 
   % Extract target "context" and "action"
@@ -107,7 +107,7 @@ for i=1:length(ExpInfo.TrialInfo)
 end
 
 %% Convert cells to tables
-varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruency', 'ProbeType',...
+varnames = {'PresTime' 'ResKey' 'TrueKey' 'RT', 'Congruence', 'ProbeType',...
             'Probe', 'Target_Context', 'Target_Action'};
 trials_act_con = cell2table(trials_action_compatible,...
                             'VariableNames', varnames);
@@ -119,24 +119,22 @@ trials_ctx_inc = cell2table(trials_context_incompatible,...
                             'VariableNames', varnames);
 end
 
-
 %% ------------------------------------------------------------------------
 function [congruency, probeType, Probe] = decodeProbe(code, factorialStructure,...
                                                       CongruencyLevels,...
                                                       ProbeTypeLevels, ProbeLevels)
     % Decode factors from code
     factors = ASF_decode(code, factorialStructure);
-    c = factors(1);   % congruency
-    t = factors(2);   % probe type
-    d = factors(3);   % duration
-
-    if length(factors) == 4
-      p = factors(3);   % probe
-      d = factors(4);   % duration
-      % Check Probe : from code vs from TRD
-    end
+    c = factors(1);   % congruence
+    d = factors(2);   % duration
+    p = factors(3);   % probe
+    r = factors(4);   % correct response
     
     congruency = CongruencyLevels(c+1);
-    probeType = ProbeTypeLevels(t+1);
+    if p+1 > 9
+        probeType = ProbeTypeLevels(1);
+    else
+        probeType = ProbeTypeLevels(2);
+    end
     Probe = ProbeLevels(p+1);
 end
