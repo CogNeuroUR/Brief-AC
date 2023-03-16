@@ -25,7 +25,7 @@ function ScreenStartExp(window, Cfg, tmax)
   DrawFormattedText(window, 'Mögliche Antworten:', 'center', round(heightRect/2.3), [255 255 255]);
 
   Screen('TextStyle', window, 0); % normal
-  if ismember(Cfg.probe.keyYes, {'left'})
+  if isequal(Cfg.probe.Yes, 'left')
     % EN
     %DrawFormattedText(window, 'YES : Left Arrow', 'center', screenYpixels * 0.5, [255 255 255]); 
     %DrawFormattedText(window, 'NO : Right Arrow', 'center', screenYpixels * 0.6, [255 255 255]);
