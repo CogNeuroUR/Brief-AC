@@ -42,15 +42,6 @@ for i=1:length(l_files)
         % 1) Extract trials for each probe by decoding trials' ASF code
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
-        % 2) Get YesKey for this participant (either left or right % arrow)
-        if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-          key_yes = 37;
-          key_no = 39;
-        else
-          key_yes = 39;
-          key_no = 37;
-        end
-
         % 3.1) Extract RT = f(presentation time) by probe type
         statsAC = getRTstats(trialsAC);
         statsAI = getRTstats(trialsAI);

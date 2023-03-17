@@ -5,7 +5,7 @@ function [trials_act_con, trials_ctx_con,...
 % = response key given
 % = correct key
 % = RT
-% = congruency, probeType, Probe
+% = congruence, probeType, Probe
 % 
 % Written for BriefAC (AinC)
 % Vrabie 2022
@@ -35,19 +35,14 @@ trials_context_incompatible = {};
 % [x] collect target context
 
 % Iterate over trials and extract trials from each probe type
-for i=1:length(ExpInfo.TrialInfo)
-  % extract trial's probe type from last page number
-  last_page = ExpInfo.TrialInfo(i).trial.pageNumber(end);
-  
+for i=1:length(ExpInfo.TrialInfo)  
   % decode probeType and Probe
   code = ExpInfo.TrialInfo(i).trial.code;
   % Exclude special trials:
   if code > 999; continue; end
 
-  % Decode congruency and probe
-  [congruency, probeType, Probe] = decodeProbe(code, info.factorialStructure,...
-                                               info.CongruenceLevels,...
-                                               info.ProbeTypeLevels, info.ProbeLevels);
+  % Decode congruence and probe
+  [congruence, probeType, Probe] = decodeProbe(code, info);
 
   % Extract target "context" and "action"
   target_d = ExpInfo.TrialInfo(i).trial.pageNumber(3);
@@ -58,7 +53,7 @@ for i=1:length(ExpInfo.TrialInfo)
   target_action = target_split(4);
   
   % compatible
-  if isequal(congruency, 'compatible')
+  if isequal(congruence, 'compatible')
     % check if from action probes
     if isequal(probeType, "action")
       trials_action_compatible(end+1, :) = {...
@@ -66,7 +61,7 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
                        ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe,...
+                       congruence, probeType, Probe,...
                        target_context, target_action};    
     
     % check if from context probes 
@@ -76,12 +71,12 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                        congruency, probeType, Probe,...
+                        congruence, probeType, Probe,...
                         target_context, target_action};
     end
 
   % incompatible
-  elseif isequal(congruency, 'incompatible')
+  elseif isequal(congruence, 'incompatible')
     % check if from action probes
     if isequal(probeType, "action")
       trials_action_incompatible(end+1, :) = {...
@@ -89,7 +84,7 @@ for i=1:length(ExpInfo.TrialInfo)
                        ExpInfo.TrialInfo(i).Response.key,...
                        ExpInfo.TrialInfo(i).trial.correctResponse,...
                        ExpInfo.TrialInfo(i).Response.RT,...
-                       congruency, probeType, Probe,...
+                       congruence, probeType, Probe,...
                        target_context, target_action};    
     
     % check if from context probes 
@@ -99,7 +94,7 @@ for i=1:length(ExpInfo.TrialInfo)
                         ExpInfo.TrialInfo(i).Response.key,...
                         ExpInfo.TrialInfo(i).trial.correctResponse,...
                         ExpInfo.TrialInfo(i).Response.RT,...
-                        congruency, probeType, Probe,...
+                        congruence, probeType, Probe,...
                         target_context, target_action};
     end  
   end
@@ -117,24 +112,4 @@ trials_act_inc = cell2table(trials_action_incompatible,...
                             'VariableNames', varnames);
 trials_ctx_inc = cell2table(trials_context_incompatible,...
                             'VariableNames', varnames);
-end
-
-%% ------------------------------------------------------------------------
-function [congruency, probeType, Probe] = decodeProbe(code, factorialStructure,...
-                                                      CongruencyLevels,...
-                                                      ProbeTypeLevels, ProbeLevels)
-    % Decode factors from code
-    factors = ASF_decode(code, factorialStructure);
-    c = factors(1);   % congruence
-    d = factors(2);   % duration
-    p = factors(3);   % probe
-    r = factors(4);   % correct response
-    
-    congruency = CongruencyLevels(c+1);
-    if p+1 > 9
-        probeType = ProbeTypeLevels(1);
-    else
-        probeType = ProbeTypeLevels(2);
-    end
-    Probe = ProbeLevels(p+1);
 end

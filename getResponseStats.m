@@ -76,7 +76,6 @@ function t_stats = getResponseStats(tTrials, key_yes, key_no)
         count_trueNo = count_trueNo + 1;
       end
 
-      
       switch ResKeys(j)
         case key_yes % Targets ("yes" : correct response)
           if key_yes == TrueKeys(j) % Hit

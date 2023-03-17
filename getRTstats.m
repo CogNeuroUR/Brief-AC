@@ -6,8 +6,6 @@ function stats = getRTstats(t_trials)
   %           row for each unique PT
   
   % iterates over unique values in PresTime and compute mean & std for each
-  %fprintf('Collecting RTs...\n')
-
   stats = {};
   uniqTimes = unique(t_trials.PresTime);
   
