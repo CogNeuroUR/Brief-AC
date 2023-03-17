@@ -24,6 +24,17 @@ info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
 info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
 
 info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
+
+% Choose stimulus definition file : either main or demo
+if contains(expName, 'demo')
+    Cfg.stimDefName = 'stimdef_demo.std';
+    fprintf('Using practice experiment stimuli!')
+    info.PresTimeLevels = [2:1:5 7 9] * 2; % nr x 16.6ms
+else
+    Cfg.stimDefName = 'stimdef.std';
+    fprintf('Using main experiment stimuli!')
+end
+
 Cfg.info = info;
 
 %==========================================================================
@@ -71,7 +82,6 @@ switch Cfg.environment
     %Cfg.Screen.rect = [1, 1, 640, 400]; % tiny
     %Cfg.Screen.rect = [1, 1, 1280, 800]; % part
     Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
-    Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
   
@@ -89,7 +99,6 @@ switch Cfg.environment
     %Cfg.Screen.rect = [0, 0, 1280, 800]; % part
     Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
     %Cfg.Screen.rect = [0, 0, 2560, 1440]; % second screen
-    Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
 
@@ -105,7 +114,6 @@ switch Cfg.environment
     %Cfg.Screen.rect = [1, 1, 640, 400]; % part
     Cfg.Screen.rect = [1, 1, 1920, 1080]; % part
     %Cfg.Screen.rect = [0, 0, 3849, 2169]; % full screen
-    Cfg.stimDefName = 'stimdef.std';
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
 
@@ -151,4 +159,6 @@ ExpInfo = ASF(Cfg.stimDefName, sprintf('SUB-%02d_%s.trd', subjectID, expName), s
 %==========================================================================
 % Summary of the experiment
 %==========================================================================
-summaryExpInfo(ExpInfo);
+if ~contains(expName, 'right')
+    summaryExpInfo(ExpInfo);
+end
