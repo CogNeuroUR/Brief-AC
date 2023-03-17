@@ -15,13 +15,8 @@ probes_context = ["kitchen"    "office"    "workshop"];
 [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
 %% Remove "NO" RESPONSES to probes
-if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-  key_yes = 37;
-  key_no = 39;
-else
-  key_yes = 39;
-  key_no = 37;
-end
+key_yes = ExpInfo.Cfg.Probe.keyYes;
+key_no = ExpInfo.Cfg.Probe.keyNo;
 
 trialsAC = removeRowByKey(trialsAC, key_no);
 trialsCC = removeRowByKey(trialsCC, key_no);

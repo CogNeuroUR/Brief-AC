@@ -252,13 +252,8 @@ function [groupDprimeCompat, groupDprimeIncompat, l_subjects] = ...
           trialsI = [trialsAI; trialsCI];
 
           % 5) Get YesKey for this participant (either left or right % arrow)
-          if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-            key_yes = 37;
-            key_no = 39;
-          else
-            key_yes = 39;
-            key_no = 37;
-          end
+          key_yes = ExpInfo.Cfg.Probe.keyYes;
+          key_no = ExpInfo.Cfg.Probe.keyNo;
 
   
           % 5) Compute senstivities for each individual action & context probe

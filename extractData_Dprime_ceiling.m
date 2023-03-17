@@ -43,13 +43,8 @@ for i=1:length(l_files)
         [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
 
         % 2) Get YesKey for this participant (either left or right % arrow)
-        if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-          key_yes = 37;
-          key_no = 39;
-        else
-          key_yes = 39;
-          key_no = 37;
-        end
+        key_yes = ExpInfo.Cfg.Probe.keyYes;
+        key_no = ExpInfo.Cfg.Probe.keyNo;
 
         % 3) Extract statistics: hits, false alarms and their rates
         % by PROBE TYPE & CONGRUENCY

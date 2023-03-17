@@ -160,13 +160,8 @@ function [groupRT, l_subjects] = extract_groupRT(path_results)
   
           % 2) Extract statistics: hits, false alarms and their rates
           % by PROBE TYPE & CONGRUENCY
-          if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
-            key_yes = 37;
-            key_no = 39;
-          else
-            key_yes = 39;
-            key_no = 37;
-          end
+          key_yes = ExpInfo.Cfg.Probe.keyYes;
+          key_no = ExpInfo.Cfg.Probe.keyNo;
           l_subjects = [l_subjects, fName];
   
           % Extract RT = f(presentation time) by probe type
