@@ -1,11 +1,11 @@
 %% Create TRD for N-subjects: yes-right
-nSubjects = 100;
+nSubjects = 30;
 TRD = [];
 for iSub=1:nSubjects
-    if iSub < nSubjects/2 + 1
-        [TRD_, ~] = fillTRD_v2(iSub, [0,1], 0);
+    if mod(iSub, 2)
+        [TRD_, ~] = fillTRD_v2(iSub, [0,1], 1);
     else
-        [TRD_, ~] = fillTRD_v2(iSub, [1,0], 0);
+        [TRD_, ~] = fillTRD_v2(iSub, [1,0], 1);
     end
     TRD = [TRD, TRD_];
 end
@@ -234,6 +234,6 @@ lgd = legend('YES','NO');
 lgd.Location = 'best';
 lgd.Title.String = 'Correct Response';
 
-title('Incompatible trials')
+title('Within context (Incompatible)')
 
 hold off
