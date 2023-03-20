@@ -18,18 +18,18 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 %==========================================================================
 info = getDesignParams();
 % Switch labels to German for probes
-info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
+info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRï¿½HREN";...
                      "LOCHEN", "STEMPELN", "HEFTEN";...
-                     "HÄMMERN", "STREICHEN", "SÄGEN"];
-info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
+                     "Hï¿½MMERN", "STREICHEN", "Sï¿½GEN"];
+info.ContextLevels = ["Kï¿½CHE", "Bï¿½RO", "WERKSTATT"];
 
 info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
 
 % Choose stimulus definition file : either main or demo
 if contains(expName, 'demo')
-    Cfg.stimDefName = 'stimdef_demo.std';
+    Cfg.stimDefName = 'stimdef.std';
     fprintf('Using practice experiment stimuli!')
-    info.PresTimeLevels = [2:1:5 7 9] * 2; % nr x 16.6ms
+    info.PresTimeLevels = [4, 6]; % nr x 16.6ms
 else
     Cfg.stimDefName = 'stimdef.std';
     fprintf('Using main experiment stimuli!')
@@ -72,7 +72,6 @@ Cfg.probe.vLineSpacing = 2;
 switch Cfg.environment
   case 'BEHAV_LAB'
     Screen('Preference','TextEncodingLocale', '.1252')
-    %Screen('Preference','TextEncodingLocale', 'English_United Kingdom.1252');
     Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
     Cfg.responseDevice = 'KEYBOARD';
     Cfg.enabledKeys = [KbName('LeftArrow'),...
@@ -99,21 +98,6 @@ switch Cfg.environment
     %Cfg.Screen.rect = [0, 0, 1280, 800]; % part
     Cfg.Screen.rect = [0, 0, 1920, 1080]; % full screen
     %Cfg.Screen.rect = [0, 0, 2560, 1440]; % second screen
-    Cfg.Fixation = [];
-    Cfg.Fixation.fixType = 1;
-
-  case 'OV_DELL'
-    % Tested on Ubuntu 20.04
-    Cfg.Screen.color = [0, 0, 0]; %Black BACKGROUND;
-    Cfg.responseDevice = 'KEYBOARD';
-    Cfg.enabledKeys = [KbName('LeftArrow'), KbName('RightArrow'),...
-                       KbName('Return'), KbName('Space')];
-    Cfg.enabledKeys = [114, 115, 66]; % LEFT & RIGHT ARROW
-    Cfg.useTrialOnsetTimes = 0;
-    %Cfg.Screen.rect = [1, 1, 512, 320]; % tiny
-    %Cfg.Screen.rect = [1, 1, 640, 400]; % part
-    Cfg.Screen.rect = [1, 1, 1920, 1080]; % part
-    %Cfg.Screen.rect = [0, 0, 3849, 2169]; % full screen
     Cfg.Fixation = [];
     Cfg.Fixation.fixType = 1;
 

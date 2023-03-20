@@ -1,4 +1,4 @@
-function [TRD, info] = makeTRDdemo(RespKeys, writeTRD)
+function [TRD_left, TRD_right, info] = makeTRDdemo(writeTRD)
 %function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
 % Creates two template blocks (yin, yang) of trials that has the following
 % factors balanced within subject:
@@ -23,37 +23,26 @@ function [TRD, info] = makeTRDdemo(RespKeys, writeTRD)
 % Vrabie 2023 
 
 %% Debugging vars
-writeTRD = 1;
-RespKeys = [0,1];
+%writeTRD = 0;
 
 %% 0.0) Asign response key mapping
 % Destination OS
 dstOS = "Windows"; %Windows"; % OR "Linux"
 % get OS-specific YES/NO key assignment and "getCorrectResponseKey" function
-[keyYes, keyNo, getCorrectResponseKey] = assignRespKeysOS(dstOS, RespKeys);
+[keyYes, keyNo, getCorrectResponseKey] = assignRespKeysOS(dstOS, [0,1]);
 
 %--------------------------------------------------------------------------
-% DESIGN & FACTORIAL PARAMETERS
+%% DESIGN & FACTORIAL PARAMETERS
 %--------------------------------------------------------------------------
 info = getDesignParams();
 
-%% Change parameters to fit demo stimulus set
-% info.ContextLevels = ["office", "workshop"];
-% info.nContextLevels = length(info.ContextLevels);
-% 
-% info.ActionLevels = ["hole-punching", "stamping", "stapling";...
-%                      "hammering", "painting", "sawing"];
-
-% info.ProbeLevels = [reshape(info.ActionLevels', [1 6]), info.ContextLevels];
-% info.nProbeLevels = length(info.ProbeLevels);
-info.PresTimeLevels = [2:1:5 7 9] * 2; % nr x 16.6ms
-
-% info.factorialStructure = [info.nPresTimeLevels,...
-%                            info.nProbeLevels, info.nCorrectResponses];
+% Change parameters to fit demo stimulus set
+info.PresTimeLevels = [4, 6]; % nr x 16.6ms : 67 & 100ms
+info.nPresTimeLevels = length(info.PresTimeLevels);
 
 %% 0.5) Stimuli files
 % Read std-file
-fid = fopen('stimdef_demo.std');
+fid = fopen('stimdef.std');
 
 tline = fgetl(fid);
 std_files = [];
@@ -63,8 +52,8 @@ while ischar(tline)
 end
 fclose(fid);
 
-prefix = ['.' '\' 'stimuli_demo' '\']; % for stimdef created on Windows
-picFormat = 'JPG';
+prefix = ['.' '\' 'stimuli' '\']; % for stimdef created on Windows
+picFormat = 'png';
 
 
 %% ------------------------------------------------------------------------
@@ -72,17 +61,22 @@ TRD = makeTRDblock(info);
 
 %% Shuffle
 % Shuffle all
-TRD = shuffleBlockWise(TRD, 24, 'all');
-% Shuffle ProbeType only
-[TRD.probeType] = TRD(randperm(length([TRD.probeType]))).probeType;
-% Shuffle correctResponse only
-[TRD.correctResponse] = TRD(randperm(length([TRD.correctResponse]))).correctResponse;
+TRD = shuffleBlockWise(TRD, length(TRD), 'all');
 
-%% Assign presentation time
-PTs = repmat(info.PresTimeLevels, 1, 4);
+%% Assign probe type, correct response and PT
+% Probe Type
+probeType = repmat(info.ProbeTypeLevels', 1, 9);
+probeType = probeType(randperm(length(probeType)));
+% correctResponse-s
+resps = repmat(info.CorrectResponses, 1,9);
+resps = resps(randperm(length(resps)));
+% Presentation time
+PTs = repmat(info.PresTimeLevels, 1, 9);
 PTs = PTs(randperm(length(PTs)));
 
 for iTrial=1:length(TRD)
+    TRD(iTrial).probeType = probeType(iTrial);
+    TRD(iTrial).correctResponse = resps(iTrial);
     TRD(iTrial).picDuration = PTs(iTrial);
     TRD(iTrial).durations(3) = PTs(iTrial);
 end
@@ -133,7 +127,7 @@ for iTrial=1:length(TRD)
         info.factorialStructure);
 end
 
-%% 3) Add target images
+%% 3) Add target and mask images, given trial conditions
 % Sample stimulus level factors (Context exemplar, Actor and View)
 views = repmat(info.ViewLevels, 1, 12);
 views = views(randperm(length(views)));
@@ -147,21 +141,26 @@ for iTrial=1:length(TRD)
         getCorrectResponseKey(TRD(iTrial).correctResponse, keyYes, keyNo);
     % Build target picture name
     fname_target = strjoin([prefix,...
-                            sprintf("target_%s_%s_%s_%s.%s",...
+                            sprintf("target_%s-%s_%s_%s_%s_%s.%s",...
                                     TRD(iTrial).Context,...
+                                    datasample(info.ContextExemplarLevels,1), ...
+                                    TRD(iTrial).srcContext,...
                                     TRD(iTrial).Action,...
-                                    views(iTrial), ...
-                                    actors(iTrial),...
+                                    datasample(info.ViewLevels, 1), ...
+                                    datasample(info.ActorLevels, 1),...
                                     picFormat)], '');
-    % Build mask picture name:
+    % Build mask picture name: random OR different than target?
     temp_ictxt= randi(info.nContextLevels); % for source context
     fname_mask = strjoin([prefix,...
-                          sprintf("mask_%s_%s_%s_%s.%s",...
-                                  TRD(iTrial).Context,...
-                                    TRD(iTrial).Action,...
-                                    views(iTrial), ...
-                                    actors(iTrial),...
-                                    picFormat)], '');
+                          sprintf("mask_%s-%s_%s_%s_%s_%s.%s",...
+                                  datasample(info.ContextLevels, 1),...
+                                  datasample(info.ContextExemplarLevels,1), ...
+                                  info.ContextLevels(temp_ictxt),...
+                                  info.ActionLevels(temp_ictxt,...
+                                                    randi(info.nActionLevels)),...
+                                  datasample(info.ViewLevels, 1), ...
+                                  datasample(info.ActorLevels, 1),...
+                                  picFormat)], '');
     % Find the built filenames in std_files
     TRD(iTrial).targetPicture = find(std_files==fname_target);
     TRD(iTrial).maskPicture = find(std_files==fname_mask);
@@ -177,8 +176,6 @@ for iTrial=1:length(TRD)
 end
 
 %% 5) Add jitter (300-600ms) to blank screen (betw. fixation & target)
-%jitt_shortest = 24; % in frames (300ms, 60Hz)
-%jitt_longest = 54; % in in frames (600ms, 60Hz)
 step = 2; % in frames
 type = 'geometric'; % distribution from which to sample (or 'normal')
 pageNumber = 2; % page 2 : blank screen
@@ -195,9 +192,12 @@ fieldsRest = setdiff(fields(TRD),fieldsFinal);
 % Remove rest fields from TRD
 TRD = rmfield(TRD, fieldsRest);
 
+%% Final shuffling : NO CONDITION IS REPEATED MORE THAN TWICE!
+TRD = shuffleConditionalBlockWise(TRD, 9);
+
 %% 8) Add special trials : start, preparation, pauses and end trials.
-% Add Pause trials
-interval = 12; % trials between a break
+% Pause trials
+interval = 9; % trials between a break
 info.pauseTrial = TRD(1);
 info.pauseTrial.code = 1001;
 info.pauseTrial.pictures = info.emptyPicture;
@@ -205,32 +205,36 @@ info.pauseTrial.durations = 30*60; % 30s in frames
 info.pauseTrial.startRTonPage = 1;
 info.pauseTrial.endRTonPage = 1;
 info.pauseTrial.correctResponse = 0;
-
-TRD = addPauseTrials(TRD, info.pauseTrial, interval);
-
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Add StartTrial (w/ instructions)
+% StartTrial (w/ instructions)
 info.startTrial = info.pauseTrial;
 info.startTrial.code = 1000;
 info.startTrial.durations = 120*60; % 2min in frames 
-TRD = addStartTrial(TRD, info.startTrial);
-
-%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-% Add Finish trial
+% Finish trial
 info.endTrial = info.pauseTrial;
 info.endTrial.code = 1002;
 
+% Add trials
+TRD = addPauseTrials(TRD, info.pauseTrial, interval);
+TRD = addStartTrial(TRD, info.startTrial);
 TRD = addEndTrial(TRD, info.endTrial);
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%% Create left-YES clone
+TRD_left = TRD;
+TRD_right = TRD;
+idx_yes = find([TRD.correctResponse] == keyYes);
+idx_no = find([TRD.correctResponse] == keyNo);
+
+[TRD_left(idx_yes).correctResponse] = deal(keyNo);
+[TRD_left(idx_no).correctResponse] = deal(keyYes);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 9) Write TrialDefinitions to trd-file.
 if writeTRD
-    if RespKeys(1)
-        fname = 'SUB-00_demo_left.trd';
-    else
-        fname = 'SUB-00_demo_right.trd';
-    end
-    writeTrialDefinitions(TRD, info.factorialStructure, fname)
+    fname_left = 'SUB-00_demo_left.trd';
+    fname_right = 'SUB-00_demo_right.trd';
+    writeTrialDefinitions(TRD_right, info.factorialStructure, fname_right)
+    writeTrialDefinitions(TRD_left, info.factorialStructure, fname_left)
 end
 
 %--------------------------------------------------------------------------
@@ -246,17 +250,14 @@ idxs_actn = 1:info.nActionLevels;
 
 trialCounter = 0;
 
-for iProbeType = 1:info.nProbeTypeLevels
-    for iResponse = 1:info.nCorrectResponses      
+%for iProbeType = 1:info.nProbeTypeLevels
+    % for iResponse = 1:info.nCorrectResponses      
+    for iCompat = 1:info.nCongruenceLevels
         for iContext = 1:info.nContextLevels
-            % Skip kitchen context
-            if iContext == 1
-                continue
-            end
             for iAction = 1:info.nActionLevels                        
                 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 % 1) COMPATIBLE TRIALS
-                ThisTrial.Compatibility = info.CongruenceLevels(1);
+                ThisTrial.Compatibility = info.CongruenceLevels(iCompat);
 
                 %   Context := source context
                 %   Action  := context-compatible action
@@ -267,12 +268,30 @@ for iProbeType = 1:info.nProbeTypeLevels
                 ThisTrial.srcContext = ThisTrial.Context;
                 ThisTrial.Action = info.ActionLevels(iContext,...
                                                      iAction);
-                ThisTrial.idxAction = iAction; 
+                ThisTrial.idxAction = iAction;
+
+                if isequal(ThisTrial.Compatibility, "incompatible")
+                    % get subset of incompatible contexts
+                    inc_ctxt_idxs = idxs_ctxt(idxs_ctxt ~= iContext);
+                    % choose random incompatible context
+                    iContextInc = datasample(inc_ctxt_idxs, 1);
+
+                    % Save "context" for further assignment of probes AND
+                    % "correctResponses
+                    ThisTrial.Context = info.ContextLevels(iContextInc);
+                    ThisTrial.idxContext = iContextInc;
+                    ThisTrial.srcContext = info.ContextLevels(iContext);
+                    ThisTrial.Action = info.ActionLevels(iContext,...
+                                                         iAction);
+                    ThisTrial.idxAction = iAction;
+                end
+
                 
                 %>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
                 % PROBE & RESPONSE
-                ThisTrial.probeType = info.ProbeTypeLevels(iProbeType);
-                ThisTrial.correctResponse = info.CorrectResponses(iResponse);
+                ThisTrial.probeType = info.ProbeTypeLevels(1);
+                %ThisTrial.correctResponse = info.CorrectResponses(iResponse);
+                ThisTrial.correctResponse = info.CorrectResponses(1);
                 
                 % Probes will be assigned in the next step (fillTRD_v2),
                 % randomly for each subject
@@ -318,8 +337,8 @@ for iProbeType = 1:info.nProbeTypeLevels
                 TrialDefinitions(trialCounter) = ThisTrial;
             end % Action
         end % Context
-    end % Probe Type
-end % Correct Response
+    end % Correct Response
+%end % Probe Type
 
 % Remove no-longer required columns:
 %auxFields = {'idxContext', 'idxAction'};
@@ -413,18 +432,6 @@ function TrialDefinitionsNew = addStartTrial(TrialDefinitions, startTrial)
   for iTrial = 1:nTrials
       TrialDefinitionsNew(iTrial+1) = TrialDefinitions(iTrial);
   end
-end
-
-%--------------------------------------------------------------------------
-function TrialDefinitionsNew = addBlankTrial(TrialDefinitions, blankTrial, idx_position)
-  % Adds a trial at the beginning of the TrialDefinitions.
-
-  %ADD BLANK TRIAL at given position
-  TrialDefinitionsNew = TrialDefinitions;
-  TrialDefinitionsNew = [TrialDefinitionsNew(1:idx_position-1),...
-                         blankTrial,...
-                         TrialDefinitionsNew(idx_position:end)];
-
 end
 
 %--------------------------------------------------------------------------
