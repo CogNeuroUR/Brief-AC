@@ -55,7 +55,7 @@ def center_crop(img, dim):
 # Test on a single image
 ################################################################################
 #%% Test on a single image
-path_to_stimuli = Path('stimuli/')
+path_to_stimuli = Path('../stimuli_demo/selected')
 
 img = cv2.imread(str(path_to_stimuli / 'target_kitchen_chopping-vegetables.bmp'),
                  cv2.IMREAD_UNCHANGED)
@@ -79,18 +79,18 @@ cv2.imwrite(str(path_to_stimuli / 'target_kitchen_chopping-vegetables_cropped.bm
 ################################################################################
 #%% Collect file names
 l_images = []
-path_to_stimuli = Path('stimuli/')
+path_to_stimuli = Path('../stimuli_demo/raw/selected/')
 
 if path_to_stimuli.exists():
-  l_images = [str(x) for x in path_to_stimuli.glob('**/target*.bmp') if x.is_file()]
+  l_images = [str(x) for x in path_to_stimuli.glob('**/target*.JPG') if x.is_file()]
 
 # %%
 for path_img in l_images:
   
   print(path_img)
-  #img = cv2.imread(path_img, cv2.IMREAD_UNCHANGED)
-  pil_img = Image.open(path_img).convert('RGB')
-  img = np.array(pil_img)
+  img = cv2.imread(path_img, cv2.IMREAD_UNCHANGED)
+  #pil_img = Image.open(path_img).convert('RGB')
+  #img = np.array(pil_img)
   img = img[:, :, ::-1].copy()
   print('Original Dimensions : ',img.shape)
  
