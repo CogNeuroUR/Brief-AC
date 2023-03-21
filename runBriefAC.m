@@ -18,10 +18,10 @@ Cfg.responseTerminatesTrial = 1; % finish trial after giving response
 %==========================================================================
 info = getDesignParams();
 % Switch labels to German for probes
-info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRï¿½HREN";...
+info.ActionLevels = ["SCHNEIDEN", "REIBEN", "VERRÜHREN";...
                      "LOCHEN", "STEMPELN", "HEFTEN";...
-                     "Hï¿½MMERN", "STREICHEN", "Sï¿½GEN"];
-info.ContextLevels = ["Kï¿½CHE", "Bï¿½RO", "WERKSTATT"];
+                     "HÄMMERN", "STREICHEN", "SÄGEN"];
+info.ContextLevels = ["KÜCHE", "BÜRO", "WERKSTATT"];
 
 info.ProbeLevels = [reshape(info.ActionLevels', [1 9]), info.ContextLevels];
 
