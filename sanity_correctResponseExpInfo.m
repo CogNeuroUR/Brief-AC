@@ -39,7 +39,7 @@ for i=1:length(l_files)
 
         % 2) Extract statistics: hits, false alarms and their rates
         % by PROBE TYPE & CONGRUENCY
-        if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
+        if isequal(ExpInfo.Cfg.probe.Yes, {'left'})
           key_yes = 37;
           key_no = 39;
         else
@@ -106,7 +106,7 @@ for i=1:length(l_files)
 
         % 2) Extract statistics: hits, false alarms and their rates
         % by PROBE TYPE & CONGRUENCY
-        if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
+        if isequal(ExpInfo.Cfg.probe.Yes, {'left'})
           key_yes = 37;
           key_no = 39;
         else

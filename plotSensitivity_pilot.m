@@ -10,9 +10,10 @@ make_plots = 1;
 %save_plots = 1;
 
 %% Load results
-path_results = 'results/post-pilot/';
+path_results = 'results/tests/';
 [dataAC, dataAI, dataCC, dataCI] = extractData_meanDprime(path_results);
 
+info = getDesignParams();
 %% ########################################################################
 % Plots [COMPATIBLE]
 %% ########################################################################
@@ -29,8 +30,8 @@ if make_plots
 
   xfactor = 1000/60;
   ylimits = [-1.2, 3.7];
-  xlimits = [1.3 8.8]*xfactor;
-  x = [2:6 8]*xfactor; % in ms
+  xlimits = [info.PresTimeLevels(1) + 0.3, info.PresTimeLevels(end) + 0.8]*xfactor;
+  x = info.PresTimeLevels*xfactor; % in ms
   %xlabels = {'33.3', '50.0', '66.6', '83.3', '100.0', '133.3', 'Overall'};
 
   % PLOT : ACTIONS (Compatible vs Incompatible) =============================
@@ -203,7 +204,7 @@ function [groupRT, l_subjects] = extract_groupRT(path_results)
   
           % 2) Extract statistics: hits, false alarms and their rates
           % by PROBE TYPE & CONGRUENCY
-          if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
+          if isequal(ExpInfo.Cfg.probe.Yes, {'left'})
             key_yes = 37;
             key_no = 39;
           else

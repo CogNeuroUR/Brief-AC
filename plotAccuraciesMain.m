@@ -7,7 +7,8 @@ function plotAccuraciesMain(save_plots)
 
 %% Collect results from files : ExpInfo-s
 % get list of files
-path_results = 'results/final/';
+%path_results = 'results/final/';
+path_results = 'results/tests/';
 l_files = dir(path_results);
 
 groupAcc = [];
@@ -111,7 +112,7 @@ end
 %% ------------------------------------------------------------------------
 function t_trial_info = getExpSummary(ExpInfo)
   % Load "info" about factorial structure
-  info = getFactorialStructure();
+  info = getDesignParams();
   
   % Collect trial info
   trials = {};
@@ -123,9 +124,7 @@ function t_trial_info = getExpSummary(ExpInfo)
     code = ExpInfo.TrialInfo(i).trial.code;
     % Exclude special trials:
     if code > 999; continue; end
-    [congruency, probeType, Probe] = decodeProbe(code, info.factorialStructure,...
-                                                 info.CongruencyLevels,...
-                                                 info.ProbeTypeLevels, info.ProbeLevels);
+    [congruency, probeType, Probe] = decodeProbe(code, info);
   
   
   

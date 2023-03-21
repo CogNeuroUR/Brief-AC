@@ -10,7 +10,7 @@ make_plots = 1;
 %save_plots = 1;
 
 %% Load results
-path_results = 'results/post-pilot/';
+path_results = 'results/tests/';
 [dataAC, dataAI, dataCC, dataCI] = extractData_meanAcc(path_results);
 
 %% ########################################################################
@@ -211,7 +211,7 @@ function [groupRT, l_subjects] = extract_groupRT(path_results)
   
           % 2) Extract statistics: hits, false alarms and their rates
           % by PROBE TYPE & CONGRUENCY
-          if isequal(ExpInfo.Cfg.probe.keyYes, {'left'})
+          if isequal(ExpInfo.Cfg.probe.Yes, {'left'})
             key_yes = 37;
             key_no = 39;
           else

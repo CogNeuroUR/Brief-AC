@@ -117,7 +117,7 @@ probes_incompat = probes(:) + '_I';
 probes_full = [probes_compat; probes_incompat];
 
 % Convert array to table
-t_groupAccfull= array2table([groupAccCompat, groupAccCompat],...
+t_groupAccfull= array2table([groupAccCompat, groupAccIncompat],...
                            'VariableNames',probes_full);
 
 % Add subject IDs and yes-keys as columns

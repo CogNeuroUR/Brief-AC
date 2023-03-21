@@ -7,7 +7,7 @@ function groupAcc = plotCondAccGroup(save_plots)
 %
 % Written for BriefAC (AinC)
 % Vrabie 2022
-make_plots = 1;
+make_plots = 0;
 
 %% Collect results from files : ExpInfo-s
 % get list of files
@@ -135,7 +135,9 @@ function [groupAcc, l_subjects] = extract_groupAcc_conditional(...
           fprintf('\tLoading : %s\n', l_files(i).name);
           clear ExpInfo;
           load(path2file, 'ExpInfo');
-  
+
+          l_subjects = [l_subjects, fName];
+
           % perform analysis
           % 1) Extract trials for each probe by decoding trials' ASF code
           [trialsAC, trialsCC, trialsAI, trialsCI] = getTrialResponses(ExpInfo);
