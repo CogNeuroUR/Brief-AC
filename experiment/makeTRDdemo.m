@@ -1,5 +1,5 @@
 function [TRD_left, TRD_right, info] = makeTRDdemo(writeTRD)
-%function [TRD_yin, TRD_yang, info] = makeTRDTemplate_v2()
+%function [TRD_yin, TRD_yang, info] = makeTRDTemplate()
 % Creates two template blocks (yin, yang) of trials that has the following
 % factors balanced within subject:
 %   = Compatibility: {compatible, incompatible}

@@ -1,4 +1,4 @@
-function data = extractData_v2()
+function data = extractData()
 % Extract each participant's data and stack it in a table.
 %
 % Written for BriefAC-v2 (AinC)
@@ -28,11 +28,11 @@ for i=1:length(l_files)
             % Main data
             if ~contains(l_files(i).name, 'demo')
                 % Extract data & concatenate
-                data = [data; getTrialResponses_v2(ExpInfo)];
+                data = [data; getTrialResponses(ExpInfo)];
             end
             % Demo
             if contains(l_files(i).name, 'demo')
-                temp = getTrialResponses_v2(ExpInfo);
+                temp = getTrialResponses(ExpInfo);
                 % Extract subID from mat file's name
                 % (no such info in ExpInfo, since same demos across subjects)
                 finfo = split(l_files(i).name, '_'); % SUB-XX_keyYes -> [SUB-XX, keyYes]

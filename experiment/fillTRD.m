@@ -52,7 +52,7 @@ picFormat = 'png';
 
 
 %% 1) Get template TRD with a given number of blocks
-[TRD, info] = makeTRDTemplate_v2();
+[TRD, info] = makeTRDTemplate();
 lBlock = length(TRD) / 2;
 
 % Get info (with factorial structure)
